@@ -31,7 +31,7 @@ export const Footer: React.FC = () => {
           <div className="flex flex-col gap-6">
             <div>
                 <div className="font-heading font-bold text-base tracking-wide text-white">© HEONA MEDIA</div>
-                <div className="text-sm text-textMuted uppercase tracking-wider mt-2">Tổ chức sự kiện – Thi công sân khấu – Media</div>
+                <div className="text-sm text-textMuted uppercase tracking-wider mt-2">Tổ chức sự kiện –  Media</div>
             </div>
 
             <div className="flex flex-col gap-3">
