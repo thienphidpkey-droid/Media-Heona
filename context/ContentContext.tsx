@@ -48,7 +48,7 @@ const DEFAULT_PROJECTS: Project[] = [
   {
     id: 8,
     title: "Lễ ra mắt sách",
-    description: "Lễ ra mắt sách .",
+    description: "Lễ ra mắt sách "Hành trình trở thành nhà đào tạo chuyên nghiệp / The jouney to becoming a master trainer".",
     image: "https://i.postimg.cc/PJg34qjs/z7663426044776-98bf6a02c1a18fcfcf09e8d2fc318823.jpg",
     category: "Event"
   },
