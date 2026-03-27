@@ -204,7 +204,7 @@ export const Home: React.FC = () => {
               </p>
 
               <ul className="space-y-3 mb-8 flex-grow">
-                {['Lễ khai trương – khánh thành', 'Hội nghị – hội thảo – họp báo', 'Tiệc tất niên – Year End Party', 'Activation – Roadshow', 'Ra mắt sản phẩm'].map((item, i) => (
+                {['Lễ khai trương – khánh thành', 'Hội nghị – hội thảo – họp báo', 'Tiệc tất niên – Year End Party','Team Building', 'Tour Retreat/Trekking', 'Activation – Roadshow', 'Ra mắt sản phẩm'].map((item, i) => (
                   <li key={i} className="flex items-start gap-3 text-sm text-textMuted group-hover:text-white transition-colors">
                     <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-primary shrink-0"></div>
                     {item}
