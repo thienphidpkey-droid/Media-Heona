@@ -31,7 +31,7 @@ const PLANS: PricingPlan[] = [
     label: 'Gói toàn diện',
     name: 'Full giải pháp',
     desc: 'Tối ưu cho sự kiện lớn cần đồng bộ từ concept, thi công đến media.',
-    features: ['Concept trọn gói', 'Thi công sân khấu lớn', 'LED diện rộng', 'Media full coverage'],
+    features: ['Concept trọn gói',  'LED diện rộng', 'Media full coverage'],
     price: 'Từ 60.000.000đ',
     note: 'Ngân sách thiết kế riêng'
   }
