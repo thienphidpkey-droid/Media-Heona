@@ -113,7 +113,6 @@ export const Home: React.FC = () => {
               </div>
 
               <div className="flex flex-wrap gap-6 text-xs text-textMuted font-mono tracking-tight pt-6 border-t border-white/5">
-                <span className="flex items-center gap-2"><Layers size={16} className="text-primary" /> Thi công sân khấu</span>
                 <span className="flex items-center gap-2"><Radio size={16} className="text-primary" /> Livestream – Media</span>
                 <span className="flex items-center gap-2"><Hexagon size={16} className="text-primary" /> Chi phí minh bạch</span>
               </div>
