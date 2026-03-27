@@ -47,10 +47,10 @@ const DEFAULT_PROJECTS: Project[] = [
   },
   {
     id: 8,
-    title: "Livestream Talkshow Series",
-    description: "Setup studio, ánh sáng và vận hành livestream đa điểm cầu chuyên nghiệp.",
-    image: "https://i.postimg.cc/2SjNvDbM/6.jpg",
-    category: "Livestream"
+    title: "Lễ ra mắt sách",
+    description: "Lễ ra mắt sách [Hành trình trở thành nhà đào tạo chuyên nghiệp (The journey to becoming a master trainer)]",
+    image: "https://i.postimg.cc/PJg34qjs/z7663426044776-98bf6a02c1a18fcfcf09e8d2fc318823.jpg",
+    category: "Event"
   },
 ];
 
@@ -99,6 +99,18 @@ const DEFAULT_SERVICES: Service[] = [
       'Chụp ảnh Profile & Beauty cho doanh nhân, chuyên gia, diễn giả.'
     ],
     image: "https://i.postimg.cc/PJtN87m1/a4.webp"
+  },
+  {
+    id: 'E',
+    tag: 'Gói E',
+    title: 'Chụp ảnh profile cá nhân',
+    features: [
+      'Chụp ảnh chân dung nghề nghiệp (Studio/Office).',
+      'Concept: Chuyên gia, Doanh nhân, Nghệ sĩ.',
+      'Hỗ trợ trang điểm, làm tóc & phối trang phục chuyên nghiệp.',
+      'Chỉnh sửa hậu kỳ cao cấp, tối ưu cho đa nền tảng (FB, LinkedIn, TikTok).'
+    ],
+    image: "https://i.postimg.cc/cCjXXLfb/profile.jpg"
   }
 ];
 

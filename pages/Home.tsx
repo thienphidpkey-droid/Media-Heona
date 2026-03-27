@@ -186,12 +186,12 @@ export const Home: React.FC = () => {
         <div className="text-center mb-12">
           <div className="text-xs font-mono text-primary uppercase tracking-widest mb-2">[ SERVICES ]</div>
           <h2 className="font-heading font-extrabold text-3xl md:text-4xl">Dịch vụ trọng tâm của HEONA MEDIA</h2>
-          <p className="text-textMuted text-base mt-4 max-w-3xl mx-auto">
-            Heona Media là đơn vị truyền thông tập trung vào 2 mảng cốt lõi: Tổ chức sự kiện chuyên nghiệp và Xây dựng nhân hiệu cá nhân chuẩn chiến lược – chuẩn hệ sinh thái.
+          <p className="max-w-3xl mx-auto text-textMuted text-base md:text-lg leading-relaxed">
+            Heona Media là đơn vị truyền thông tập trung vào các mảng giá trị cốt lõi: Tổ chức sự kiện chuyên nghiệp, Xây dựng nhân hiệu cá nhân và Chụp ảnh Profile chuyên gia.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           <Link to="/pricing" className="group relative bg-[#111115] border border-white/10 rounded-xl overflow-hidden hover:border-primary/50 transition-all duration-500 flex flex-col" aria-label="Chi tiết dịch vụ Tổ chức sự kiện">
             <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
             <div className="p-8 relative z-10 flex flex-col flex-grow">
@@ -253,6 +253,45 @@ export const Home: React.FC = () => {
                   </span>
                   <span className="text-sm font-bold text-primary font-mono uppercase tracking-wide bg-white/5 border border-white/10 px-3 py-2 rounded block w-fit">
                     • Xây thương hiệu cá nhân: Thật – Sâu – Chạm cảm xúc
+                  </span>
+                </div>
+              </div>
+            </div>
+          </Link>
+
+          <Link to="/pricing" className="group relative bg-[#111115] border border-white/10 rounded-xl overflow-hidden hover:border-primary/50 transition-all duration-500 flex flex-col" aria-label="Chi tiết dịch vụ Chụp ảnh Profile">
+            <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div className="p-8 relative z-10 flex flex-col flex-grow">
+              <div className="flex justify-between items-start mb-5">
+                <h3 className="font-heading font-bold text-2xl group-hover:text-primary transition-colors">Chụp ảnh profile cá nhân</h3>
+                <ArrowRight className="text-white/20 group-hover:text-primary -translate-x-2 group-hover:translate-x-0 transition-all w-6 h-6" />
+              </div>
+              <p className="text-textMuted text-sm mb-6 leading-relaxed">
+                Ghi lại thần thái chuyên nghiệp, khẳng định uy tín và sự đột phá trong sự nghiệp của bạn.
+              </p>
+
+              <ul className="space-y-3 mb-8 flex-grow">
+                {[
+                  'Chụp ảnh chân dung nghề nghiệp (Studio/Office)',
+                  'Concept: Chuyên gia, Doanh nhân, Nghệ sĩ',
+                  'Trang điểm & Làm tóc chuyên nghiệp',
+                  'Hỗ trợ tạo dáng & Biểu cảm chuyên nghiệp',
+                  'Hậu kỳ cao cấp, tối ưu đa nền tảng'
+                ].map((item, i) => (
+                  <li key={i} className="flex items-start gap-3 text-sm text-textMuted group-hover:text-white transition-colors">
+                    <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-primary shrink-0"></div>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+
+              <div className="mt-auto pt-6 border-t border-white/5">
+                <div className="flex flex-col gap-2">
+                  <span className="text-sm font-bold text-secondary font-mono uppercase tracking-wide bg-white/5 border border-white/10 px-3 py-2 rounded block w-fit">
+                    Concept độc bản
+                  </span>
+                  <span className="text-sm font-bold text-secondary font-mono uppercase tracking-wide bg-white/5 border border-white/10 px-3 py-2 rounded block w-fit">
+                    Hậu kỳ tỉ mỉ
                   </span>
                 </div>
               </div>
