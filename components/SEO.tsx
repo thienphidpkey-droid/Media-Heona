@@ -62,7 +62,8 @@ export const SEO: React.FC<SEOProps> = ({
     // Update Meta Tags
     updateMeta('description', description);
     updateMeta('keywords', keywords);
-    updateMeta('robots', 'index, follow');
+    updateMeta('robots', 'index, follow, max-image-preview:large');
+    updateProperty('csp', 'upgrade-insecure-requests');
     updateMeta('author', 'HEONA MEDIA');
     updateMeta('geo.region', 'VN-SG');
     updateMeta('geo.placename', 'Ho Chi Minh City');
