@@ -105,7 +105,7 @@ const DEFAULT_SERVICES: Service[] = [
 const DEFAULT_CONTACT_INFO: ContactInfo = {
   phone: '0931 899 427',
   email: 'heonamedia@gmail.com',
-  address: '45/30 đường số 1, Phường Thống Tây Hội, TP. HCM',
+  address: '45/30 đường số 1, Phường Thông Tây Hội, TP. HCM',
   facebook: 'https://www.facebook.com/heonamedia',
   youtube: 'https://www.youtube.com/channel/UCLFMZ9rc2YEmVKQoyoxiSXg',
   zalo: 'https://zalo.me/0931899427'
