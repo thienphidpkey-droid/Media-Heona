@@ -148,7 +148,7 @@ export const About: React.FC = () => {
                     <div className="flex flex-col gap-6">
                         <Card className="p-6">
                             <h3 className="font-heading font-bold text-xl mb-2">Đơn vị sản xuất sự kiện & media thực chiến</h3>
-                            <p className="text-sm text-textMuted mb-4">HEONA MEDIA được xây dựng bởi đội ngũ có kinh nghiệm nhiều năm trong lĩnh vực tổ chức sự kiện, thi công sân khấu, livestream và truyền thông.</p>
+                            <p className="text-sm text-textMuted mb-4">HEONA MEDIA được xây dựng bởi đội ngũ có kinh nghiệm nhiều năm trong lĩnh vực tổ chức sự kiện, livestream và truyền thông.</p>
                             <p className="text-sm text-white font-medium mb-2">Chúng tôi tập trung vào:</p>
                             <ul className="grid grid-cols-1 gap-2 text-sm text-textMuted mb-5">
                                 <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-secondary"></span>Chất lượng thi công, kiểm soát chi tiết từng hạng mục.</li>
