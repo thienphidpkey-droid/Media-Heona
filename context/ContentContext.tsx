@@ -47,10 +47,10 @@ const DEFAULT_PROJECTS: Project[] = [
   },
   {
     id: 8,
-    title: "Livestream Talkshow Series",
-    description: "Setup studio, ánh sáng và vận hành livestream đa điểm cầu chuyên nghiệp.",
-    image: "https://i.postimg.cc/2SjNvDbM/6.jpg",
-    category: "Livestream"
+    title: "Lễ ra mắt sách",
+    description: "Lễ ra mắt sách .",
+    image: "https://i.postimg.cc/PJg34qjs/z7663426044776-98bf6a02c1a18fcfcf09e8d2fc318823.jpg",
+    category: "Event"
   },
 ];
 
