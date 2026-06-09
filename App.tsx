@@ -1,6 +1,6 @@
 
 import React, { useLayoutEffect, Suspense, lazy } from 'react';
-import { HashRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import { ContentProvider } from './context/ContentContext';
 import { Loader2 } from 'lucide-react';
