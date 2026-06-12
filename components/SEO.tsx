@@ -1,5 +1,5 @@
-
-import React, { useEffect } from 'react';
+import React from 'react';
+import { Helmet } from 'react-helmet-async';
 
 interface SEOProps {
   title: string;
@@ -24,124 +24,85 @@ export const SEO: React.FC<SEOProps> = ({
   const fullUrl = url ? `${DOMAIN}${url}` : DOMAIN;
   const fullTitle = `${title} | HEONA MEDIA`;
 
-  useEffect(() => {
-    // Update Title
-    document.title = fullTitle;
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "ProfessionalService",
+    "name": "HEONA MEDIA",
+    "alternateName": "Heona Media - Tổ chức sự kiện & Media Production",
+    "image": image,
+    "description": description,
+    "telephone": "0931 899 427",
+    "email": "heonamedia@gmail.com",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "45/30 đường số 1, Phường Thống Tây Hội",
+      "addressLocality": "Gò Vấp",
+      "addressRegion": "TP. Hồ Chí Minh",
+      "addressCountry": "VN",
+      "postalCode": "700000"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": 10.8372, 
+      "longitude": 106.6625 
+    },
+    "url": DOMAIN,
+    "priceRange": "$$",
+    "openingHoursSpecification": {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday"
+      ],
+      "opens": "08:00",
+      "closes": "18:00"
+    },
+    "sameAs": [
+      "https://www.facebook.com/heonamedia",
+      "https://www.youtube.com/channel/UCLFMZ9rc2YEmVKQoyoxiSXg",
+      "https://zalo.me/0931899427"
+    ]
+  };
 
-    // Helper to update meta tags safely
-    const updateMeta = (name: string, content: string) => {
-      let element = document.querySelector(`meta[name="${name}"]`);
-      if (!element) {
-        element = document.createElement('meta');
-        element.setAttribute('name', name);
-        document.head.appendChild(element);
-      }
-      element.setAttribute('content', content);
-    };
+  return (
+    <Helmet>
+      <title>{fullTitle}</title>
+      <meta name="description" content={description} />
+      <meta name="keywords" content={keywords} />
+      <meta name="robots" content="index, follow, max-image-preview:large" />
+      <meta property="csp" content="upgrade-insecure-requests" />
+      <meta name="author" content="HEONA MEDIA" />
+      <meta name="geo.region" content="VN-SG" />
+      <meta name="geo.placename" content="Ho Chi Minh City" />
+      <meta name="geo.position" content="10.8372;106.6625" />
+      <meta name="ICBM" content="10.8372, 106.6625" />
+      
+      <link rel="canonical" href={fullUrl} />
 
-    const updateProperty = (property: string, content: string) => {
-      let element = document.querySelector(`meta[property="${property}"]`);
-      if (!element) {
-        element = document.createElement('meta');
-        element.setAttribute('property', property);
-        document.head.appendChild(element);
-      }
-      element.setAttribute('content', content);
-    };
+      {/* Open Graph */}
+      <meta property="og:type" content={type} />
+      <meta property="og:url" content={fullUrl} />
+      <meta property="og:title" content={fullTitle} />
+      <meta property="og:description" content={description} />
+      <meta property="og:image" content={image} />
+      <meta property="og:site_name" content="HEONA MEDIA" />
+      <meta property="og:locale" content="vi_VN" />
 
-    const updateLink = (rel: string, href: string) => {
-      let element = document.querySelector(`link[rel="${rel}"]`);
-      if (!element) {
-        element = document.createElement('link');
-        element.setAttribute('rel', rel);
-        document.head.appendChild(element);
-      }
-      element.setAttribute('href', href);
-    };
+      {/* Twitter */}
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:url" content={fullUrl} />
+      <meta name="twitter:title" content={fullTitle} />
+      <meta name="twitter:description" content={description} />
+      <meta name="twitter:image" content={image} />
 
-    // Update Meta Tags
-    updateMeta('description', description);
-    updateMeta('keywords', keywords);
-    updateMeta('robots', 'index, follow, max-image-preview:large');
-    updateProperty('csp', 'upgrade-insecure-requests');
-    updateMeta('author', 'HEONA MEDIA');
-    updateMeta('geo.region', 'VN-SG');
-    updateMeta('geo.placename', 'Ho Chi Minh City');
-    updateMeta('geo.position', '10.8372;106.6625');
-    updateMeta('ICBM', '10.8372, 106.6625');
-    
-    updateLink('canonical', fullUrl);
-
-    // Open Graph
-    updateProperty('og:type', type);
-    updateProperty('og:url', fullUrl);
-    updateProperty('og:title', fullTitle);
-    updateProperty('og:description', description);
-    updateProperty('og:image', image);
-    updateProperty('og:site_name', "HEONA MEDIA");
-    updateProperty('og:locale', "vi_VN");
-
-    // Twitter
-    updateMeta('twitter:card', "summary_large_image");
-    updateMeta('twitter:url', fullUrl);
-    updateMeta('twitter:title', fullTitle);
-    updateMeta('twitter:description', description);
-    updateMeta('twitter:image', image);
-
-    // JSON-LD Structured Data
-    const structuredData = {
-      "@context": "https://schema.org",
-      "@type": "ProfessionalService",
-      "name": "HEONA MEDIA",
-      "alternateName": "Heona Media - Tổ chức sự kiện & Media Production",
-      "image": image,
-      "description": description,
-      "telephone": "0931 899 427",
-      "email": "heonamedia@gmail.com",
-      "address": {
-        "@type": "PostalAddress",
-        "streetAddress": "45/30 đường số 1, Phường Thống Tây Hội",
-        "addressLocality": "Gò Vấp",
-        "addressRegion": "TP. Hồ Chí Minh",
-        "addressCountry": "VN",
-        "postalCode": "700000"
-      },
-      "geo": {
-        "@type": "GeoCoordinates",
-        "latitude": 10.8372, 
-        "longitude": 106.6625 
-      },
-      "url": DOMAIN,
-      "priceRange": "$$",
-      "openingHoursSpecification": {
-        "@type": "OpeningHoursSpecification",
-        "dayOfWeek": [
-          "Monday",
-          "Tuesday",
-          "Wednesday",
-          "Thursday",
-          "Friday",
-          "Saturday"
-        ],
-        "opens": "08:00",
-        "closes": "18:00"
-      },
-      "sameAs": [
-        "https://www.facebook.com/heonamedia",
-        "https://www.youtube.com/channel/UCLFMZ9rc2YEmVKQoyoxiSXg",
-        "https://zalo.me/0931899427"
-      ]
-    };
-
-    let script = document.querySelector('script[type="application/ld+json"]');
-    if (!script) {
-      script = document.createElement('script');
-      script.setAttribute('type', 'application/ld+json');
-      document.head.appendChild(script);
-    }
-    script.textContent = JSON.stringify(structuredData);
-
-  }, [fullTitle, description, image, fullUrl, type, keywords]);
-
-  return null;
+      {/* JSON-LD Structured Data */}
+      <script type="application/ld+json">
+        {JSON.stringify(structuredData)}
+      </script>
+    </Helmet>
+  );
 };

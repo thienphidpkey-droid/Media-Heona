@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Section } from '../components/Section';
-import { ArrowRight, Hexagon, Layers, Radio, Phone, Mail, MapPin, Quote, Star } from 'lucide-react';
+import { ArrowRight, Hexagon, Radio, Phone, Mail, MapPin, Quote, Star } from 'lucide-react';
 import { useContent } from '../context/ContentContext';
 import { SEO } from '../components/SEO';
 import { ProgressiveImage } from '../components/ProgressiveImage';
@@ -13,7 +13,6 @@ const HERO_IMAGES = [
   "https://i.postimg.cc/6q9TGPdG/a3.jpg"
 ];
 
-// Alt texts cụ thể cho từng ảnh để tối ưu SEO
 const HERO_ALTS = [
   "Heona Media xây dựng thương hiệu cá nhân chuyên nghiệp",
   "Tổ chức sự kiện và workshop đào tạo tại TP.HCM",
@@ -39,7 +38,6 @@ export const Home: React.FC = () => {
         keywords="tổ chức sự kiện tphcm, livestream sự kiện, quay phim sự kiện, xây dựng nhân hiệu, heona media"
       />
 
-      {/* Hero Section */}
       <Section className="pt-10 pb-8 md:pt-20 md:pb-16 relative overflow-hidden bg-gradient-to-b from-[#0b0b0d]/50 to-[#08080a]/50">
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:100px_100px] pointer-events-none z-0" />
 
@@ -48,10 +46,8 @@ export const Home: React.FC = () => {
         <div className="absolute bottom-10 left-5 w-4 h-4 border-b border-l border-white/20" />
         <div className="absolute bottom-10 right-5 w-4 h-4 border-b border-r border-white/20" />
 
-        {/* Semi-transparent overlay for hero content */}
         <div className="relative z-10 bg-white/[0.03] backdrop-blur-sm rounded-2xl p-6 md:p-10">
           <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-10 items-start">
-            {/* Left Content */}
             <div className="animate-slide-up relative">
               <div className="flex items-center gap-3 mb-5">
                 <span className="flex h-2.5 w-2.5 relative">
@@ -71,7 +67,6 @@ export const Home: React.FC = () => {
               </h1>
 
               <div className="flex flex-col gap-8 mb-10">
-                {/* Event Description Block */}
                 <div className="pl-5 border-l-4 border-primary/50 hover:border-primary transition-colors duration-300">
                   <h3 className="font-heading font-bold text-white text-xl mb-2 flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
@@ -80,12 +75,8 @@ export const Home: React.FC = () => {
                   <p className="text-textMuted text-base mb-3 leading-relaxed">
                     Từ khai trương, hội nghị đến Year End Party, HEONA MEDIA xây dựng trải nghiệm sự kiện rõ ràng, kiểm soát tốt chất lượng và ngân sách.
                   </p>
-                  <div className="bg-white/5 p-3 rounded border border-white/5 text-white/90 italic text-xs">
-                    “Tư duy sản xuất tinh gọn, đội ngũ kỹ thuật lành nghề và phong cách làm việc kỷ luật.”
-                  </div>
                 </div>
 
-                {/* Personal Branding Description Block */}
                 <div className="pl-5 border-l-4 border-secondary/50 hover:border-secondary transition-colors duration-300">
                   <h3 className="font-heading font-bold text-white text-xl mb-2 flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
@@ -94,9 +85,6 @@ export const Home: React.FC = () => {
                   <p className="text-textMuted text-base mb-3 leading-relaxed">
                     Đồng hành từ gốc rễ: khai mở giá trị thật, định hình phong cách riêng và tạo hệ sinh thái nội dung giúp bạn tỏa sáng bền vững.
                   </p>
-                  <div className="bg-white/5 p-3 rounded border border-white/5 text-textMuted text-xs italic">
-                    Không phô diễn, không màu mè, chỉ là chính bạn nhưng phiên bản rõ ràng hơn, sâu sắc hơn.
-                  </div>
                 </div>
               </div>
 
@@ -118,13 +106,11 @@ export const Home: React.FC = () => {
               </div>
             </div>
 
-            {/* Right Visual (Slider) */}
-            <div className="relative animate-fade-in delay-200 group perspective-1000 sticky top-24">
+            <div className="relative animate-fade-in delay-200 group perspective-1000 sticky top-24 hidden lg:block">
               <div className="absolute -inset-3 border border-white/5 rounded-xl skew-y-2 group-hover:skew-y-1 transition-transform duration-700"></div>
               <div className="absolute -inset-3 border border-primary/20 rounded-xl skew-y-2 blur-sm opacity-50 group-hover:opacity-80 transition-opacity"></div>
 
               <div className="relative rounded-xl overflow-hidden border border-white/10 shadow-2xl aspect-[4/3] bg-bgSoft">
-                {/* Only render current slide for better performance */}
                 <div className="absolute inset-0">
                   <ProgressiveImage
                     src={HERO_IMAGES[currentSlide]}
@@ -139,7 +125,6 @@ export const Home: React.FC = () => {
                   <div className="absolute inset-0 bg-gradient-to-t from-bgMain via-transparent to-transparent opacity-40"></div>
                 </div>
 
-                {/* Carousel Navigation Dots */}
                 <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
                   {HERO_IMAGES.map((_, index) => (
                     <button
@@ -153,164 +138,100 @@ export const Home: React.FC = () => {
                     />
                   ))}
                 </div>
-
-                {/* Previous/Next Arrows */}
-                <button
-                  onClick={() => setCurrentSlide((prev) => (prev - 1 + HERO_IMAGES.length) % HERO_IMAGES.length)}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center hover:bg-white/20 transition-all opacity-0 group-hover:opacity-100"
-                  aria-label="Previous slide"
-                >
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
-                <button
-                  onClick={() => setCurrentSlide((prev) => (prev + 1) % HERO_IMAGES.length)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center hover:bg-white/20 transition-all opacity-0 group-hover:opacity-100"
-                  aria-label="Next slide"
-                >
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
               </div>
             </div>
           </div>
         </div>
       </Section>
 
-      {/* Dịch vụ Tóm tắt */}
-      <Section className="relative border-t border-white/5 pt-16 pb-16 bg-gradient-to-b from-[#0b0b0d]/50 to-[#08080a]/50">
+      <Section className="relative border-t border-white/5 pt-12 md:pt-16 pb-12 md:pb-16 bg-gradient-to-b from-[#0b0b0d]/50 to-[#08080a]/50">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
 
-        <div className="text-center mb-12">
-          <div className="text-xs font-mono text-primary uppercase tracking-widest mb-2">[ SERVICES ]</div>
-          <h2 className="font-heading font-extrabold text-3xl md:text-4xl">Dịch vụ trọng tâm của HEONA MEDIA</h2>
-          <p className="max-w-3xl mx-auto text-textMuted text-base md:text-lg leading-relaxed">
-            Heona Media là đơn vị truyền thông tập trung vào các mảng giá trị cốt lõi: Tổ chức sự kiện chuyên nghiệp, Xây dựng nhân hiệu cá nhân và Chụp ảnh Profile chuyên gia.
-          </p>
+        <div className="text-center mb-8 md:mb-12">
+          <div className="text-[10px] md:text-xs font-mono text-primary uppercase tracking-widest mb-1 md:mb-2">[ SERVICES ]</div>
+          <h2 className="font-heading font-extrabold text-2xl md:text-4xl px-4">Dịch vụ trọng tâm</h2>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-8">
           <Link to="/pricing" className="group relative bg-[#111115] border border-white/10 rounded-xl overflow-hidden hover:border-primary/50 transition-all duration-500 flex flex-col" aria-label="Chi tiết dịch vụ Tổ chức sự kiện">
             <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div className="p-8 relative z-10 flex flex-col flex-grow">
-              <div className="flex justify-between items-start mb-5">
-                <h3 className="font-heading font-bold text-2xl group-hover:text-primary transition-colors">Tổ chức sự kiện</h3>
-                <ArrowRight className="text-white/20 group-hover:text-primary -translate-x-2 group-hover:translate-x-0 transition-all w-6 h-6" />
+            <div className="p-4 md:p-8 relative z-10 flex flex-col flex-grow">
+              <div className="flex justify-between items-start mb-3 md:mb-5">
+                <h3 className="font-heading font-bold text-[13px] md:text-2xl group-hover:text-primary transition-colors leading-tight">Tổ chức sự kiện</h3>
+                <ArrowRight className="text-white/20 group-hover:text-primary transition-all w-4 h-4 md:w-6 md:h-6 hidden md:block" />
               </div>
-              <p className="text-textMuted text-sm mb-6 leading-relaxed">
+              <p className="text-textMuted text-[10px] md:text-sm mb-3 md:mb-6 leading-relaxed line-clamp-2 md:line-clamp-none">
                 Lên ý tưởng – kịch bản – thi công – vận hành trọn gói theo mục tiêu doanh nghiệp.
               </p>
 
-              <ul className="space-y-3 mb-8 flex-grow">
-                {['Lễ khai trương – khánh thành', 'Hội nghị – hội thảo – họp báo', 'Tiệc tất niên – Year End Party','Team Building', 'Tour Retreat/Trekking', 'Activation – Roadshow', 'Ra mắt sản phẩm'].map((item, i) => (
-                  <li key={i} className="flex items-start gap-3 text-sm text-textMuted group-hover:text-white transition-colors">
-                    <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-primary shrink-0"></div>
+              <ul className="space-y-1.5 md:space-y-3 mb-4 md:mb-8 flex-grow">
+                {['Khai trương', 'Hội nghị', 'Year End Party', 'Activation'].map((item, i) => (
+                  <li key={i} className="flex items-start gap-2 md:gap-3 text-[10px] md:text-sm text-textMuted group-hover:text-white transition-colors">
+                    <div className="mt-1 md:mt-1.5 w-1 h-1 md:w-1.5 md:h-1.5 rounded-full bg-primary shrink-0"></div>
                     {item}
                   </li>
                 ))}
               </ul>
-
-              <div className="flex flex-wrap gap-2 mt-auto pt-6 border-t border-white/5">
-                <span className="text-sm font-bold bg-white/5 border border-white/10 px-4 py-2 rounded text-secondary font-mono uppercase tracking-wide">Ý tưởng bám sát mục tiêu</span>
-                <span className="text-sm font-bold bg-white/5 border border-white/10 px-4 py-2 rounded text-secondary font-mono uppercase tracking-wide">Thi công đúng timeline</span>
-              </div>
             </div>
           </Link>
 
           <Link to="/pricing" className="group relative bg-[#111115] border border-white/10 rounded-xl overflow-hidden hover:border-secondary/50 transition-all duration-500 flex flex-col" aria-label="Chi tiết dịch vụ Xây dựng thương hiệu">
             <div className="absolute inset-0 bg-gradient-to-l from-secondary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div className="p-8 relative z-10 flex flex-col flex-grow">
-              <div className="flex justify-between items-start mb-5">
-                <h3 className="font-heading font-bold text-2xl group-hover:text-secondary transition-colors">Xây dựng nhân hiệu cá nhân</h3>
-                <ArrowRight className="text-white/20 group-hover:text-secondary -translate-x-2 group-hover:translate-x-0 transition-all w-6 h-6" />
+            <div className="p-4 md:p-8 relative z-10 flex flex-col flex-grow">
+              <div className="flex justify-between items-start mb-3 md:mb-5">
+                <h3 className="font-heading font-bold text-[13px] md:text-2xl group-hover:text-secondary transition-colors leading-tight">Xây dựng nhân hiệu</h3>
+                <ArrowRight className="text-white/20 group-hover:text-secondary transition-all w-4 h-4 md:w-6 md:h-6 hidden md:block" />
               </div>
-              <p className="text-textMuted text-sm mb-6 leading-relaxed">
-                Chiến lược – nội dung – hình ảnh – hệ sinh thái. Đồng hành trọn gói để thương hiệu của bạn thật sự tỏa sáng.
+              <p className="text-textMuted text-[10px] md:text-sm mb-3 md:mb-6 leading-relaxed line-clamp-2 md:line-clamp-none">
+                Chiến lược – nội dung – hình ảnh. Đồng hành trọn gói.
               </p>
 
-              <ul className="space-y-3 mb-8 flex-grow">
+              <ul className="space-y-1.5 md:space-y-3 mb-4 md:mb-8 flex-grow">
                 {[
-                  'Tư vấn & Định hình thông điệp & phong cách cá nhân',
-                  'Sản xuất nội dung chuyên sâu (bài viết – video – podcast)',
-                  'Xây kênh social (Facebook – TikTok – Group cộng đồng)',
-                  'Coaching 1:1: xuất hiện tự tin – nói chuyện thuyết phục – tạo ảnh hưởng',
-                  'Chụp ảnh – quay video nhân hiệu (profile, series nội dung)'
+                  'Định hình phong cách',
+                  'Sản xuất nội dung',
+                  'Coaching 1:1',
+                  'Quay chụp profile'
                 ].map((item, i) => (
-                  <li key={i} className="flex items-start gap-3 text-sm text-textMuted group-hover:text-white transition-colors">
-                    <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-secondary shrink-0"></div>
+                  <li key={i} className="flex items-start gap-2 md:gap-3 text-[10px] md:text-sm text-textMuted group-hover:text-white transition-colors">
+                    <div className="mt-1 md:mt-1.5 w-1 h-1 md:w-1.5 md:h-1.5 rounded-full bg-secondary shrink-0"></div>
                     {item}
                   </li>
                 ))}
               </ul>
-
-              <div className="mt-auto pt-6 border-t border-white/5">
-                <div className="text-sm font-bold text-white mb-3">Điểm mạnh của Heona:</div>
-                <div className="flex flex-col gap-2">
-                  <span className="text-sm font-bold text-primary font-mono uppercase tracking-wide bg-white/5 border border-white/10 px-3 py-2 rounded block w-fit">
-                    • Hiểu ngành: Coaching – Healing – Phát triển bản thân
-                  </span>
-                  <span className="text-sm font-bold text-primary font-mono uppercase tracking-wide bg-white/5 border border-white/10 px-3 py-2 rounded block w-fit">
-                    • Xây thương hiệu cá nhân: Thật – Sâu – Chạm cảm xúc
-                  </span>
-                </div>
-              </div>
             </div>
           </Link>
 
-          <Link to="/pricing" className="group relative bg-[#111115] border border-white/10 rounded-xl overflow-hidden hover:border-primary/50 transition-all duration-500 flex flex-col" aria-label="Chi tiết dịch vụ Chụp ảnh Profile">
+          <Link to="/pricing" className="col-span-2 lg:col-span-1 group relative bg-[#111115] border border-white/10 rounded-xl overflow-hidden hover:border-primary/50 transition-all duration-500 flex flex-col" aria-label="Chi tiết dịch vụ Chụp ảnh Profile">
             <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div className="p-8 relative z-10 flex flex-col flex-grow">
-              <div className="flex justify-between items-start mb-5">
-                <h3 className="font-heading font-bold text-2xl group-hover:text-primary transition-colors">Chụp ảnh profile cá nhân</h3>
-                <ArrowRight className="text-white/20 group-hover:text-primary -translate-x-2 group-hover:translate-x-0 transition-all w-6 h-6" />
+            <div className="p-4 md:p-8 relative z-10 flex flex-col flex-grow">
+              <div className="flex justify-between items-start mb-3 md:mb-5">
+                <h3 className="font-heading font-bold text-[14px] md:text-2xl group-hover:text-primary transition-colors leading-tight">Chụp ảnh profile cá nhân</h3>
+                <ArrowRight className="text-white/20 group-hover:text-primary transition-all w-4 h-4 md:w-6 md:h-6 hidden md:block" />
               </div>
-              <p className="text-textMuted text-sm mb-6 leading-relaxed">
+              <p className="text-textMuted text-[10px] md:text-sm mb-3 md:mb-6 leading-relaxed">
                 Ghi lại thần thái chuyên nghiệp, khẳng định uy tín và sự đột phá trong sự nghiệp của bạn.
               </p>
-
-              <ul className="space-y-3 mb-8 flex-grow">
-                {[
-                  'Chụp ảnh chân dung nghề nghiệp (Studio/Office)',
-                  'Concept: Chuyên gia, Doanh nhân, Nghệ sĩ',
-                  'Trang điểm & Làm tóc chuyên nghiệp',
-                  'Hỗ trợ tạo dáng & Biểu cảm chuyên nghiệp',
-                  'Hậu kỳ cao cấp, tối ưu đa nền tảng'
-                ].map((item, i) => (
-                  <li key={i} className="flex items-start gap-3 text-sm text-textMuted group-hover:text-white transition-colors">
-                    <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-primary shrink-0"></div>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-
-              <div className="mt-auto pt-6 border-t border-white/5">
-                <div className="flex flex-col gap-2">
-                  <span className="text-sm font-bold text-secondary font-mono uppercase tracking-wide bg-white/5 border border-white/10 px-3 py-2 rounded block w-fit">
-                    Concept độc bản
-                  </span>
-                  <span className="text-sm font-bold text-secondary font-mono uppercase tracking-wide bg-white/5 border border-white/10 px-3 py-2 rounded block w-fit">
-                    Hậu kỳ tỉ mỉ
-                  </span>
-                </div>
+              
+              <div className="flex flex-wrap gap-2">
+                <span className="text-[10px] md:text-sm font-bold bg-white/5 border border-white/10 px-2 md:px-4 py-1.5 md:py-2 rounded text-secondary font-mono uppercase tracking-wide">Concept độc bản</span>
+                <span className="text-[10px] md:text-sm font-bold bg-white/5 border border-white/10 px-2 md:px-4 py-1.5 md:py-2 rounded text-secondary font-mono uppercase tracking-wide">Hậu kỳ tỉ mỉ</span>
               </div>
             </div>
           </Link>
         </div>
       </Section>
 
-      {/* Dự án nổi bật */}
-      <Section narrow className="relative pb-16 bg-gradient-to-b from-[#0b0b0d]/50 to-[#08080a]/50">
+      <Section narrow className="relative pb-12 md:pb-16 bg-gradient-to-b from-[#0b0b0d]/50 to-[#08080a]/50">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
-        <div className="flex flex-col items-center mb-10 text-center">
-          <div className="text-xs font-mono text-secondary uppercase tracking-widest mb-2">[ PROJECTS ]</div>
-          <h2 className="font-heading font-extrabold text-4xl">DỰ ÁN TIÊU BIỂU</h2>
+        <div className="flex flex-col items-center mb-8 md:mb-10 text-center">
+          <div className="text-[10px] md:text-xs font-mono text-secondary uppercase tracking-widest mb-1 md:mb-2">[ PROJECTS ]</div>
+          <h2 className="font-heading font-extrabold text-2xl md:text-4xl">DỰ ÁN TIÊU BIỂU</h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6">
           {projects.slice(0, 4).map((item, index) => (
-            <div key={item.id} className="group relative aspect-video rounded-xl overflow-hidden border border-white/10 bg-bgCard hover:border-primary/50 transition-all duration-500">
+            <div key={item.id} className="group relative h-32 md:h-auto md:aspect-video rounded-xl overflow-hidden border border-white/10 bg-bgCard hover:border-primary/50 transition-all duration-500">
               <ProgressiveImage
                 src={item.image}
                 alt={`Dự án ${item.title} - ${item.category} do Heona Media thực hiện`}
@@ -321,116 +242,73 @@ export const Home: React.FC = () => {
 
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-90"></div>
 
-              <div className="absolute bottom-0 left-0 w-full p-6 translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-                <div className="text-xs font-mono text-primary mb-1 px-2 py-1 bg-primary/20 w-fit rounded border border-primary/30 backdrop-blur-sm">
+              <div className="absolute bottom-0 left-0 w-full p-3 md:p-6 translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                <div className="text-[8px] md:text-xs font-mono text-primary mb-1 md:mb-1.5 px-1.5 md:px-2 py-0.5 md:py-1 bg-primary/20 w-fit rounded border border-primary/30 backdrop-blur-sm">
                   {item.category}
                 </div>
-                <h3 className="font-heading font-bold text-xl md:text-2xl text-white leading-tight mb-1">{item.title}</h3>
-                <p className="text-textMuted text-sm line-clamp-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-y-2 group-hover:translate-y-0">
-                  {item.description}
-                </p>
+                <h3 className="font-heading font-bold text-xs md:text-2xl text-white leading-tight mb-1 line-clamp-2">{item.title}</h3>
               </div>
             </div>
           ))}
         </div>
 
-        <div className="mt-12 flex justify-center">
-          <Link to="/projects" className="group relative px-10 py-4 bg-white text-bgMain font-heading font-bold text-base tracking-wider rounded-full hover:scale-105 transition-transform duration-300 shadow-[0_0_25px_rgba(255,255,255,0.3)] hover:shadow-[0_0_40px_rgba(111,58,255,0.6)] flex items-center gap-2 overflow-hidden" aria-label="Xem tất cả dự án">
+        <div className="mt-8 md:mt-12 flex justify-center">
+          <Link to="/projects" className="group relative px-6 md:px-10 py-3 md:py-4 bg-white text-bgMain font-heading font-bold text-xs md:text-base tracking-wider rounded-full hover:scale-105 transition-transform duration-300 shadow-[0_0_25px_rgba(255,255,255,0.3)] hover:shadow-[0_0_40px_rgba(111,58,255,0.6)] flex items-center gap-2 overflow-hidden" aria-label="Xem tất cả dự án">
             <span className="relative z-10">XEM TẤT CẢ DỰ ÁN</span>
-            <ArrowRight size={20} className="relative z-10 group-hover:translate-x-1 transition-transform" />
+            <ArrowRight size={16} className="relative z-10 group-hover:translate-x-1 transition-transform md:w-5 md:h-5" />
             <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <span className="absolute inset-0 bg-white mix-blend-screen opacity-0 group-hover:opacity-20"></span>
           </Link>
         </div>
       </Section>
 
-      {/* Testimonials Section (New) */}
-      <Section narrow className="relative py-16 bg-gradient-to-b from-[#0b0b0d]/50 to-[#08080a]/50">
+      <Section narrow className="relative py-12 md:py-16 bg-gradient-to-b from-[#0b0b0d]/50 to-[#08080a]/50">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
-        <div className="text-center mb-12">
-          <div className="text-xs font-mono text-primary uppercase tracking-widest mb-2">[ TESTIMONIALS ]</div>
-          <h2 className="font-heading font-extrabold text-3xl md:text-4xl">KHÁCH HÀNG NÓI VỀ CHÚNG TÔI</h2>
+        <div className="text-center mb-8 md:mb-12">
+          <div className="text-[10px] md:text-xs font-mono text-primary uppercase tracking-widest mb-1 md:mb-2">[ TESTIMONIALS ]</div>
+          <h2 className="font-heading font-extrabold text-2xl md:text-4xl">KHÁCH HÀNG NÓI VỀ CHÚNG TÔI</h2>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
-          {testimonials.map((testimonial, index) => (
-            <div key={testimonial.id} className="bg-[#111115]/50 border border-white/5 p-8 rounded-xl relative hover:border-primary/30 transition-colors duration-300">
-              <Quote size={40} className="absolute top-6 right-6 text-white/5" />
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 rounded-full overflow-hidden border border-white/10">
-                  {testimonial.avatar ? (
-                    <ProgressiveImage src={testimonial.avatar} alt={testimonial.name} className="w-full h-full object-cover" delay={index * 50} />
-                  ) : (
-                    <div className="w-full h-full bg-white/10 flex items-center justify-center text-white font-bold text-lg">{testimonial.name.charAt(0)}</div>
-                  )}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+          {testimonials.slice(0, 4).map((testimonial, index) => (
+            <div key={testimonial.id} className="bg-[#111115]/50 border border-white/5 p-5 md:p-8 rounded-xl relative hover:border-primary/30 transition-colors duration-300 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center gap-3 md:gap-4 mb-4 md:mb-6">
+                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-full overflow-hidden border border-white/10 shrink-0">
+                    {testimonial.avatar ? (
+                      <ProgressiveImage src={testimonial.avatar} alt={testimonial.name} className="w-full h-full object-cover" delay={index * 50} />
+                    ) : (
+                      <div className="w-full h-full bg-white/10 flex items-center justify-center text-white font-bold text-base md:text-lg">{testimonial.name.charAt(0)}</div>
+                    )}
+                  </div>
+                  <div className="overflow-hidden">
+                    <div className="font-bold text-white text-sm md:text-sm truncate">{testimonial.name}</div>
+                    <div className="text-xs md:text-xs text-textMuted truncate">{testimonial.role}</div>
+                  </div>
                 </div>
-                <div>
-                  <div className="font-bold text-white text-sm">{testimonial.name}</div>
-                  <div className="text-xs text-textMuted">{testimonial.role}{testimonial.company && ` - ${testimonial.company}`}</div>
-                </div>
+                <p className="text-textMuted text-[13px] md:text-sm italic leading-relaxed line-clamp-3">"{testimonial.content}"</p>
               </div>
-              <div className="flex gap-1 mb-4">
-                {[1, 2, 3, 4, 5].map(star => <Star key={star} size={14} className="text-secondary fill-secondary" />)}
-              </div>
-              <p className="text-textMuted text-sm italic leading-relaxed">"{testimonial.content}"</p>
             </div>
           ))}
         </div>
       </Section>
 
-      {/* Contact Info Section - Enhanced CTA */}
-      <Section narrow className="relative pt-8 pb-16 border-t border-white/5 bg-gradient-to-b from-[#0b0b0d]/50 to-[#08080a]/50">
+      <Section narrow className="relative pt-8 pb-12 md:pb-16 border-t border-white/5 bg-gradient-to-b from-[#0b0b0d]/50 to-[#08080a]/50">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
-        <div className="max-w-4xl mx-auto bg-[#111115] border border-white/10 rounded-2xl p-8 md:p-10 shadow-2xl relative overflow-hidden group">
-          {/* Background Glow Effects */}
-          <div className="absolute top-0 right-0 w-40 h-40 bg-primary/20 blur-[80px] -z-10 rounded-full group-hover:bg-primary/30 transition-colors duration-700"></div>
-          <div className="absolute bottom-0 left-0 w-40 h-40 bg-secondary/20 blur-[80px] -z-10 rounded-full group-hover:bg-secondary/30 transition-colors duration-700"></div>
-
-          <div className="flex flex-col md:flex-row items-center justify-between gap-8 relative z-10">
-            <div className="flex-1">
-              <div className="text-xs font-mono text-secondary uppercase tracking-widest mb-2 flex items-center gap-2">
-                <span className="w-2 h-2 bg-secondary rounded-full animate-pulse"></span>
-                Kết nối ngay
-              </div>
-              <h2 className="font-heading font-bold text-2xl md:text-3xl mb-5 text-white">Thông tin liên hệ</h2>
-              <div className="space-y-5">
-                <div className="flex items-start gap-4 group/item">
-                  <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center text-primary mt-0.5 shrink-0 group-hover/item:bg-primary group-hover/item:text-white transition-all duration-300">
-                    <Phone size={16} />
-                  </div>
-                  <div>
-                    <div className="text-[10px] text-textMuted uppercase tracking-wider mb-0.5">Hotline / Zalo</div>
-                    <a href={`tel:${contactInfo.phone.replace(/\s/g, '')}`} className="text-lg font-bold text-white hover:text-secondary transition-colors">{contactInfo.phone}</a>
-                  </div>
-                </div>
-                <div className="flex items-start gap-4 group/item">
-                  <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center text-primary mt-0.5 shrink-0 group-hover/item:bg-primary group-hover/item:text-white transition-all duration-300">
-                    <Mail size={16} />
-                  </div>
-                  <div>
-                    <div className="text-[10px] text-textMuted uppercase tracking-wider mb-0.5">Email</div>
-                    <a href={`mailto:${contactInfo.email}`} className="text-lg font-bold text-white break-all hover:text-secondary transition-colors">{contactInfo.email}</a>
-                  </div>
-                </div>
-                <div className="flex items-start gap-4 group/item">
-                  <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center text-primary mt-0.5 shrink-0 group-hover/item:bg-primary group-hover/item:text-white transition-all duration-300">
-                    <MapPin size={16} />
-                  </div>
-                  <div>
-                    <div className="text-[10px] text-textMuted uppercase tracking-wider mb-0.5">Địa chỉ</div>
-                    <div className="text-base text-white leading-snug">{contactInfo.address}</div>
-                  </div>
-                </div>
+        <div className="max-w-4xl mx-auto bg-[#111115] border border-white/10 rounded-2xl p-6 md:p-10 shadow-2xl relative overflow-hidden group">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8 relative z-10">
+            <div className="flex-1 w-full text-center md:text-left">
+              <h2 className="font-heading font-bold text-xl md:text-3xl mb-4 text-white">Kết nối với chúng tôi</h2>
+              <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8 justify-center md:justify-start mb-6">
+                <a href={`tel:${contactInfo.phone.replace(/\s/g, '')}`} className="flex items-center gap-2 text-white hover:text-primary transition-colors">
+                  <Phone size={16} /> <span className="text-sm md:text-lg font-bold">{contactInfo.phone}</span>
+                </a>
               </div>
             </div>
 
             <div className="flex-shrink-0 w-full md:w-auto">
-              <Link to="/contact" className="inline-flex items-center justify-center w-full md:w-auto px-8 py-4 bg-white text-black font-bold text-base rounded-full hover:bg-gradient-to-r hover:from-primary hover:to-secondary hover:text-white hover:scale-105 transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:shadow-[0_0_30px_rgba(111,58,255,0.5)]" aria-label="Gửi yêu cầu tư vấn ngay">
-                Gửi yêu cầu tư vấn <ArrowRight className="ml-2" size={18} />
+              <Link to="/contact" className="flex items-center justify-center w-full md:w-auto px-6 md:px-8 py-3 md:py-4 bg-white text-black font-bold text-sm md:text-base rounded-full hover:bg-gradient-to-r hover:from-primary hover:to-secondary hover:text-white transition-all">
+                Gửi yêu cầu tư vấn <ArrowRight className="ml-2" size={16} />
               </Link>
-              <div className="mt-3 text-center text-xs text-textMuted flex items-center justify-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span> Phản hồi nhanh trong 24h
-              </div>
             </div>
           </div>
         </div>

@@ -192,14 +192,14 @@ export const Blog: React.FC = () => {
       <PageHero title="Blog – Chia sẻ kinh nghiệm" sub="Các bài viết hướng dẫn, checklist và kinh nghiệm thực tế trong ngành sự kiện – media." />
 
       <Section narrow>
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6">
           {POSTS.map((post, index) => (
             <div
               key={post.id}
               onClick={() => setSelectedPost(post)}
               className="group bg-bgCard border border-borderSubtle rounded-xl overflow-hidden hover:border-primary hover:-translate-y-1 hover:shadow-[0_10px_30px_-10px_rgba(111,58,255,0.2)] transition-all duration-300 cursor-pointer flex flex-col h-full relative"
             >
-              <div className="h-48 w-full overflow-hidden relative">
+              <div className="h-24 md:h-48 w-full overflow-hidden relative">
                 {post.image && (
                   <ProgressiveImage
                     src={post.image}
@@ -209,26 +209,26 @@ export const Blog: React.FC = () => {
                   />
                 )}
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors"></div>
-                <div className="absolute top-3 left-3">
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-secondary bg-black/80 border border-secondary/30 px-2 py-1 rounded backdrop-blur-md">
+                <div className="absolute top-2 md:top-3 left-2 md:left-3">
+                  <span className="text-[8px] md:text-[10px] font-bold uppercase tracking-widest text-secondary bg-black/80 border border-secondary/30 px-1.5 md:px-2 py-0.5 md:py-1 rounded backdrop-blur-md">
                     {post.tag}
                   </span>
                 </div>
               </div>
 
-              <div className="p-5 flex flex-col flex-grow relative z-10">
-                <h3 className="font-heading font-bold text-xl mb-2 group-hover:text-primary transition-colors leading-snug min-h-[3.5rem]">
+              <div className="p-3 md:p-5 flex flex-col flex-grow relative z-10">
+                <h3 className="font-heading font-bold text-[11px] md:text-xl mb-1 md:mb-2 group-hover:text-primary transition-colors leading-snug min-h-[2.2rem] md:min-h-[3.5rem] line-clamp-2">
                   {post.title}
                 </h3>
 
-                <p className="text-sm text-textMuted leading-relaxed mb-4 line-clamp-3 flex-grow">
+                <p className="text-[9px] md:text-sm text-textMuted leading-relaxed mb-2 md:mb-4 line-clamp-2 md:line-clamp-3 flex-grow">
                   {post.meta}
                 </p>
 
-                <div className="mt-auto pt-3 border-t border-white/5 flex items-center justify-between text-[10px] text-textMuted/60 font-mono">
+                <div className="mt-auto pt-2 md:pt-3 border-t border-white/5 flex items-center justify-between text-[8px] md:text-[10px] text-textMuted/60 font-mono">
                   <span>{post.date}</span>
                   <span className="flex items-center gap-1 group-hover:text-primary transition-colors">
-                    Đọc thêm <ArrowRight size={14} />
+                    Đọc thêm <ArrowRight size={10} className="md:w-3.5 md:h-3.5" />
                   </span>
                 </div>
               </div>

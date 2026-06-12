@@ -108,3 +108,30 @@ body {
   font-size: 0.9rem;
   line-height: 1.5;
 }
+
+/* Glass Panel Utility */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* Hover glow effect for Bento Grid */
+.bento-hover:hover {
+  border-color: rgba(111, 58, 255, 0.5);
+  box-shadow: 0 0 30px rgba(111, 58, 255, 0.15);
+  transform: translateY(-4px);
+}
+
+/* Image reveal animation */
+.reveal-image {
+  clip-path: inset(100% 0 0 0);
+  animation: revealUp 1s cubic-bezier(0.77, 0, 0.175, 1) forwards;
+}
+
+@keyframes revealUp {
+  0% { clip-path: inset(100% 0 0 0); }
+  100% { clip-path: inset(0 0 0 0); }
+}

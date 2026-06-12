@@ -9,9 +9,9 @@ interface CardProps {
 export const Card: React.FC<CardProps> = ({ children, className = '', noHover = false }) => {
   return (
     <div
-      className={`relative bg-[#111115]/80 backdrop-blur-md border border-white/5 rounded-xl p-6 transition-all duration-500 group ${
+      className={`relative glass-panel rounded-xl p-6 transition-all duration-500 group ${
         !noHover 
-          ? 'hover:border-primary/50 hover:bg-[#16161e] hover:-translate-y-1 hover:shadow-[0_10px_40px_-10px_rgba(111,58,255,0.25)]' 
+          ? 'bento-hover' 
           : ''
       } ${className}`}
     >
