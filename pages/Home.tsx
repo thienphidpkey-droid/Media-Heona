@@ -165,7 +165,15 @@ export const Home: React.FC = () => {
               </p>
 
               <ul className="space-y-1.5 md:space-y-3 mb-4 md:mb-8 flex-grow">
-                {['Khai trương', 'Hội nghị', 'Year End Party', 'Activation'].map((item, i) => (
+                {[
+                  'Lễ khai trương – khánh thành', 
+                  'Hội nghị – hội thảo – họp báo', 
+                  'Tiệc tất niên – Year End Party',
+                  'Team Building', 
+                  'Tour Retreat/Trekking', 
+                  'Activation – Roadshow', 
+                  'Ra mắt sản phẩm'
+                ].map((item, i) => (
                   <li key={i} className="flex items-start gap-2 md:gap-3 text-[10px] md:text-sm text-textMuted group-hover:text-white transition-colors">
                     <div className="mt-1 md:mt-1.5 w-1 h-1 md:w-1.5 md:h-1.5 rounded-full bg-primary shrink-0"></div>
                     {item}
@@ -188,10 +196,11 @@ export const Home: React.FC = () => {
 
               <ul className="space-y-1.5 md:space-y-3 mb-4 md:mb-8 flex-grow">
                 {[
-                  'Định hình phong cách',
-                  'Sản xuất nội dung',
-                  'Coaching 1:1',
-                  'Quay chụp profile'
+                  'Tư vấn & Định hình thông điệp & phong cách cá nhân',
+                  'Sản xuất nội dung chuyên sâu (bài viết – video – podcast)',
+                  'Xây kênh social (Facebook – TikTok – Group cộng đồng)',
+                  'Coaching 1:1: xuất hiện tự tin – thuyết phục – tạo ảnh hưởng',
+                  'Chụp ảnh – quay video nhân hiệu (profile, series nội dung)'
                 ].map((item, i) => (
                   <li key={i} className="flex items-start gap-2 md:gap-3 text-[10px] md:text-sm text-textMuted group-hover:text-white transition-colors">
                     <div className="mt-1 md:mt-1.5 w-1 h-1 md:w-1.5 md:h-1.5 rounded-full bg-secondary shrink-0"></div>
@@ -209,14 +218,24 @@ export const Home: React.FC = () => {
                 <h3 className="font-heading font-bold text-[14px] md:text-2xl group-hover:text-primary transition-colors leading-tight">Chụp ảnh profile cá nhân</h3>
                 <ArrowRight className="text-white/20 group-hover:text-primary transition-all w-4 h-4 md:w-6 md:h-6 hidden md:block" />
               </div>
-              <p className="text-textMuted text-[10px] md:text-sm mb-3 md:mb-6 leading-relaxed">
+              <p className="text-textMuted text-[10px] md:text-sm mb-3 md:mb-6 leading-relaxed line-clamp-2 md:line-clamp-none">
                 Ghi lại thần thái chuyên nghiệp, khẳng định uy tín và sự đột phá trong sự nghiệp của bạn.
               </p>
               
-              <div className="flex flex-wrap gap-2">
-                <span className="text-[10px] md:text-sm font-bold bg-white/5 border border-white/10 px-2 md:px-4 py-1.5 md:py-2 rounded text-secondary font-mono uppercase tracking-wide">Concept độc bản</span>
-                <span className="text-[10px] md:text-sm font-bold bg-white/5 border border-white/10 px-2 md:px-4 py-1.5 md:py-2 rounded text-secondary font-mono uppercase tracking-wide">Hậu kỳ tỉ mỉ</span>
-              </div>
+              <ul className="space-y-1.5 md:space-y-3 mb-4 md:mb-8 flex-grow">
+                {[
+                  'Chụp ảnh chân dung nghề nghiệp (Studio/Office)',
+                  'Concept: Chuyên gia, Doanh nhân, Nghệ sĩ',
+                  'Trang điểm & Làm tóc chuyên nghiệp',
+                  'Hỗ trợ tạo dáng & Biểu cảm chuyên nghiệp',
+                  'Hậu kỳ cao cấp, tối ưu đa nền tảng'
+                ].map((item, i) => (
+                  <li key={i} className="flex items-start gap-2 md:gap-3 text-[10px] md:text-sm text-textMuted group-hover:text-white transition-colors">
+                    <div className="mt-1 md:mt-1.5 w-1 h-1 md:w-1.5 md:h-1.5 rounded-full bg-[#cfc0ff] shrink-0"></div>
+                    {item}
+                  </li>
+                ))}
+              </ul>
             </div>
           </Link>
         </div>
