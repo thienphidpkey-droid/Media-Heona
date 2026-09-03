@@ -24,7 +24,7 @@ Tài liệu này cung cấp toàn bộ ngữ cảnh (Context), kiến trúc kỹ
 
 ## 3. Tối ưu hóa trên thiết bị di động (Mobile Optimization)
 Đã được tinh chỉnh thủ công để tối ưu UX cho màn hình nhỏ:
-- **Floating Dock Menu:** Trên Mobile sử dụng thanh menu nổi (Fixed Bottom) dạng Glassmorphism thay cho Header truyền thống, luôn hiển thị `z-[9999]`.
+- **Floating Dock Menu:** Trên Mobile & Tablet (< 1024px, `lg:hidden`) sử dụng thanh menu nổi (Fixed Bottom) dạng Glassmorphism thay cho Header truyền thống, luôn hiển thị `z-[9999]` (trên Tablet tự động hiển thị kèm icon + nhãn chữ).
 - **Dự án (Projects):** Hiển thị 1 thẻ/dòng (`grid-cols-1`). Để tránh ảnh bị quá to, chiều cao ảnh được ép cố định (`h-32`) tạo hiệu ứng ảnh ngang Panorama.
 - **Đánh giá khách hàng (Testimonials):** Hiển thị 1 thẻ/dòng, font chữ được tăng lên 30% để dễ đọc.
 - **Trang Blog:** Hiển thị 2 thẻ/dòng (`grid-cols-2`), thumbnail được thu gọn 1/2 chiều cao (`h-24`) giúp tăng mật độ bài viết trên màn hình.

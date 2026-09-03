@@ -66,9 +66,11 @@ hover:shadow-[0_0_25px_rgba(111,58,255,0.2)];
 
 ## 5. Quy chuẩn Tối ưu Giao diện Di động (Mobile UX Guidelines)
 
-1. **Floating Dock Menu:**
-   - Cố định đáy màn hình: `fixed bottom-4 left-1/2 -translate-x-1/2 z-[9999]`.
-   - Bề mặt kính `backdrop-blur-xl bg-black/60 border border-white/10 rounded-full`.
+1. **Floating Dock Menu (Mobile & Tablet < 1024px):**
+   - Cố định đáy màn hình: `fixed bottom-5 left-0 right-0 z-[9999] lg:hidden`.
+   - Bề mặt kính `backdrop-blur-xl bg-[#6f3aff]/20 border border-[#9d7aff]/30 rounded-full shadow-[0_0_25px_rgba(111,58,255,0.35)]`.
+   - Trên Mobile: Hiển thị icon compact với tooltip khi hover/chạm.
+   - Trên Tablet (`md:`): Mở rộng thanh dock ngang sang trọng hiển thị đồng thời cả icon và nhãn chữ (`text-xs font-semibold`).
    - Kích thước icon và touch-target tối thiểu 44px x 44px.
 
 2. **Dự án (Projects Grid):**
