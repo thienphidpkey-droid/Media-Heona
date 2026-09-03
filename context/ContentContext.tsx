@@ -7,49 +7,49 @@ const DEFAULT_PROJECTS: Project[] = [
     id: 1,
     title: "Xây dựng thương hiệu cá nhân Facebook",
     description: "Xây dựng tuyến chủ đề bài viết chân thật, gần gũi. Định vị chuyên gia.",
-    image: "https://i.postimg.cc/3JxhTmGp/5.jpg",
+    image: "/images/project-1.webp",
     category: "Branding"
   },
   {
     id: 2,
     title: "Workshop AI FOR TRAINER",
     description: "Heona đảm nhận toàn bộ khâu tổ chức từ thiết kế nhận diện, setup không gian đến vận hành.",
-    image: "https://i.postimg.cc/7YZ4k0z5/4.jpg",
+    image: "/images/project-2.webp",
     category: "Event"
   },
   {
     id: 3,
     title: "Xây dựng thương hiệu trên TIKTOK – “Tĩnh Khiêm Tarot”",
     description: "Tăng nhận diện chuyên gia Tarot, video viral cao nhất đạt triệu view.",
-    image: "https://i.postimg.cc/FsHv43Sk/1.jpg",
+    image: "/images/project-3.webp",
     category: "Tiktok"
   },
   {
     id: 4,
     title: "Lễ Ra Mắt Dự Án UNIHONE",
     description: "Sự kiện đánh dấu bước ngoặt hệ sinh thái UniHome. Phụ trách trọn gói ý tưởng, concept, media.",
-    image: "https://i.postimg.cc/RVZmBKtH/6.jpg",
+    image: "/images/project-4.webp",
     category: "Event"
   },
   {
     id: 5,
     title: "Xây dựng thương hiệu TRAINER THANH NGUYEN",
     description: "Hệ thống giao diện hình ảnh được làm mới hoàn toàn, chuyên nghiệp và uy tín.",
-    image: "https://i.postimg.cc/7YZ4k0zf/2.jpg",
+    image: "/images/project-5.webp",
     category: "Branding"
   },
   {
     id: 7,
     title: "Đêm nhạc yêu thương 4",
     description: "Chương trình thiện nguyện lan tỏa Ánh Sáng & Tình Yêu Thương.",
-    image: "https://i.postimg.cc/qMvrTyKt/3.jpg",
+    image: "/images/project-7.webp",
     category: "Event"
   },
   {
     id: 8,
     title: "Lễ ra mắt sách",
     description: "Lễ ra mắt sách [Hành trình trở thành nhà đào tạo chuyên nghiệp (The journey to becoming a master trainer)]",
-    image: "https://i.postimg.cc/PJg34qjs/z7663426044776-98bf6a02c1a18fcfcf09e8d2fc318823.jpg",
+    image: "/images/project-8.webp",
     category: "Event"
   },
 ];
@@ -65,7 +65,7 @@ const DEFAULT_SERVICES: Service[] = [
       'Huấn luyện kỹ năng nói, phong thái chuyên nghiệp.',
       'Triển khai kênh truyền thông cá nhân (TikTok, Facebook, YouTube).'
     ],
-    image: "https://i.postimg.cc/hvSh7Y9d/a1.jpg"
+    image: "/images/hero-1.webp"
   },
   {
     id: 'B',
@@ -77,7 +77,7 @@ const DEFAULT_SERVICES: Service[] = [
       'Hỗ trợ truyền thông sự kiện, quảng bá diễn giả.',
       'Dịch vụ tổ chức sự kiện trọn gói cho cá nhân & doanh nghiệp giáo dục / tâm linh.'
     ],
-    image: "https://i.postimg.cc/zvJ3RQnW/a2.jpg"
+    image: "/images/hero-2.webp"
   },
   {
     id: 'C',
@@ -88,7 +88,7 @@ const DEFAULT_SERVICES: Service[] = [
       'Sản xuất nội dung video, bài viết viral.',
       'Quảng cáo Facebook, TikTok chuyên nghiệp.'
     ],
-    image: "https://i.postimg.cc/6q9TGPdG/a3.jpg"
+    image: "/images/hero-3.webp"
   },
   {
     id: 'D',
@@ -98,7 +98,7 @@ const DEFAULT_SERVICES: Service[] = [
       'Thiết kế thương hiệu: Logo, bộ nhận diện thương hiệu, ấn phẩm truyền thông.',
       'Chụp ảnh Profile & Beauty cho doanh nhân, chuyên gia, diễn giả.'
     ],
-    image: "https://i.postimg.cc/PJtN87m1/a4.webp"
+    image: "/images/service-d.webp"
   },
   {
     id: 'E',
@@ -110,7 +110,7 @@ const DEFAULT_SERVICES: Service[] = [
       'Hỗ trợ trang điểm, làm tóc & phối trang phục chuyên nghiệp.',
       'Chỉnh sửa hậu kỳ cao cấp, tối ưu cho đa nền tảng (FB, LinkedIn, TikTok).'
     ],
-    image: "https://i.postimg.cc/cCjXXLfb/profile.jpg"
+    image: "/images/service-e.webp"
   }
 ];
 
@@ -130,21 +130,21 @@ const DEFAULT_TESTIMONIALS: Testimonial[] = [
     role: "Nhà huấn luyện kỹ năng toàn diện",
     company: "",
     content: "Heona Media không chỉ là đơn vị tổ chức sự kiện mà còn là người bạn đồng hành thấu hiểu. Team đã giúp tôi xây dựng hình ảnh chuyên nghiệp nhưng vẫn giữ được sự chân thật của mình.",
-    avatar: "https://i.postimg.cc/jdDjYvFH/z7250626038588-9609156227994e32d1287f4c993be365.jpg"
+    avatar: "/images/testimonial-1.webp"
   },
   {
     id: 2,
     name: "Mrs. Tĩnh Khiêm",
     role: "Tarot Reader",
     content: "Nhờ chiến lược nội dung của Heona, kênh TikTok của mình đã tăng trưởng vượt bậc. Các bạn làm việc rất có tâm, support nhiệt tình kể cả ngoài giờ hành chính.",
-    avatar: "https://i.postimg.cc/cC4r3ST4/z7250619915601-1472cd80a1fa1350a741ccdf037f80e9.jpg"
+    avatar: "/images/testimonial-2.webp"
   },
   {
     id: 3,
     name: "Đại diện UniHome",
     role: "Ban Tổ Chức",
     content: "Sự kiện ra mắt dự án thành công rực rỡ nhờ sự chuyên nghiệp của Heona. Từ khâu ý tưởng đến thi công đều rất chỉn chu, đúng timeline và không phát sinh chi phí vô lý.",
-    avatar: "https://i.postimg.cc/jSJCPv6b/z7250621981768-1c1edfce4e0eb14645a91f2493b25893.jpg"
+    avatar: "/images/testimonial-3.webp"
   }
 ];
 

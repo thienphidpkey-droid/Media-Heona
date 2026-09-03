@@ -6,8 +6,13 @@ dist/
 
 # Environment variables
 .env
-.env.local
-.env.production
+.env*
+*.env
+
+# Backups and Archives
+*.zip
+*.tar.gz
+*.rar
 
 # IDE
 .vscode/

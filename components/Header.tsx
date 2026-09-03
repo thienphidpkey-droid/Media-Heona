@@ -58,7 +58,7 @@ export const Header: React.FC = () => {
           >
             <div className="w-10 h-10 rounded-full overflow-hidden shadow-lg shadow-primary/20 group-hover:scale-105 transition-transform border border-white/10">
               <ProgressiveImage
-                src="https://i.postimg.cc/nck9qgG5/481456887-122109905270769501-305987371640573178-n.jpg"
+                src="/images/logo.webp"
                 alt="HEONA MEDIA"
                 className="w-full h-full object-cover"
                 width="40"

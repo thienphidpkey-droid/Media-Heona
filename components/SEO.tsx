@@ -14,6 +14,7 @@ interface SEOProps {
   type?: string;
   keywords?: string;
   faq?: FAQItem[];
+  customSchema?: Record<string, unknown> | Array<Record<string, unknown>>;
 }
 
 const DOMAIN = 'https://heonamedia.com'; 
@@ -56,15 +57,92 @@ const DEFAULT_FAQS: FAQItem[] = [
 export const SEO: React.FC<SEOProps> = ({ 
   title, 
   description, 
-  image = 'https://i.postimg.cc/nck9qgG5/481456887-122109905270769501-305987371640573178-n.jpg', 
+  image = 'https://heonamedia.com/images/logo.webp', 
   url = '', 
   type = 'website',
   keywords = 'Tổ chức sự kiện, Event Agency, Media Production, Livestream, Quay phim sự kiện, Xây dựng thương hiệu cá nhân, Chụp ảnh profile cá nhân, Chụp ảnh chân dung nghề nghiệp, TP.HCM, Cho thuê âm thanh ánh sáng, Heona Media',
-  faq
+  faq,
+  customSchema
 }) => {
   const fullUrl = url ? `${DOMAIN}${url}` : DOMAIN;
   const fullTitle = `${title} | HEONA MEDIA`;
   const activeFaqs = faq && faq.length > 0 ? faq : DEFAULT_FAQS;
+
+  const pageSpecificSchemas: Array<Record<string, unknown>> = [];
+
+  if (url === '/services') {
+    pageSpecificSchemas.push({
+      "@type": "OfferCatalog",
+      "@id": `${DOMAIN}/services#catalog`,
+      "name": "Danh mục Dịch vụ HEONA MEDIA",
+      "itemListElement": [
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Tổ chức Sự kiện Trọn gói",
+            "description": "Khai trương, khánh thành, hội nghị, tiệc tất niên, team building, activation."
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Xây dựng Thương hiệu Cá nhân (Nhân hiệu)",
+            "description": "Tư vấn định hình thông điệp, sản xuất nội dung chuyên sâu, xây kênh TikTok/Facebook, coaching 1:1."
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Chụp ảnh Profile Cá nhân & Doanh nhân",
+            "description": "Chụp ảnh studio/văn phòng, makeup, tạo dáng chuyên nghiệp."
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Sản xuất Media & Livestream",
+            "description": "Quay phim sự kiện recap 4K, livestream đa góc máy chuyên nghiệp."
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Cho thuê Thiết bị Sân khấu & Sự kiện",
+            "description": "Sân khấu, âm thanh, ánh sáng, màn hình LED P3."
+          }
+        }
+      ]
+    });
+  } else if (url === '/pricing') {
+    pageSpecificSchemas.push({
+      "@type": "PriceSpecification",
+      "@id": `${DOMAIN}/pricing#price`,
+      "priceCurrency": "VND",
+      "minPrice": "8000000",
+      "maxPrice": "60000000",
+      "description": "Báo giá dịch vụ tổ chức sự kiện và media tại HEONA MEDIA: Gói Cơ bản từ 8.000.000đ, Gói Chuyên nghiệp từ 25.000.000đ, Gói Toàn diện từ 60.000.000đ."
+    });
+  } else if (url === '/about') {
+    pageSpecificSchemas.push({
+      "@type": "AboutPage",
+      "@id": `${DOMAIN}/about#webpage`,
+      "name": "Về HEONA MEDIA",
+      "description": description
+    });
+  }
+
+  if (customSchema) {
+    if (Array.isArray(customSchema)) {
+      pageSpecificSchemas.push(...customSchema);
+    } else {
+      pageSpecificSchemas.push(customSchema);
+    }
+  }
 
   const structuredData = {
     "@context": "https://schema.org",
@@ -134,7 +212,8 @@ export const SEO: React.FC<SEOProps> = ({
             "text": item.answer
           }
         }))
-      }
+      },
+      ...pageSpecificSchemas
     ]
   };
 

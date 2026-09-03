@@ -30,7 +30,7 @@
   <meta property="og:description"
     content="HEONA MEDIA – Đơn vị tổ chức sự kiện & sản xuất media chuyên nghiệp tại TP.HCM." />
   <meta property="og:image"
-    content="https://i.postimg.cc/nck9qgG5/481456887-122109905270769501-305987371640573178-n.jpg" />
+    content="https://heonamedia.com/images/logo.webp" />
 
   <!-- Twitter -->
   <meta property="twitter:card" content="summary_large_image" />
@@ -39,10 +39,10 @@
   <meta property="twitter:description"
     content="HEONA MEDIA – Đơn vị tổ chức sự kiện & sản xuất media chuyên nghiệp tại TP.HCM." />
   <meta property="twitter:image"
-    content="https://i.postimg.cc/nck9qgG5/481456887-122109905270769501-305987371640573178-n.jpg" />
+    content="https://heonamedia.com/images/logo.webp" />
 
-  <link rel="icon" type="image/jpeg"
-    href="https://i.postimg.cc/nck9qgG5/481456887-122109905270769501-305987371640573178-n.jpg" />
+  <link rel="icon" type="image/webp"
+    href="/images/logo.webp" />
   <title>HEONA MEDIA – Tổ chức sự kiện & Media Production</title>
 
   <!-- AI LLM Endpoints & Discovery -->
@@ -50,7 +50,7 @@
   <link rel="alternate" type="text/markdown" href="/llms-full.txt" title="HEONA MEDIA LLM Full Documentation" />
 
   <!-- Preload critical hero image for faster LCP -->
-  <link rel="preload" as="image" href="https://i.postimg.cc/hvSh7Y9d/a1.jpg" fetchpriority="high" />
+  <link rel="preload" as="image" href="/images/hero-1.webp" type="image/webp" fetchpriority="high" />
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -61,7 +61,50 @@
 </head>
 
 <body>
-  <div id="root"></div>
+  <div id="root">
+    <!-- Semantic Fallback for AI Crawlers & No-JS Scrapers (Auto-replaced upon React hydration) -->
+    <header style="display:none">
+      <h1>HEONA MEDIA – Tổ chức Sự Kiện & Sản Xuất Media Chuyên Nghiệp tại TP.HCM</h1>
+      <p>CÔNG TY TNHH TRUYỀN THÔNG HEONA MEDIA (Thành lập 12/02/2025). Slogan: &ldquo;Tỏa sáng theo cách riêng của bạn!&rdquo;</p>
+      <nav>
+        <ul>
+          <li><a href="/">Trang chủ</a></li>
+          <li><a href="/about">Về chúng tôi</a></li>
+          <li><a href="/services">Dịch vụ sự kiện & media</a></li>
+          <li><a href="/projects">Dự án tiêu biểu</a></li>
+          <li><a href="/pricing">Bảng giá tham khảo</a></li>
+          <li><a href="/blog">Blog kinh nghiệm</a></li>
+          <li><a href="/contact">Liên hệ</a></li>
+          <li><a href="/llms.txt">Tài liệu AI LLM</a></li>
+        </ul>
+      </nav>
+    </header>
+    <main style="display:none">
+      <section>
+        <h2>Dịch Vụ Cốt Lõi</h2>
+        <ul>
+          <li><strong>Tổ chức sự kiện trọn gói:</strong> Khai trương, khánh thành, hội nghị, hội thảo, Year End Party, team building, activation, ra mắt sản phẩm.</li>
+          <li><strong>Xây dựng thương hiệu cá nhân (Nhân hiệu):</strong> Tư vấn định hình thông điệp, sản xuất nội dung chuyên sâu, xây kênh TikTok/Facebook, coaching 1:1.</li>
+          <li><strong>Chụp ảnh profile doanh nhân & chân dung nghề nghiệp:</strong> Chụp studio/ngoại cảnh, makeup, hướng dẫn tạo dáng, hậu kỳ cao cấp.</li>
+          <li><strong>Sản xuất Media & Livestream chuyên nghiệp:</strong> Quay phim 4K recap, livestream đa máy, video giới thiệu doanh nghiệp.</li>
+          <li><strong>Cho thuê thiết bị sự kiện:</strong> Sân khấu, âm thanh, ánh sáng, màn hình LED P3.</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Bảng Giá Tham Khảo</h2>
+        <ul>
+          <li>Gói Cơ bản: Từ 8.000.000 VNĐ (Sự kiện nhỏ, workshop, khai trương gọn).</li>
+          <li>Gói Chuyên nghiệp: Từ 25.000.000 VNĐ (Sân khấu 6-8m, LED P3 10m², âm thanh ánh sáng nâng cao).</li>
+          <li>Gói Toàn diện: Từ 60.000.000 VNĐ (Concept trọn gói, media full coverage).</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Thông Tin Liên Hệ</h2>
+        <p>Trụ sở chính: 45/30 đường số 1, Phường Thống Tây Hội (Phường 11 cũ), Quận Gò Vấp, TP. Hồ Chí Minh.</p>
+        <p>Hotline / Zalo: 0931 899 427 | Email: heonamedia@gmail.com | Website: https://heonamedia.com</p>
+      </section>
+    </main>
+  </div>
   <div class="bg-tech-grid"></div>
   <div class="bg-overlay"></div>
   <script type="module" src="/index.tsx"></script>

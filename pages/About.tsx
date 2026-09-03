@@ -31,7 +31,7 @@ export const About: React.FC = () => {
                     </div>
                     <div className="relative animate-fade-in delay-200">
                         <div className="aspect-[4/3] rounded-2xl overflow-hidden border border-white/10 bg-bgSoft">
-                            <ProgressiveImage src="https://i.postimg.cc/Wb8YrJPS/ava.jpg" alt="About Heona" className="w-full h-full object-cover" delay={200} />
+                            <ProgressiveImage src="/images/about-1.webp" alt="About Heona" className="w-full h-full object-cover" delay={200} />
                         </div>
                         <div className="absolute -bottom-5 -left-5 w-24 h-24 bg-gradient-to-br from-primary to-secondary rounded-full blur-3xl opacity-20 -z-10"></div>
                     </div>
@@ -143,7 +143,7 @@ export const About: React.FC = () => {
 
                 <div className="grid md:grid-cols-[1fr_1.4fr] gap-6 md:gap-10 items-stretch">
                     <div className="rounded-2xl overflow-hidden border border-borderSubtle h-48 md:h-auto">
-                        <ProgressiveImage src="https://i.postimg.cc/J4xYJBWP/ava2.jpg" alt="Heona Team" className="w-full h-full object-cover" delay={300} />
+                        <ProgressiveImage src="/images/about-2.webp" alt="Heona Team" className="w-full h-full object-cover" delay={300} />
                     </div>
                     <div className="flex flex-col gap-4 md:gap-6">
                         <Card className="p-4 md:p-6">

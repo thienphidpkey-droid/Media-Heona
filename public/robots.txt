@@ -42,7 +42,5 @@ Allow: /
 User-agent: Diffbot
 Allow: /
 
-# Sitemap & LLM AI Text Specifications
+# Sitemap Specification
 Sitemap: https://heonamedia.com/sitemap.xml
-Link: https://heonamedia.com/llms.txt
-Link: https://heonamedia.com/llms-full.txt

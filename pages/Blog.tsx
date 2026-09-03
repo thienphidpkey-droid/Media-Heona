@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { PageHero, Section } from '../components/Section';
 import { BlogPost } from '../types';
 import { X, Calendar, User, Clock, ArrowRight } from 'lucide-react';
@@ -15,7 +16,7 @@ const POSTS: BlogPost[] = [
     meta: 'Các hạng mục căn bản để sự kiện vận hành trơn tru.',
     date: '10/02/2025',
     author: 'Admin Heona',
-    image: 'https://i.postimg.cc/zvJ3RQnW/a2.jpg',
+    image: '/images/hero-2.webp',
     content: `
       <h3 class="text-lg font-bold text-white mb-3">1. Giai đoạn trước sự kiện (Pre-event)</h3>
       <p class="mb-4 text-sm text-textMuted">Đây là giai đoạn quan trọng nhất quyết định 80% thành công của sự kiện. Bạn cần chuẩn bị:</p>
@@ -45,7 +46,7 @@ const POSTS: BlogPost[] = [
     meta: 'Phân nhóm chi phí rõ ràng – minh bạch.',
     date: '12/02/2025',
     author: 'Admin Heona',
-    image: 'https://i.postimg.cc/6q9TGPdG/a3.jpg',
+    image: '/images/hero-3.webp',
     content: `
       <p class="mb-4 text-sm text-textMuted">Để tránh phát sinh không kiểm soát, ngân sách sự kiện cần được chia thành các nhóm chính sau:</p>
       
@@ -73,7 +74,7 @@ const POSTS: BlogPost[] = [
     meta: 'Chọn P3, P4 hay P5 theo quy mô sân khấu?',
     date: '15/02/2025',
     author: 'Kỹ thuật Heona',
-    image: 'https://i.postimg.cc/zvJ3RQnW/a2.jpg',
+    image: '/images/hero-2.webp',
     content: `
       <p class="mb-4 text-sm text-textMuted">Màn hình LED được phân loại dựa trên "Pixel Pitch" (khoảng cách giữa các điểm ảnh). Số P càng nhỏ, độ nét càng cao nhưng chi phí cũng cao hơn.</p>
 
@@ -99,7 +100,7 @@ const POSTS: BlogPost[] = [
     meta: 'Chuẩn bị thiết bị, ánh sáng và đường truyền.',
     date: '18/02/2025',
     author: 'Media Team',
-    image: 'https://i.postimg.cc/6q9TGPdG/a3.jpg',
+    image: '/images/hero-3.webp',
     content: `
       <p class="mb-4 text-sm text-textMuted">Livestream sự kiện khác hoàn toàn với livestream bán hàng bằng điện thoại. Nó đòi hỏi tính ổn định và chuyên nghiệp cao.</p>
       
@@ -123,7 +124,7 @@ const POSTS: BlogPost[] = [
     meta: 'Những lỗi nhỏ nhưng ảnh hưởng trải nghiệm.',
     date: '20/02/2025',
     author: 'Admin Heona',
-    image: 'https://i.postimg.cc/zvJ3RQnW/a2.jpg',
+    image: '/images/hero-2.webp',
     content: `
       <ol class="list-decimal pl-5 space-y-3 text-sm text-textMuted">
         <li>
@@ -151,7 +152,7 @@ const POSTS: BlogPost[] = [
     meta: 'Checklist trước khi gửi brief.',
     date: '22/02/2025',
     author: 'Admin Heona',
-    image: 'https://i.postimg.cc/6q9TGPdG/a3.jpg',
+    image: '/images/hero-3.webp',
     content: `
       <p class="mb-4 text-sm text-textMuted">Để nhận được báo giá chính xác và ý tưởng sát sườn nhất từ Agency (như Heona Media), khách hàng cần chuẩn bị "Brief" (đề bài) bao gồm:</p>
       
@@ -169,7 +170,23 @@ const POSTS: BlogPost[] = [
 ];
 
 export const Blog: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
+
+  const postIdParam = searchParams.get('id');
+
+  // Synchronize URL search params with selectedPost
+  useEffect(() => {
+    if (postIdParam) {
+      const found = POSTS.find(p => p.id === Number(postIdParam));
+      if (found) {
+        setSelectedPost(found);
+      }
+    } else {
+      setSelectedPost(null);
+    }
+  }, [postIdParam]);
 
   useEffect(() => {
     if (selectedPost) {
@@ -182,12 +199,38 @@ export const Blog: React.FC = () => {
     };
   }, [selectedPost]);
 
+  const handleOpenPost = (post: BlogPost) => {
+    setSearchParams({ id: post.id.toString() });
+  };
+
+  const handleClosePost = () => {
+    setSearchParams({});
+  };
+
   return (
     <>
       <SEO
-        title="Blog Sự Kiện"
-        description="Chia sẻ kinh nghiệm tổ chức sự kiện, kiến thức âm thanh ánh sáng, kỹ thuật livestream và checklist sự kiện từ đội ngũ Heona Media."
-        url="/blog"
+        title={selectedPost ? selectedPost.title : "Blog Sự Kiện & Truyền Thông"}
+        description={selectedPost ? selectedPost.meta : "Chia sẻ kinh nghiệm tổ chức sự kiện, kiến thức âm thanh ánh sáng, kỹ thuật livestream và checklist sự kiện từ đội ngũ Heona Media."}
+        url={selectedPost ? `/blog?id=${selectedPost.id}` : "/blog"}
+        image={selectedPost?.image}
+        type={selectedPost ? "article" : "website"}
+        customSchema={selectedPost ? {
+          "@type": "BlogPosting",
+          "@id": `https://heonamedia.com/blog?id=${selectedPost.id}#article`,
+          "headline": selectedPost.title,
+          "description": selectedPost.meta,
+          "image": selectedPost.image,
+          "datePublished": selectedPost.date,
+          "author": {
+            "@type": "Organization",
+            "name": "HEONA MEDIA"
+          },
+          "publisher": {
+            "@id": "https://heonamedia.com/#organization"
+          },
+          "mainEntityOfPage": `https://heonamedia.com/blog?id=${selectedPost.id}`
+        } : undefined}
       />
       <PageHero title="Blog – Chia sẻ kinh nghiệm" sub="Các bài viết hướng dẫn, checklist và kinh nghiệm thực tế trong ngành sự kiện – media." />
 
@@ -196,7 +239,7 @@ export const Blog: React.FC = () => {
           {POSTS.map((post, index) => (
             <div
               key={post.id}
-              onClick={() => setSelectedPost(post)}
+              onClick={() => handleOpenPost(post)}
               className="group bg-bgCard border border-borderSubtle rounded-xl overflow-hidden hover:border-primary hover:-translate-y-1 hover:shadow-[0_10px_30px_-10px_rgba(111,58,255,0.2)] transition-all duration-300 cursor-pointer flex flex-col h-full relative"
             >
               <div className="h-24 md:h-48 w-full overflow-hidden relative">
@@ -240,7 +283,7 @@ export const Blog: React.FC = () => {
       {selectedPost && createPortal(
         <div
           className="fixed inset-0 z-[9999] bg-black/90 backdrop-blur-sm flex items-center justify-center p-0 md:p-4 animate-fade-in overflow-hidden"
-          onClick={() => setSelectedPost(null)}
+          onClick={handleClosePost}
         >
           <div
             className="relative w-full h-full md:h-auto md:max-h-[90vh] md:max-w-2xl bg-[#111115] md:rounded-2xl border border-white/10 shadow-2xl flex flex-col animate-slide-up"
@@ -264,8 +307,9 @@ export const Blog: React.FC = () => {
                 </div>
               </div>
               <button
-                onClick={() => setSelectedPost(null)}
+                onClick={handleClosePost}
                 className="p-1.5 rounded-full bg-white/5 hover:bg-red-500 hover:text-white text-textMuted transition-colors"
+                aria-label="Đóng chi tiết bài viết"
               >
                 <X size={20} />
               </button>
@@ -297,8 +341,8 @@ export const Blog: React.FC = () => {
                 <p className="text-textMuted mb-3 text-sm">Bạn cần tư vấn chi tiết về chủ đề này?</p>
                 <button
                   onClick={() => {
-                    setSelectedPost(null);
-                    window.location.href = '#/contact';
+                    handleClosePost();
+                    navigate('/contact');
                   }}
                   className="px-6 py-2.5 rounded-full bg-gradient-to-r from-primary to-secondary text-white text-sm font-bold hover:shadow-lg hover:shadow-primary/25 transition-all"
                 >

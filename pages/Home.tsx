@@ -8,9 +8,9 @@ import { SEO } from '../components/SEO';
 import { ProgressiveImage } from '../components/ProgressiveImage';
 
 const HERO_IMAGES = [
-  "https://i.postimg.cc/hvSh7Y9d/a1.jpg",
-  "https://i.postimg.cc/zvJ3RQnW/a2.jpg",
-  "https://i.postimg.cc/6q9TGPdG/a3.jpg"
+  "/images/hero-1.webp",
+  "/images/hero-2.webp",
+  "/images/hero-3.webp"
 ];
 
 const HERO_ALTS = [

@@ -1,8 +1,8 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { PageHero, Section } from '../components/Section';
 import { Card } from '../components/Card';
-import { Phone, Mail, MapPin, Loader2, CheckCircle, AlertCircle, Facebook, ExternalLink, Youtube } from 'lucide-react';
+import { Phone, Mail, MapPin, Loader2, CheckCircle, AlertCircle, Facebook, ExternalLink, Youtube, Clock } from 'lucide-react';
 import { useContent } from '../context/ContentContext';
 import emailjs from '@emailjs/browser';
 import { SEO } from '../components/SEO';
@@ -20,11 +20,37 @@ export const Contact: React.FC = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
     const [errorMessage, setErrorMessage] = useState<string>('');
+    const [cooldown, setCooldown] = useState<number>(0);
+
+    // Countdown cooldown timer
+    useEffect(() => {
+        if (cooldown <= 0) return;
+        const timer = setInterval(() => {
+            setCooldown(prev => prev - 1);
+        }, 1000);
+        return () => clearInterval(timer);
+    }, [cooldown]);
 
     const sendEmail = (e: React.FormEvent) => {
         e.preventDefault();
 
         if (!form.current) return;
+
+        // Anti-spam Honeypot Check: bot fills invisible trap input
+        const botTrap = form.current.elements.namedItem('website_bot_trap') as HTMLInputElement | null;
+        if (botTrap && botTrap.value) {
+            console.warn('Bot detected and neutralized via honeypot.');
+            setIsSubmitting(false);
+            setSubmitStatus('success');
+            if (form.current) form.current.reset();
+            return;
+        }
+
+        // Rate-limit check
+        if (cooldown > 0) {
+            alert(`Vui lòng đợi ${cooldown} giây trước khi gửi thêm yêu cầu.`);
+            return;
+        }
 
         setIsSubmitting(true);
         setSubmitStatus('idle');
@@ -39,6 +65,7 @@ export const Contact: React.FC = () => {
                     console.log('SUCCESS!');
                     setIsSubmitting(false);
                     setSubmitStatus('success');
+                    setCooldown(45);
                     if (form.current) form.current.reset();
                     setTimeout(() => setSubmitStatus('idle'), 5000);
                 },
@@ -155,6 +182,18 @@ export const Contact: React.FC = () => {
                         <p className="text-xs text-textMuted mb-6">Cho chúng tôi biết nhu cầu của bạn, đội ngũ sẽ tư vấn gói dịch vụ phù hợp.</p>
 
                         <form ref={form} onSubmit={sendEmail} className="space-y-5">
+                            {/* Honeypot anti-spam trap: invisible to humans, attracts spam bots */}
+                            <div className="hidden" aria-hidden="true" style={{ display: 'none' }}>
+                                <label htmlFor="website_bot_trap">Do not fill this</label>
+                                <input
+                                    type="text"
+                                    id="website_bot_trap"
+                                    name="website_bot_trap"
+                                    tabIndex={-1}
+                                    autoComplete="off"
+                                />
+                            </div>
+
                             <div className="grid md:grid-cols-2 gap-5">
                                 <div className="flex flex-col gap-1.5">
                                     <label className="text-xs text-textMuted font-medium">Họ tên *</label>
@@ -259,12 +298,16 @@ export const Contact: React.FC = () => {
 
                                 <button
                                     type="submit"
-                                    disabled={isSubmitting}
+                                    disabled={isSubmitting || cooldown > 0}
                                     className="w-full py-3.5 rounded-full bg-gradient-to-r from-primary to-secondary text-white font-bold text-sm shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                 >
                                     {isSubmitting ? (
                                         <>
                                             <Loader2 className="animate-spin" size={18} /> Đang gửi thông tin...
+                                        </>
+                                    ) : cooldown > 0 ? (
+                                        <>
+                                            <Clock size={16} /> Đã gửi thành công (Thử lại sau {cooldown}s)
                                         </>
                                     ) : (
                                         "Gửi thông tin & Nhận báo giá"
