@@ -10,9 +10,9 @@ import { ZaloIcon } from '../components/Footer';
 import { Link } from 'react-router-dom';
 
 // Đảm bảo các ID này đúng với trong EmailJS Dashboard của bạn
-const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
-const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
-const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID || 'service_ioldixq';
+const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || 'template_4h2poul';
+const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || 'j2_6S7H7hc8wYCp3h';
 
 export const Contact: React.FC = () => {
     const { contactInfo } = useContent();
