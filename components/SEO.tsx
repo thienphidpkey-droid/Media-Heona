@@ -216,7 +216,7 @@ export const SEO: React.FC<SEOProps> = ({
 
       {/* JSON-LD Structured Data */}
       <script type="application/ld+json">
-        {JSON.stringify(structuredData)}
+        {JSON.stringify(structuredData).replace(/</g, '\\u003c')}
       </script>
     </Helmet>
   );

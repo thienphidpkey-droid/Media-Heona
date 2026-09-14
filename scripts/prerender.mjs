@@ -28,10 +28,10 @@ const routes = [
 for (const route of routes) {
   const { html, head } = render(route);
   const document = template
-    .replace(/<!--seo-fallback-start-->[\s\S]*?<!--seo-fallback-end-->/, head)
+    .replace(/<!--seo-fallback-start-->[\s\S]*?<!--seo-fallback-end-->/, () => head)
     .replace(
       /<div id="root">[\s\S]*?<\/div>\s*<div class="bg-tech-grid"><\/div>/,
-      `<div id="root" data-prerendered="true">${html}</div>`
+      () => `<div id="root" data-prerendered="true">${html}</div>`
     );
   const outputPath = route === '/'
     ? join(distDir, 'index.html')

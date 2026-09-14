@@ -69,7 +69,6 @@ export const Contact: React.FC = () => {
             })
             .then(
                 () => {
-                    console.log('SUCCESS!');
                     setIsSubmitting(false);
                     setSubmitStatus('success');
                     setCooldown(45);
@@ -185,7 +184,7 @@ export const Contact: React.FC = () => {
                         <h2 className="font-heading font-bold text-xl mb-1">Gửi yêu cầu báo giá</h2>
                         <p className="text-xs text-textMuted mb-6">Cho chúng tôi biết nhu cầu của bạn, đội ngũ sẽ tư vấn gói dịch vụ phù hợp.</p>
 
-                        <form ref={form} onSubmit={sendEmail} className="space-y-5">
+                        <form ref={form} method="POST" onSubmit={sendEmail} className="space-y-5">
                             {/* Honeypot anti-spam trap: invisible to humans, attracts spam bots */}
                             <div className="hidden" aria-hidden="true" style={{ display: 'none' }}>
                                 <label htmlFor="website_bot_trap">Do not fill this</label>

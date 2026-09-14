@@ -16,7 +16,7 @@ body {
   width: 100%;
   height: 100%;
   z-index: -2;
-  background-image: url('https://images.unsplash.com/photo-1632670536499-ebc8bc72892a');
+  background-image: url('/images/bg-tech-grid.webp');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
