@@ -232,7 +232,7 @@ export const Contact: React.FC = () => {
                                         inputMode="tel"
                                         minLength={8}
                                         maxLength={20}
-                                        pattern="[0-9+(). -]{8,20}"
+                                        pattern="[0-9+() .\\-]{8,20}"
                                         placeholder="SĐT liên hệ..."
                                         className="bg-[#111116] border border-borderSubtle rounded-lg px-4 py-3 text-sm text-white focus:border-primary focus:outline-none focus:bg-[#15151c] transition-all"
                                     />

@@ -8,7 +8,7 @@ body {
   overflow-x: hidden;
 }
 
-/* Futuristic Background with Image */
+/* Futuristic Background with Tech Grid */
 .bg-tech-grid {
   position: fixed;
   top: 0;
@@ -16,12 +16,12 @@ body {
   width: 100%;
   height: 100%;
   z-index: -2;
-  background-image: url('/images/bg-tech-grid.webp');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  filter: grayscale(85%) blur(4px) brightness(0.45);
-  transform: scale(1.1);
+  background-color: #050507;
+  background-image: 
+    radial-gradient(circle at 50% 50%, rgba(111, 58, 255, 0.08) 0%, transparent 60%),
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 100% 100%, 40px 40px, 40px 40px;
 }
 
 /* Overlay for texture */
