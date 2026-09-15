@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { PageHero, Section } from '../components/Section';
 import { BlogPost } from '../types';
-import { Calendar, User, ArrowLeft, ArrowRight, Eye } from 'lucide-react';
+import { Calendar, User, ArrowLeft, ArrowRight, Eye, X } from 'lucide-react';
 import { DOMAIN, SEO } from '../components/SEO';
 import { ProgressiveImage } from '../components/ProgressiveImage';
 import { sanitizeHtml } from '../utils/sanitizeHtml';
@@ -277,6 +277,30 @@ export const Blog: React.FC = () => {
     return trackArticleView(selectedPost.slug);
   }, [selectedPost?.slug]);
 
+  const handleCloseModal = () => {
+    navigate('/blog');
+  };
+
+  // Lock body scroll & ESC key support when modal is open
+  useEffect(() => {
+    if (!selectedPost) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        handleCloseModal();
+      }
+    };
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [selectedPost]);
+
   const canonicalPath = selectedPost ? `/blog/${selectedPost.slug}` : '/blog';
 
   return (
@@ -306,17 +330,22 @@ export const Blog: React.FC = () => {
         } : undefined}
       />
       <PageHero
-        title={selectedPost ? selectedPost.title : 'Blog – Chia sẻ kinh nghiệm'}
-        sub={selectedPost ? selectedPost.meta : 'Các bài viết hướng dẫn, checklist và kinh nghiệm thực tế trong ngành sự kiện – media.'}
+        title="Blog – Chia sẻ kinh nghiệm"
+        sub="Các bài viết hướng dẫn, checklist và kinh nghiệm thực tế trong ngành sự kiện – media."
       />
 
-      {!selectedPost && !slug ? (
-        <Section narrow>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6">
-            {posts.map((post, index) => (
+      <Section narrow>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6">
+          {posts.map((post, index) => (
             <Link
               key={post.id}
               to={`/blog/${post.slug}`}
+              onClick={(e) => {
+                if (!e.ctrlKey && !e.metaKey && !e.shiftKey && e.button === 0) {
+                  e.preventDefault();
+                  navigate(`/blog/${post.slug}`);
+                }
+              }}
               className="group bg-bgCard border border-borderSubtle rounded-xl overflow-hidden hover:border-primary hover:-translate-y-1 hover:shadow-[0_10px_30px_-10px_rgba(111,58,255,0.2)] transition-all duration-300 flex flex-col h-full relative"
             >
               <div className="w-full aspect-[16/10] overflow-hidden relative bg-black/40">
@@ -361,27 +390,57 @@ export const Blog: React.FC = () => {
               </div>
             </Link>
           ))}
-          </div>
-        </Section>
-      ) : selectedPost ? (
-        <Section narrow>
-          <article className="max-w-3xl mx-auto bg-[#111115] rounded-2xl border border-white/10 p-5 md:p-8 shadow-2xl">
-            <div className="flex flex-wrap items-center gap-5 mb-6 text-xs text-textMuted">
-              <span className="inline-block px-2.5 py-1 rounded bg-primary/20 text-primary text-[10px] font-bold uppercase tracking-widest border border-primary/20">
-                {selectedPost.tag}
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Calendar size={12} /> <time dateTime={selectedPost.date}>{formatDate(selectedPost.date)}</time>
-              </span>
-              <span className="flex items-center gap-1.5">
-                <User size={12} /> {selectedPost.author}
-              </span>
-              <span className="flex items-center gap-1.5 text-textMuted" title="Lượt xem thực tế">
-                <Eye size={12} className="text-primary/70" /> {(selectedPost.views || 0).toLocaleString()} lượt xem
-              </span>
+        </div>
+      </Section>
+
+      {/* Cửa sổ Popup (Modal) chi tiết bài viết */}
+      {selectedPost && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 md:p-6 bg-black/80 backdrop-blur-md animate-fade-in"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) handleCloseModal();
+          }}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="modal-article-title"
+        >
+          <div className="relative w-full max-w-3xl max-h-[90vh] bg-[#111115] rounded-2xl border border-white/10 shadow-2xl flex flex-col overflow-hidden animate-scale-up">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-5 py-3.5 border-b border-white/10 bg-[#16161d]/90 backdrop-blur-md shrink-0">
+              <div className="flex items-center gap-2.5">
+                <span className="px-2.5 py-0.5 rounded bg-primary/20 text-primary text-[10px] font-bold uppercase tracking-wider border border-primary/30">
+                  {selectedPost.tag}
+                </span>
+                <span className="text-xs text-textMuted flex items-center gap-1">
+                  <Calendar size={12} /> <time dateTime={selectedPost.date}>{formatDate(selectedPost.date)}</time>
+                </span>
+              </div>
+              <button
+                onClick={handleCloseModal}
+                className="p-1.5 text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-full transition-all cursor-pointer"
+                aria-label="Đóng cửa sổ"
+              >
+                <X size={18} />
+              </button>
             </div>
+
+            {/* Modal Scrollable Body */}
+            <article className="overflow-y-auto p-5 md:p-8 custom-scrollbar space-y-6">
+              <h1 id="modal-article-title" className="font-heading font-black text-xl md:text-3xl text-white leading-tight">
+                {selectedPost.title}
+              </h1>
+
+              <div className="flex flex-wrap items-center gap-4 text-xs text-textMuted pb-4 border-b border-white/10">
+                <span className="flex items-center gap-1.5">
+                  <User size={13} className="text-primary/70" /> {selectedPost.author}
+                </span>
+                <span className="flex items-center gap-1.5 text-textMuted" title="Lượt xem thực tế">
+                  <Eye size={13} className="text-primary/70" /> {(selectedPost.views || 0).toLocaleString()} lượt xem
+                </span>
+              </div>
+
               {selectedPost.image && (
-                <div className="w-full h-56 md:h-64 rounded-xl overflow-hidden mb-6 border border-white/10 shadow-lg relative">
+                <div className="w-full aspect-[16/9] max-h-80 rounded-xl overflow-hidden border border-white/10 shadow-lg relative bg-black/40">
                   <ProgressiveImage
                     src={selectedPost.image}
                     alt={selectedPost.title}
@@ -389,35 +448,42 @@ export const Blog: React.FC = () => {
                     loading="eager"
                     delay={0}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#111115] via-transparent to-transparent opacity-80"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#111115] via-transparent to-transparent opacity-60 pointer-events-none" />
                 </div>
               )}
 
               <div className="prose prose-invert prose-base max-w-none text-textMuted/90">
-                <p className="text-base font-medium text-white italic border-l-4 border-secondary pl-3 mb-6">
-                  {selectedPost.meta}
-                </p>
+                {selectedPost.meta && (
+                  <p className="text-sm md:text-base font-medium text-white italic border-l-4 border-secondary pl-3.5 mb-6 py-0.5">
+                    {selectedPost.meta}
+                  </p>
+                )}
 
                 <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(selectedPost.content || '') }} />
               </div>
 
-              <div className="mt-8 pt-6 border-t border-white/10 text-center space-y-4">
-                <p className="text-textMuted mb-3 text-sm">Bạn cần tư vấn chi tiết về chủ đề này?</p>
+              <div className="pt-6 border-t border-white/10 text-center space-y-4">
+                <p className="text-textMuted text-sm">Bạn cần tư vấn chi tiết về chủ đề này?</p>
                 <Link
                   to="/contact"
-                  className="px-6 py-2.5 rounded-full bg-gradient-to-r from-primary to-secondary text-white text-sm font-bold hover:shadow-lg hover:shadow-primary/25 transition-all"
+                  onClick={handleCloseModal}
+                  className="inline-block px-6 py-2.5 rounded-full bg-gradient-to-r from-primary to-secondary text-white text-sm font-bold hover:shadow-lg hover:shadow-primary/25 transition-all"
                 >
                   Liên hệ HEONA MEDIA ngay
                 </Link>
                 <div>
-                  <Link to="/blog" className="inline-flex items-center gap-2 text-sm text-textMuted hover:text-primary transition-colors">
-                    <ArrowLeft size={14} /> Quay lại danh sách bài viết
-                  </Link>
+                  <button
+                    onClick={handleCloseModal}
+                    className="inline-flex items-center gap-2 text-sm text-textMuted hover:text-primary transition-colors cursor-pointer"
+                  >
+                    <ArrowLeft size={14} /> Đóng & quay lại danh sách
+                  </button>
                 </div>
               </div>
-          </article>
-        </Section>
-      ) : null}
+            </article>
+          </div>
+        </div>
+      )}
     </>
   );
 };

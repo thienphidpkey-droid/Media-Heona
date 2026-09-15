@@ -19,6 +19,38 @@ import { AuthService } from '../../services/auth';
 import { Article, ContentStatus } from '../../../types';
 import { useToast } from '../../components/Toast';
 
+const getArticleSortTimestamp = (a: Article): number => {
+  if (a.publishedAt && a.publishedAt.trim()) {
+    const t = new Date(a.publishedAt).getTime();
+    if (!isNaN(t) && t > 0) return t;
+  }
+  if (a.createdAt && a.createdAt.trim()) {
+    const t = new Date(a.createdAt).getTime();
+    if (!isNaN(t) && t > 0) return t;
+  }
+  if (a.updatedAt && a.updatedAt.trim()) {
+    const t = new Date(a.updatedAt).getTime();
+    if (!isNaN(t) && t > 0) return t;
+  }
+  if (typeof a.id === 'string' && a.id.startsWith('art-')) {
+    const ts = parseInt(a.id.replace('art-', ''), 10);
+    if (!isNaN(ts) && ts > 0) return ts;
+  }
+  if (typeof a.id === 'number') {
+    return a.id;
+  }
+  return 0;
+};
+
+const sortArticlesNewestFirst = (a: Article, b: Article): number => {
+  const timeA = getArticleSortTimestamp(a);
+  const timeB = getArticleSortTimestamp(b);
+  if (timeB !== timeA) {
+    return timeB - timeA;
+  }
+  return String(b.id).localeCompare(String(a.id), undefined, { numeric: true });
+};
+
 const formatPublishDate = (dateStr?: string) => {
   if (!dateStr) return '—';
   return dateStr.includes('T') ? dateStr.split('T')[0] : dateStr.slice(0, 10);
@@ -53,15 +85,17 @@ export const ArticleList: React.FC = () => {
     { id: 'archived', label: 'Lưu trữ' }
   ];
 
-  // Filtering
-  const filteredArticles = articles.filter((a) => {
-    const matchesSearch =
-      a.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      a.shortDesc.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory === 'All' || a.category === selectedCategory;
-    const matchesStatus = selectedStatus === 'all' || a.status === selectedStatus;
-    return matchesSearch && matchesCategory && matchesStatus;
-  });
+  // Filtering & Sorting (Mới nhất trước)
+  const filteredArticles = articles
+    .filter((a) => {
+      const matchesSearch =
+        a.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        a.shortDesc.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory = selectedCategory === 'All' || a.category === selectedCategory;
+      const matchesStatus = selectedStatus === 'all' || a.status === selectedStatus;
+      return matchesSearch && matchesCategory && matchesStatus;
+    })
+    .sort(sortArticlesNewestFirst);
 
   // Bulk actions
   const handleSelectAll = () => {

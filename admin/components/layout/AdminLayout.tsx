@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { AuthService } from '../../services/auth';
 import { NotificationService, ArticlesService, ProjectsService, ClientsService } from '../../services/db';
-import { CMSUser, Role } from '../../../types';
+import { CMSUser } from '../../../types';
 import { useToast } from '../Toast';
 
 interface AdminLayoutProps {
@@ -76,13 +76,6 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     AuthService.logout();
     showToast('Đã đăng xuất khỏi hệ thống', 'info');
     navigate('/');
-  };
-
-  const handleSwitchRole = (role: Role) => {
-    const user = AuthService.loginWithDemo(role);
-    setCurrentUser(user);
-    setUserMenuOpen(false);
-    showToast(`Đã chuyển sang vai trò: ${role.toUpperCase()}`, 'success');
   };
 
   // Search matches
@@ -347,46 +340,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                     </span>
                   </div>
 
-                  {/* Switch Demo Roles for Instant Testing */}
-                  <div className="py-2 px-3">
-                    <p className="text-[10px] font-bold tracking-wider text-gray-400 uppercase mb-1.5">
-                      Chuyển quyền test:
-                    </p>
-                    <div className="grid grid-cols-3 gap-1">
-                      <button
-                        onClick={() => handleSwitchRole('admin')}
-                        className={`py-1 px-1.5 text-center rounded-lg font-semibold text-[11px] transition-colors ${
-                          currentUser?.role === 'admin'
-                            ? 'bg-primary text-white font-bold'
-                            : 'bg-white/5 text-gray-300 hover:bg-white/10'
-                        }`}
-                      >
-                        Admin
-                      </button>
-                      <button
-                        onClick={() => handleSwitchRole('editor')}
-                        className={`py-1 px-1.5 text-center rounded-lg font-semibold text-[11px] transition-colors ${
-                          currentUser?.role === 'editor'
-                            ? 'bg-primary text-white font-bold'
-                            : 'bg-white/5 text-gray-300 hover:bg-white/10'
-                        }`}
-                      >
-                        Editor
-                      </button>
-                      <button
-                        onClick={() => handleSwitchRole('contributor')}
-                        className={`py-1 px-1.5 text-center rounded-lg font-semibold text-[11px] transition-colors ${
-                          currentUser?.role === 'contributor'
-                            ? 'bg-primary text-white font-bold'
-                            : 'bg-white/5 text-gray-300 hover:bg-white/10'
-                        }`}
-                      >
-                        Contrib
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="border-t border-white/10 pt-1 mt-1">
+                  <div className="pt-1 mt-1">
                     <button
                       onClick={handleLogout}
                       className="w-full flex items-center gap-2 px-3 py-2 text-rose-400 hover:bg-rose-500/10 rounded-xl transition-colors font-semibold"

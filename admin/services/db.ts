@@ -188,7 +188,7 @@ export async function syncFromSupabase(): Promise<void> {
     }
 
     // Sync Articles from Supabase with Smart Merge
-    let articleQuery = supabase.from('articles').select('*');
+    let articleQuery = supabase.from('articles').select('*').order('created_at', { ascending: false });
     if (!isAdminUser) {
       articleQuery = articleQuery.eq('status', 'published');
     }
@@ -333,9 +333,29 @@ if (typeof window !== 'undefined') {
 export const ArticlesService = {
   getAll(): Article[] {
     return getItem<Article[]>(STORAGE_KEYS.ARTICLES, SEED_ARTICLES).sort((a, b) => {
-      const timeA = new Date(a.publishedAt || a.createdAt || '').getTime() || 0;
-      const timeB = new Date(b.publishedAt || b.createdAt || '').getTime() || 0;
-      return timeB - timeA;
+      const getTs = (item: Article) => {
+        if (item.publishedAt && item.publishedAt.trim()) {
+          const t = new Date(item.publishedAt).getTime();
+          if (!isNaN(t) && t > 0) return t;
+        }
+        if (item.createdAt && item.createdAt.trim()) {
+          const t = new Date(item.createdAt).getTime();
+          if (!isNaN(t) && t > 0) return t;
+        }
+        if (item.updatedAt && item.updatedAt.trim()) {
+          const t = new Date(item.updatedAt).getTime();
+          if (!isNaN(t) && t > 0) return t;
+        }
+        if (typeof item.id === 'string' && item.id.startsWith('art-')) {
+          const ts = parseInt(item.id.replace('art-', ''), 10);
+          if (!isNaN(ts) && ts > 0) return ts;
+        }
+        if (typeof item.id === 'number') return item.id;
+        return 0;
+      };
+      const diff = getTs(b) - getTs(a);
+      if (diff !== 0) return diff;
+      return String(b.id).localeCompare(String(a.id), undefined, { numeric: true });
     });
   },
 
@@ -881,7 +901,12 @@ export const LeadsService = {
 // ==========================================
 export const UsersService = {
   getAll(): CMSUser[] {
-    return getItem<CMSUser[]>(STORAGE_KEYS.USERS, SEED_USERS);
+    const users = getItem<CMSUser[]>(STORAGE_KEYS.USERS, SEED_USERS);
+    if (users.some((u) => u.email.endsWith('@heonamedia.com') || u.id === 'u-contrib-1')) {
+      setItem(STORAGE_KEYS.USERS, SEED_USERS);
+      return SEED_USERS;
+    }
+    return users;
   },
 
   getById(id: string): CMSUser | undefined {

@@ -42,13 +42,20 @@ export const ProjectList: React.FC = () => {
     { id: 'Event to Content', label: 'Event to Content', icon: TrendingUp }
   ];
 
-  const filteredProjects = projects.filter((p) => {
-    const matchesSearch =
-      p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (p.clientName && p.clientName.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchesCat = selectedCat === 'All' || p.category === selectedCat;
-    return matchesSearch && matchesCat;
-  });
+  const filteredProjects = projects
+    .filter((p) => {
+      const matchesSearch =
+        p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (p.clientName && p.clientName.toLowerCase().includes(searchQuery.toLowerCase()));
+      const matchesCat = selectedCat === 'All' || p.category === selectedCat;
+      return matchesSearch && matchesCat;
+    })
+    .sort((a, b) => {
+      const timeA = new Date(a.createdAt || a.startDate || a.updatedAt || '').getTime() || 0;
+      const timeB = new Date(b.createdAt || b.startDate || b.updatedAt || '').getTime() || 0;
+      if (timeB !== timeA) return timeB - timeA;
+      return String(b.id).localeCompare(String(a.id), undefined, { numeric: true });
+    });
 
   const handleDelete = (id: string | number, title: string) => {
     if (!canDelete) {
