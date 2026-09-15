@@ -116,20 +116,36 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({
     setMediaPickerOpen(false);
   };
 
+  // Helper to extract YouTube video ID from any format (watch, youtu.be, shorts, live, embed, iframe tag)
+  const extractYouTubeId = (input: string): string | null => {
+    if (!input) return null;
+    const trimmed = input.trim();
+    const iframeSrcMatch = trimmed.match(/src=["']([^"']+)["']/i);
+    const target = iframeSrcMatch ? iframeSrcMatch[1] : trimmed;
+    const regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=|shorts\/|live\/)|youtu\.be\/)([^"&?\/ ]{11})/i;
+    const match = target.match(regExp);
+    return match ? match[1] : null;
+  };
+
   // Insert Video Embed
   const handleInsertVideo = () => {
     if (!videoUrl) return;
-    let embedSrc = videoUrl;
+    const trimmed = videoUrl.trim();
+    const ytId = extractYouTubeId(trimmed);
 
-    if (videoUrl.includes('youtube.com/watch?v=')) {
-      const id = videoUrl.split('watch?v=')[1]?.split('&')[0];
-      embedSrc = `https://www.youtube.com/embed/${id}`;
-    } else if (videoUrl.includes('youtu.be/')) {
-      const id = videoUrl.split('youtu.be/')[1]?.split('?')[0];
-      embedSrc = `https://www.youtube.com/embed/${id}`;
+    let embedSrc = '';
+    if (ytId) {
+      embedSrc = `https://www.youtube.com/embed/${ytId}`;
+    } else if (trimmed.includes('player.vimeo.com/video/')) {
+      embedSrc = trimmed;
     }
 
-    const videoHtml = `<div class="aspect-video my-6 rounded-2xl overflow-hidden shadow-xl border border-white/10 not-prose"><iframe class="w-full h-full" src="${embedSrc}" allowfullscreen></iframe></div><p><br></p>`;
+    if (!embedSrc) {
+      alert('Vui lòng nhập đường dẫn video YouTube hợp lệ (Ví dụ: https://www.youtube.com/watch?v=...)');
+      return;
+    }
+
+    const videoHtml = `<div class="aspect-video my-6 rounded-2xl overflow-hidden shadow-xl border border-white/10 not-prose"><iframe class="w-full h-full" src="${embedSrc}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div><p><br></p>`;
     insertCustomHtml(videoHtml);
     setVideoUrl('');
     setVideoModalOpen(false);

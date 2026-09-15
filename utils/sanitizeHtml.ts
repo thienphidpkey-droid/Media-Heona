@@ -2,7 +2,8 @@
  * Utility: sanitizeHtml
  * Zero-dependency, isomorphic HTML sanitizer for user/CMS generated article content.
  * Prevents Stored XSS, script injection, javascript: URIs, inline event handlers (onload, onerror, onclick),
- * and unauthorized tags (<script>, <iframe>, <object>, <embed>, <form>, <base>, <svg> event handlers).
+ * and unauthorized tags (<script>, <object>, <embed>, <form>, <base>, <svg> event handlers).
+ * Safely permits trusted video embeds (YouTube / Vimeo iframes).
  */
 
 const ALLOWED_TAGS = new Set([
@@ -12,13 +13,15 @@ const ALLOWED_TAGS = new Set([
   'strong', 'b', 'em', 'i', 'u', 's', 'strike', 'sub', 'sup',
   'a', 'span', 'div',
   'table', 'thead', 'tbody', 'tr', 'th', 'td',
-  'img', 'figure', 'figcaption'
+  'img', 'figure', 'figcaption',
+  'iframe'
 ]);
 
 const ALLOWED_ATTRS = new Set([
   'href', 'title', 'target', 'rel',
   'src', 'alt', 'width', 'height', 'loading',
-  'class', 'id'
+  'class', 'id',
+  'frameborder', 'allow', 'allowfullscreen', 'referrerpolicy'
 ]);
 
 export function sanitizeHtml(dirtyHtml: string): string {
@@ -28,11 +31,26 @@ export function sanitizeHtml(dirtyHtml: string): string {
   let clean = dirtyHtml
     .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
     .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
-    .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
     .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, '')
     .replace(/<embed\b[^<]*(?:(?!<\/embed>)<[^<]*)*<\/embed>/gi, '')
     .replace(/<applet\b[^<]*(?:(?!<\/applet>)<[^<]*)*<\/applet>/gi, '')
     .replace(/<form\b[^<]*(?:(?!<\/form>)<[^<]*)*<\/form>/gi, '');
+
+  // Strip unverified iframes (only preserve trusted YouTube and Vimeo embeds)
+  clean = clean.replace(/<iframe\b([^>]*)>(?:[\s\S]*?<\/iframe>)?/gi, (match, attrs) => {
+    const srcMatch = attrs.match(/\bsrc\s*=\s*["']([^"']+)["']/i);
+    if (srcMatch) {
+      const src = srcMatch[1].trim();
+      if (
+        src.startsWith('https://www.youtube.com/embed/') ||
+        src.startsWith('https://www.youtube-nocookie.com/embed/') ||
+        src.startsWith('https://player.vimeo.com/video/')
+      ) {
+        return match;
+      }
+    }
+    return '';
+  });
 
   // 2. Strip inline event handlers (e.g. onerror=, onload=, onclick=, onmouseover=)
   clean = clean.replace(/\son\w+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, '');
@@ -53,6 +71,19 @@ export function sanitizeHtml(dirtyHtml: string): string {
         if (!ALLOWED_TAGS.has(tagName)) {
           el.remove();
           return;
+        }
+
+        // Validate iframe sources strictly
+        if (tagName === 'iframe') {
+          const src = (el.getAttribute('src') || '').trim();
+          const isSafeEmbed =
+            src.startsWith('https://www.youtube.com/embed/') ||
+            src.startsWith('https://www.youtube-nocookie.com/embed/') ||
+            src.startsWith('https://player.vimeo.com/video/');
+          if (!isSafeEmbed) {
+            el.remove();
+            return;
+          }
         }
 
         // Filter attributes
