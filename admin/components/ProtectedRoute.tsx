@@ -8,32 +8,34 @@ interface ProtectedRouteProps {
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const [user, setUser] = useState<CMSUser | null>(AuthService.getCurrentUser());
+  const [user, setUser] = useState<CMSUser | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Nếu đang trả về từ luồng OAuth redirect của Supabase
-    const isOAuthReturn = typeof window !== 'undefined' && 
-      (window.location.hash.includes('access_token=') || window.location.search.includes('code='));
+    let isMounted = true;
 
-    const currentUser = AuthService.getCurrentUser();
-    setUser(currentUser);
-
-    if (!isOAuthReturn || currentUser) {
+    // Xác thực phiên làm việc an toàn trực tiếp từ máy chủ Supabase
+    AuthService.verifySession().then((verifiedUser) => {
+      if (!isMounted) return;
+      setUser(verifiedUser);
       setLoading(false);
-    }
+    });
 
     const unsubscribe = AuthService.subscribe((u) => {
+      if (!isMounted) return;
       setUser(u);
       setLoading(false);
     });
 
-    // Hạn chế treo loading tối đa 2.5s
+    // Hạn chế treo loading tối đa 3s trong trường hợp mạng chập chờn
     const timer = setTimeout(() => {
-      setLoading(false);
-    }, 2500);
+      if (isMounted) {
+        setLoading(false);
+      }
+    }, 3000);
 
     return () => {
+      isMounted = false;
       unsubscribe();
       clearTimeout(timer);
     };

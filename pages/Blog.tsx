@@ -309,6 +309,22 @@ export const Blog: React.FC = () => {
               to={`/blog/${post.slug}`}
               className="group bg-bgCard border border-borderSubtle rounded-xl overflow-hidden hover:border-primary hover:-translate-y-1 hover:shadow-[0_10px_30px_-10px_rgba(111,58,255,0.2)] transition-all duration-300 flex flex-col h-full relative"
             >
+              <div className="w-full aspect-[16/10] overflow-hidden relative bg-black/40">
+                <ProgressiveImage
+                  src={post.image || '/images/hero-1.webp'}
+                  alt={post.title}
+                  loading={index < 3 ? 'eager' : 'lazy'}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  delay={(index % 6) * 100}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-bgCard via-transparent to-transparent opacity-60 pointer-events-none"></div>
+                {post.tag && (
+                  <span className="absolute top-2 left-2 md:top-3 md:left-3 px-2 py-0.5 md:px-2.5 md:py-1 rounded bg-black/60 backdrop-blur-md text-primary text-[8px] md:text-[10px] font-bold uppercase tracking-wider border border-white/10">
+                    {post.tag}
+                  </span>
+                )}
+              </div>
+
               <div className="p-3 md:p-5 flex flex-col flex-grow relative z-10">
                 <h3 className="font-heading font-bold text-[11px] md:text-xl mb-1 md:mb-2 group-hover:text-primary transition-colors leading-snug min-h-[2.2rem] md:min-h-[3.5rem] line-clamp-2">
                   {post.title}

@@ -213,6 +213,35 @@ export async function syncFromSupabase(): Promise<void> {
       }
       setItem(STORAGE_KEYS.ARTICLES, mergedArticles);
     }
+
+    // Sync Leads from Supabase (if user has access or session is present)
+    try {
+      const { data: dbLeads, error: lErr } = await supabase.from('leads').select('*');
+      if (!lErr && dbLeads && dbLeads.length > 0) {
+        const mappedLeads: Lead[] = dbLeads.map((l: any) => ({
+          id: l.id,
+          name: l.name,
+          phone: l.phone,
+          email: l.email,
+          company: l.company || '',
+          serviceInterested: l.service_interested || l.service || '',
+          message: l.message || '',
+          sourcePage: l.source_page || 'Website',
+          status: l.status || 'New',
+          notes: l.notes || '',
+          createdAt: l.created_at ? new Date(l.created_at).toISOString().replace('T', ' ').slice(0, 16) : new Date().toISOString().slice(0, 16)
+        }));
+
+        const localLeads = getItem<Lead[]>(STORAGE_KEYS.LEADS, SEED_LEADS);
+        const mergedLeads = [...mappedLeads];
+        for (const ll of localLeads) {
+          if (!mergedLeads.some((ml) => ml.id === ll.id || (ml.email === ll.email && ml.phone === ll.phone && ml.createdAt === ll.createdAt))) {
+            mergedLeads.push(ll);
+          }
+        }
+        setItem(STORAGE_KEYS.LEADS, mergedLeads);
+      }
+    } catch (lSyncErr) {}
   } catch (e) {
     console.warn('[Supabase Sync] Background sync skipped:', e);
   }
@@ -785,6 +814,34 @@ export const LeadsService = {
       type: 'alert',
       link: '/admin/leads'
     });
+
+    // Đồng bộ trực tiếp lên cơ sở dữ liệu Supabase Cloud
+    try {
+      const payload: Record<string, any> = {
+        name: newLead.name,
+        phone: newLead.phone,
+        email: newLead.email,
+        service: newLead.serviceInterested || '',
+        message: newLead.message || '',
+        status: newLead.status || 'New'
+      };
+      if (newLead.company) payload.company = newLead.company;
+      if (newLead.sourcePage) payload.source_page = newLead.sourcePage;
+
+      supabase
+        .from('leads')
+        .insert(payload)
+        .then(({ error }) => {
+          if (error) {
+            console.warn('[Supabase Leads Insert Warning]:', error.message);
+          } else {
+            console.log('[Supabase Leads Insert Success]: Lead đã được lưu lên Cloud');
+          }
+        });
+    } catch (sbErr) {
+      console.warn('[Supabase Leads Sync Error]:', sbErr);
+    }
+
     return newLead;
   },
 

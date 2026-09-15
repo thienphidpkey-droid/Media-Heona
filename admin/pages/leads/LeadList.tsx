@@ -17,7 +17,7 @@ import {
   Calendar,
   Layers
 } from 'lucide-react';
-import { LeadsService, subscribe } from '../../services/db';
+import { LeadsService, subscribe, syncFromSupabase } from '../../services/db';
 import { Lead, LeadStatus } from '../../../types';
 import { useToast } from '../../components/Toast';
 
@@ -31,6 +31,10 @@ export const LeadList: React.FC = () => {
   const [activeLead, setActiveLead] = useState<Lead | null>(null);
   const [notesInput, setNotesInput] = useState('');
   const [copiedField, setCopiedField] = useState<'phone' | 'email' | 'message' | null>(null);
+
+  useEffect(() => {
+    syncFromSupabase();
+  }, []);
 
   useEffect(() => {
     const unsub = subscribe(() => {

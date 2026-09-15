@@ -1,5 +1,5 @@
 import { CMSUser, Role } from '../../types';
-import { UsersService } from './db';
+import { UsersService, syncFromSupabase } from './db';
 import { supabase } from './supabase';
 
 const AUTH_STORAGE_KEY = 'heona_cms_current_user';
@@ -122,7 +122,37 @@ export const AuthService = {
     };
 
     this.setCurrentUser(cmsUser);
+    try {
+      syncFromSupabase();
+    } catch (e) {}
     return { success: true };
+  },
+
+  // Xác thực phiên làm việc mật mã an toàn với Supabase (Zero Trust - Chống giả mạo localStorage)
+  async verifySession(): Promise<CMSUser | null> {
+    if (typeof window === 'undefined') return null;
+    try {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error || !session?.user) {
+        // Nếu không có session hợp lệ từ Supabase -> loại bỏ bất kỳ user nào trong localStorage
+        this.setCurrentUser(null);
+        return null;
+      }
+
+      const email = session.user.email?.toLowerCase();
+      if (!this.isEmailAllowed(email)) {
+        console.warn(`[Auth Violation]: Email ${email} không có trong danh sách Whitelist.`);
+        await this.logout();
+        return null;
+      }
+
+      this.handleSupabaseUser(session.user);
+      return this.getCurrentUser();
+    } catch (err) {
+      console.error('[AuthService.verifySession] Verification failed:', err);
+      this.setCurrentUser(null);
+      return null;
+    }
   },
 
   // Khởi tạo listener theo dõi trạng thái Supabase Session
