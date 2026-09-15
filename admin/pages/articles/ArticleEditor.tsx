@@ -14,7 +14,9 @@ import {
   Sparkles,
   Layers,
   ChevronRight,
-  Globe
+  Globe,
+  Youtube,
+  Link as LinkIcon
 } from 'lucide-react';
 import { ArticlesService, subscribe } from '../../services/db';
 import { AuthService } from '../../services/auth';
@@ -22,6 +24,21 @@ import { Article, ContentStatus } from '../../../types';
 import { useToast } from '../../components/Toast';
 import { MediaPickerModal } from '../../components/MediaPickerModal';
 import { VisualEditor } from '../../components/VisualEditor';
+
+function extractYoutubeId(url: string): string | null {
+  if (!url) return null;
+  const trimmed = url.trim();
+  const match = trimmed.match(
+    /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|shorts\/|live\/|watch\?v=|watch\?.+&v=))([\w-]{11})/i
+  );
+  if (match && match[1]) {
+    return match[1];
+  }
+  if (/^[\w-]{11}$/.test(trimmed)) {
+    return trimmed;
+  }
+  return null;
+}
 
 export const ArticleEditor: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -38,6 +55,54 @@ export const ArticleEditor: React.FC = () => {
   const [slug, setSlug] = useState(existing?.slug || '');
   const [shortDesc, setShortDesc] = useState(existing?.shortDesc || '');
   const [thumbnail, setThumbnail] = useState(existing?.thumbnail || '/images/hero-1.webp');
+  const [thumbnailUrlInput, setThumbnailUrlInput] = useState('');
+  const [isExtractingYt, setIsExtractingYt] = useState(false);
+
+  const handleApplyThumbnailUrl = (inputUrl?: string) => {
+    const raw = (inputUrl !== undefined ? inputUrl : thumbnailUrlInput).trim();
+    if (!raw) return;
+
+    const ytId = extractYoutubeId(raw);
+    if (ytId) {
+      setIsExtractingYt(true);
+      const maxresUrl = `https://img.youtube.com/vi/${ytId}/maxresdefault.jpg`;
+      const hqUrl = `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`;
+
+      // Kiểm tra tính khả dụng của maxresdefault
+      const testImg = new window.Image();
+      testImg.onload = () => {
+        setIsExtractingYt(false);
+        if (testImg.naturalWidth === 120 && testImg.naturalHeight === 90) {
+          setThumbnail(hqUrl);
+        } else {
+          setThumbnail(maxresUrl);
+        }
+        setIsDirty(true);
+        setThumbnailUrlInput('');
+        showToast('Đã trích xuất thumbnail từ YouTube!', 'success');
+      };
+      testImg.onerror = () => {
+        setIsExtractingYt(false);
+        setThumbnail(hqUrl);
+        setIsDirty(true);
+        setThumbnailUrlInput('');
+        showToast('Đã trích xuất thumbnail từ YouTube (HQ)!', 'success');
+      };
+      testImg.src = maxresUrl;
+      return;
+    }
+
+    // Link ảnh trực tiếp
+    if (/^https?:\/\//i.test(raw)) {
+      setThumbnail(raw);
+      setIsDirty(true);
+      setThumbnailUrlInput('');
+      showToast('Đã cập nhật ảnh đại diện bài viết!', 'success');
+      return;
+    }
+
+    showToast('Đường dẫn không hợp lệ. Vui lòng nhập link YouTube hoặc link ảnh trực tiếp.', 'error');
+  };
   const [category, setCategory] = useState(existing?.category || 'Expert Spotlight');
   const [tagsInput, setTagsInput] = useState(existing?.tags?.join(', ') || 'Giáo dục, Chuyên gia');
   const [author, setAuthor] = useState(existing?.author || currentUser?.name || 'Nguyễn Heona');
@@ -418,24 +483,85 @@ export const ArticleEditor: React.FC = () => {
             </div>
 
             {/* Featured Image */}
-            <div>
-              <label className="block text-[11px] font-medium uppercase tracking-wider text-gray-400 mb-2">
+            <div className="space-y-2">
+              <label className="block text-[11px] font-medium uppercase tracking-wider text-gray-400">
                 Ảnh đại diện bài viết (Thumbnail)
               </label>
-              <div className="flex items-center gap-4">
-                <img
-                  src={thumbnail}
-                  alt="Thumbnail preview"
-                  className="w-24 h-16 rounded-lg object-cover ring-1 ring-white/[0.08] shrink-0"
-                />
-                <button
-                  type="button"
-                  onClick={() => setMediaPickerOpen(true)}
-                  className="px-3.5 py-2 bg-white/[0.04] hover:bg-white/[0.08] text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-2 border border-white/[0.08]"
-                >
-                  <ImageIcon className="w-3.5 h-3.5 text-primary" />
-                  <span>Chọn từ Thư viện Media</span>
-                </button>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-[#16161d] p-3 rounded-xl border border-white/[0.08]">
+                <div className="relative w-32 h-20 rounded-lg overflow-hidden ring-1 ring-white/[0.1] bg-black/40 shrink-0">
+                  <img
+                    src={thumbnail}
+                    alt="Thumbnail preview"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      if (target.src.includes('maxresdefault.jpg')) {
+                        target.src = target.src.replace('maxresdefault.jpg', 'hqdefault.jpg');
+                      }
+                    }}
+                  />
+                  {thumbnail.includes('youtube.com') && (
+                    <div className="absolute top-1.5 right-1.5 bg-red-600/90 text-white p-1 rounded-md shadow flex items-center justify-center">
+                      <Youtube className="w-3 h-3" />
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex-1 w-full space-y-2">
+                  <div className="flex flex-wrap sm:flex-nowrap gap-2">
+                    <div className="relative flex-1 min-w-[200px]">
+                      <input
+                        type="url"
+                        value={thumbnailUrlInput}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setThumbnailUrlInput(val);
+                          // Tự động nhận diện và trích xuất nếu là link YouTube
+                          if (extractYoutubeId(val)) {
+                            handleApplyThumbnailUrl(val);
+                          }
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleApplyThumbnailUrl();
+                          }
+                        }}
+                        placeholder="Dán link video YouTube (hoặc link ảnh webp, jpg, png)..."
+                        className="w-full pl-8 pr-3 py-2 bg-[#111116] rounded-lg border border-white/[0.08] text-xs text-white placeholder-gray-500 outline-none focus:border-primary/50 transition-colors"
+                      />
+                      <LinkIcon className="w-3.5 h-3.5 text-gray-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                    </div>
+
+                    <button
+                      type="button"
+                      disabled={isExtractingYt || !thumbnailUrlInput.trim()}
+                      onClick={() => handleApplyThumbnailUrl()}
+                      className="px-3 py-2 bg-primary/20 hover:bg-primary/30 text-primary border border-primary/30 text-xs font-semibold rounded-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5 shrink-0"
+                    >
+                      {isExtractingYt ? (
+                        <div className="w-3.5 h-3.5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <Youtube className="w-3.5 h-3.5" />
+                      )}
+                      <span>Lấy ảnh</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setMediaPickerOpen(true)}
+                      className="px-3.5 py-2 bg-white/[0.04] hover:bg-white/[0.08] text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-1.5 border border-white/[0.08] shrink-0"
+                      title="Chọn từ thư viện ảnh đã tải lên"
+                    >
+                      <ImageIcon className="w-3.5 h-3.5 text-primary" />
+                      <span className="hidden md:inline">Thư viện</span>
+                    </button>
+                  </div>
+
+                  <p className="text-[10px] text-gray-400 flex items-center gap-1">
+                    <span>💡 Hỗ trợ dán link YouTube (youtube.com/watch, youtu.be, shorts), hệ thống tự động tải thumbnail HD cao nhất.</span>
+                  </p>
+                </div>
               </div>
             </div>
           </div>
