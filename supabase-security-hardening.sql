@@ -1,13 +1,51 @@
 -- ==============================================================================
--- HEONA MEDIA - SUPABASE PRODUCTION ROW-LEVEL SECURITY (RLS) HARDENING (v3.0)
--- BẢN NÂNG CẤP TOÀN DIỆN: KHẮC PHỤC TRIỆT ĐỂ CẢ 6 LỖ HỔNG BẢO MẬT TỪ HOSTILE AUDIT
+-- HEONA MEDIA - SUPABASE PRODUCTION ROW-LEVEL SECURITY (RLS) HARDENING (v4.1)
+-- BẢN PRODUCTION HOÀN CHỈNH: ATOMIC TRANSACTION, PRE-MIGRATION COLUMN PATCHES,
+-- STORAGE SECURITY, IS_ADMIN() FUNCTION, EXPLICIT GRANTS & SECURITY DEFINER VIEW.
+--
 -- Chạy toàn bộ script này trong Supabase SQL Editor:
 -- https://supabase.com/dashboard/project/fktotmzqfbesbidpqbqb/sql
 -- ==============================================================================
 
+BEGIN;
+
 -- ==============================================================================
--- BƯỚC 1: XÓA SẠCH MỌI POLICIES TRÊN TẤT CẢ 8 BẢNG
--- (Ngăn chặn triệt để hiện tượng cộng gộp OR - Additive RLS trong Postgres)
+-- BƯỚC 1: CHUẨN HÓA CỘT SCHEMA (NGĂN CHẶN LỖI 42703 COLUMN NOT EXIST)
+-- Đảm bảo tất cả các cột được tham chiếu trong Policy và View đều tồn tại
+-- ==============================================================================
+ALTER TABLE IF EXISTS clients ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'active';
+ALTER TABLE IF EXISTS clients ADD COLUMN IF NOT EXISTS contact_person VARCHAR(100);
+ALTER TABLE IF EXISTS clients ADD COLUMN IF NOT EXISTS phone VARCHAR(50);
+ALTER TABLE IF EXISTS clients ADD COLUMN IF NOT EXISTS email VARCHAR(255);
+ALTER TABLE IF EXISTS clients ADD COLUMN IF NOT EXISTS notes TEXT;
+UPDATE clients SET status = 'active' WHERE status IS NULL;
+
+ALTER TABLE IF EXISTS media ADD COLUMN IF NOT EXISTS is_public BOOLEAN NOT NULL DEFAULT true;
+UPDATE media SET is_public = true WHERE is_public IS NULL;
+
+ALTER TABLE IF EXISTS leads ADD COLUMN IF NOT EXISTS notes TEXT;
+ALTER TABLE IF EXISTS leads ADD COLUMN IF NOT EXISTS company VARCHAR(255);
+ALTER TABLE IF EXISTS leads ADD COLUMN IF NOT EXISTS service_interested VARCHAR(255);
+ALTER TABLE IF EXISTS leads ADD COLUMN IF NOT EXISTS source_page VARCHAR(255);
+
+
+-- ==============================================================================
+-- BƯỚC 2: HÀM ĐỊNH DANH QUẢN TRỊ VIÊN TẬP TRUNG (CENTRALIZED IAM HELPER)
+-- ==============================================================================
+CREATE OR REPLACE FUNCTION public.is_admin() 
+RETURNS BOOLEAN AS $$
+BEGIN
+  RETURN LOWER(COALESCE(auth.jwt() ->> 'email', '')) IN (
+    'thienph.idpkey@gmail.com',
+    'heonamedia@gmail.com'
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
+
+
+-- ==============================================================================
+-- BƯỚC 3: DỌN DẸP SẠCH TOÀN BỘ POLICIES CŨ TRÊN CẢ 8 BẢNG DATABASE
+-- (Xóa bỏ nguy cơ Additive RLS OR trong PostgreSQL)
 -- ==============================================================================
 DO $$ 
 DECLARE 
@@ -25,9 +63,8 @@ END $$;
 
 
 -- ==============================================================================
--- BƯỚC 2: KHÓA CỨNG BẢNG DỰ ÁN (PROJECTS)
+-- BƯỚC 4: KHÓA CỨNG BẢNG DỰ ÁN (PROJECTS)
 -- Chỉ cho phép công chúng xem dự án ĐÃ XUẤT BẢN (status = 'published')
--- Tuyệt đối không để lộ dự án 'draft', 'review', 'scheduled', 'archived'
 -- ==============================================================================
 ALTER TABLE projects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE projects FORCE ROW LEVEL SECURITY;
@@ -39,18 +76,12 @@ USING (status = 'published');
 CREATE POLICY "Admin Full Access Projects" 
 ON projects FOR ALL 
 TO authenticated 
-USING (
-  LOWER(COALESCE(auth.jwt() ->> 'email', '')) IN ('thienph.idpkey@gmail.com', 'heonamedia@gmail.com')
-)
-WITH CHECK (
-  LOWER(COALESCE(auth.jwt() ->> 'email', '')) IN ('thienph.idpkey@gmail.com', 'heonamedia@gmail.com')
-);
+USING (public.is_admin())
+WITH CHECK (public.is_admin());
 
 
 -- ==============================================================================
--- BƯỚC 3: KHÓA CỨNG BẢNG BÀI VIẾT (ARTICLES)
--- Chỉ cho phép công chúng xem bài viết ĐÃ XUẤT BẢN (status = 'published')
--- Không thể truy vấn bản nháp hoặc kế hoạch nội dung chưa công bố
+-- BƯỚC 5: KHÓA CỨNG BẢNG BÀI VIẾT (ARTICLES)
 -- ==============================================================================
 ALTER TABLE articles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE articles FORCE ROW LEVEL SECURITY;
@@ -62,46 +93,12 @@ USING (status = 'published');
 CREATE POLICY "Admin Full Access Articles" 
 ON articles FOR ALL 
 TO authenticated 
-USING (
-  LOWER(COALESCE(auth.jwt() ->> 'email', '')) IN ('thienph.idpkey@gmail.com', 'heonamedia@gmail.com')
-)
-WITH CHECK (
-  LOWER(COALESCE(auth.jwt() ->> 'email', '')) IN ('thienph.idpkey@gmail.com', 'heonamedia@gmail.com')
-);
+USING (public.is_admin())
+WITH CHECK (public.is_admin());
 
 
 -- ==============================================================================
--- BƯỚC 4: KHẮC PHỤC RÒ RỈ DỮ LIỆU ĐỐI TÁC (CLIENTS)
--- 1. Tạo VIEW an toàn 'public_clients' chỉ hiển thị logo và thông tin thương hiệu
--- 2. Giấu kín các trường nhạy cảm: phone, email, contact_person, notes
--- 3. Khóa bảng gốc clients: Chỉ Admin Whitelist mới có quyền đọc/ghi
--- ==============================================================================
-ALTER TABLE clients ENABLE ROW LEVEL SECURITY;
-ALTER TABLE clients FORCE ROW LEVEL SECURITY;
-
--- Tạo View công khai bảo mật chỉ trích xuất các trường an toàn
-CREATE OR REPLACE VIEW public_clients WITH (security_invoker = false) AS
-  SELECT id, name, logo, website, industry, description
-  FROM clients
-  WHERE status = 'active';
-
-GRANT SELECT ON public_clients TO anon, authenticated;
-
--- Bảng gốc clients: KHÔNG cấp quyền SELECT cho công chúng!
-CREATE POLICY "Admin Full Access Clients" 
-ON clients FOR ALL 
-TO authenticated 
-USING (
-  LOWER(COALESCE(auth.jwt() ->> 'email', '')) IN ('thienph.idpkey@gmail.com', 'heonamedia@gmail.com')
-)
-WITH CHECK (
-  LOWER(COALESCE(auth.jwt() ->> 'email', '')) IN ('thienph.idpkey@gmail.com', 'heonamedia@gmail.com')
-);
-
-
--- ==============================================================================
--- BƯỚC 5: KHÓA CỨNG BẢNG DỊCH VỤ (SERVICES)
--- Chỉ cho phép đọc dịch vụ đã xuất bản
+-- BƯỚC 6: KHÓA CỨNG BẢNG DỊCH VỤ (SERVICES)
 -- ==============================================================================
 CREATE TABLE IF NOT EXISTS services (
   id VARCHAR(100) PRIMARY KEY,
@@ -130,25 +127,69 @@ USING (status = 'published');
 CREATE POLICY "Admin Full Access Services" 
 ON services FOR ALL 
 TO authenticated 
-USING (
-  LOWER(COALESCE(auth.jwt() ->> 'email', '')) IN ('thienph.idpkey@gmail.com', 'heonamedia@gmail.com')
-)
-WITH CHECK (
-  LOWER(COALESCE(auth.jwt() ->> 'email', '')) IN ('thienph.idpkey@gmail.com', 'heonamedia@gmail.com')
-);
+USING (public.is_admin())
+WITH CHECK (public.is_admin());
 
 
 -- ==============================================================================
--- BƯỚC 6: CHỐNG ĐẦU ĐỘC VÀ SPAM CƠ SỞ DỮ LIỆU LEADS (LEADS CRM)
--- 1. Ràng buộc WITH CHECK chặt chẽ:
---    - Bắt buộc status = 'New'
---    - Bắt buộc notes IS NULL (ngăn kẻ ngoài chèn ghi chú giả mạo)
---    - Giới hạn độ dài chuỗi tên, số điện thoại, email, nội dung tin nhắn
--- 2. Chỉ duy nhất Admin Whitelist được SELECT / UPDATE / DELETE
+-- BƯỚC 7: BẢO MẬT DỮ LIỆU ĐỐI TÁC (CLIENTS) & VIEW PRIVILEGED PROJECTION
+-- ==============================================================================
+ALTER TABLE clients ENABLE ROW LEVEL SECURITY;
+ALTER TABLE clients FORCE ROW LEVEL SECURITY;
+
+-- 1. Thu hồi quyền truy cập bảng gốc từ công chúng
+REVOKE ALL ON clients FROM anon;
+
+-- 2. Chỉ Admin Whitelist mới có quyền đọc và quản trị bảng gốc clients
+CREATE POLICY "Admin Full Access Clients" 
+ON clients FOR ALL 
+TO authenticated 
+USING (public.is_admin())
+WITH CHECK (public.is_admin());
+
+-- 3. Tạo View công khai bảo mật với cảnh báo kiến trúc:
+-- ==============================================================================
+-- CẢNH BÁO BẢO MẬT: ĐÂY LÀ SECURITY DEFINER PROJECTION CÓ CHỦ ĐÍCH.
+-- View này là cổng duy nhất cho phép website công khai hiển thị logo đối tác.
+-- TUYỆT ĐỐI KHÔNG thêm các trường nhạy cảm: phone, email, contact_person, notes.
+-- TUYỆT ĐỐI KHÔNG sử dụng 'SELECT *' tại đây!
+-- ==============================================================================
+CREATE OR REPLACE VIEW public_clients WITH (security_invoker = false) AS
+  SELECT id, name, logo, website, industry, description
+  FROM clients
+  WHERE COALESCE(status, 'active') = 'active';
+
+GRANT SELECT ON public_clients TO anon, authenticated;
+
+
+-- ==============================================================================
+-- BƯỚC 8: BẢO MẬT BẢNG MEDIA (THU HẸP PHẠM VI PUBLIC)
+-- ==============================================================================
+ALTER TABLE media ENABLE ROW LEVEL SECURITY;
+ALTER TABLE media FORCE ROW LEVEL SECURITY;
+
+-- Công chúng chỉ được đọc các media công khai (không đọc được asset nội bộ / nháp)
+CREATE POLICY "Public Read Public Media" 
+ON media FOR SELECT 
+USING (is_public = true);
+
+CREATE POLICY "Admin Full Access Media" 
+ON media FOR ALL 
+TO authenticated 
+USING (public.is_admin())
+WITH CHECK (public.is_admin());
+
+
+-- ==============================================================================
+-- BƯỚC 9: BẢO MẬT VÀ RÀNG BUỘC CHẶT CHẼ DỮ LIỆU LEADS
 -- ==============================================================================
 ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
 ALTER TABLE leads FORCE ROW LEVEL SECURITY;
 
+-- Thu hồi quyền đọc/sửa/xóa từ công chúng
+REVOKE SELECT, UPDATE, DELETE ON leads FROM anon;
+
+-- Khách vãng lai chỉ được phép INSERT lead sạch, chuẩn format
 CREATE POLICY "Public Submit Clean Leads" 
 ON leads FOR INSERT 
 WITH CHECK (
@@ -164,38 +205,12 @@ WITH CHECK (
 CREATE POLICY "Admin Full Access Leads" 
 ON leads FOR ALL 
 TO authenticated 
-USING (
-  LOWER(COALESCE(auth.jwt() ->> 'email', '')) IN ('thienph.idpkey@gmail.com', 'heonamedia@gmail.com')
-)
-WITH CHECK (
-  LOWER(COALESCE(auth.jwt() ->> 'email', '')) IN ('thienph.idpkey@gmail.com', 'heonamedia@gmail.com')
-);
+USING (public.is_admin())
+WITH CHECK (public.is_admin());
 
 
 -- ==============================================================================
--- BƯỚC 7: KHÓA CỨNG BẢNG MEDIA
--- ==============================================================================
-ALTER TABLE media ENABLE ROW LEVEL SECURITY;
-ALTER TABLE media FORCE ROW LEVEL SECURITY;
-
-CREATE POLICY "Public Read Media" 
-ON media FOR SELECT 
-USING (true);
-
-CREATE POLICY "Admin Full Access Media" 
-ON media FOR ALL 
-TO authenticated 
-USING (
-  LOWER(COALESCE(auth.jwt() ->> 'email', '')) IN ('thienph.idpkey@gmail.com', 'heonamedia@gmail.com')
-)
-WITH CHECK (
-  LOWER(COALESCE(auth.jwt() ->> 'email', '')) IN ('thienph.idpkey@gmail.com', 'heonamedia@gmail.com')
-);
-
-
--- ==============================================================================
--- BƯỚC 8: BẢO MẬT NHẬT KÝ HOẠT ĐỘNG VÀ THÔNG BÁO (ACTIVITY_LOGS & NOTIFICATIONS)
--- Chỉ Admin Whitelist mới được xem và ghi log/thông báo
+-- BƯỚC 10: BẢO MẬT NHẬT KÝ KIỂM TOÁN VÀ THÔNG BÁO HỆ THỐNG
 -- ==============================================================================
 CREATE TABLE IF NOT EXISTS activity_logs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -210,16 +225,13 @@ CREATE TABLE IF NOT EXISTS activity_logs (
 
 ALTER TABLE activity_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE activity_logs FORCE ROW LEVEL SECURITY;
+REVOKE ALL ON activity_logs FROM anon;
 
 CREATE POLICY "Admin Full Access Activity Logs" 
 ON activity_logs FOR ALL 
 TO authenticated 
-USING (
-  LOWER(COALESCE(auth.jwt() ->> 'email', '')) IN ('thienph.idpkey@gmail.com', 'heonamedia@gmail.com')
-)
-WITH CHECK (
-  LOWER(COALESCE(auth.jwt() ->> 'email', '')) IN ('thienph.idpkey@gmail.com', 'heonamedia@gmail.com')
-);
+USING (public.is_admin())
+WITH CHECK (public.is_admin());
 
 CREATE TABLE IF NOT EXISTS notifications (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -233,13 +245,57 @@ CREATE TABLE IF NOT EXISTS notifications (
 
 ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE notifications FORCE ROW LEVEL SECURITY;
+REVOKE ALL ON notifications FROM anon;
 
 CREATE POLICY "Admin Full Access Notifications" 
 ON notifications FOR ALL 
 TO authenticated 
-USING (
-  LOWER(COALESCE(auth.jwt() ->> 'email', '')) IN ('thienph.idpkey@gmail.com', 'heonamedia@gmail.com')
-)
-WITH CHECK (
-  LOWER(COALESCE(auth.jwt() ->> 'email', '')) IN ('thienph.idpkey@gmail.com', 'heonamedia@gmail.com')
-);
+USING (public.is_admin())
+WITH CHECK (public.is_admin());
+
+
+-- ==============================================================================
+-- BƯỚC 11: BẢO VỆ SUPABASE STORAGE (STORAGE.OBJECTS)
+-- Ngăn chặn kẻ tấn công upload trộm hoặc bơm rác làm đầy dung lượng Bucket
+-- ==============================================================================
+ALTER TABLE IF EXISTS storage.objects ENABLE ROW LEVEL SECURITY;
+
+DO $$ 
+DECLARE 
+    spol RECORD;
+BEGIN 
+    FOR spol IN 
+        SELECT policyname 
+        FROM pg_policies 
+        WHERE schemaname = 'storage' AND tablename = 'objects'
+    LOOP 
+        EXECUTE format('DROP POLICY IF EXISTS %I ON storage.objects;', spol.policyname);
+    END LOOP; 
+END $$;
+
+-- 1. Cho phép công chúng ĐỌC các tệp nằm trong bucket công khai (media / public-media)
+CREATE POLICY "Public Read Storage Objects"
+ON storage.objects FOR SELECT
+TO public
+USING (bucket_id IN ('media', 'public-media'));
+
+-- 2. CHỈ DUY NHẤT Admin Whitelist mới được phép UPLOAD / THAY ĐỔI / XÓA tệp trong Storage
+CREATE POLICY "Admin Manage Storage Objects"
+ON storage.objects FOR ALL
+TO authenticated
+USING (public.is_admin())
+WITH CHECK (public.is_admin());
+
+
+-- ==============================================================================
+-- BƯỚC 12: PHÂN QUYỀN CƠ SỞ DỮ LIỆU TƯỜNG MINH (EXPLICIT SQL GRANTS)
+-- ==============================================================================
+GRANT USAGE ON SCHEMA public TO anon, authenticated;
+GRANT SELECT ON public.articles TO anon, authenticated;
+GRANT SELECT ON public.projects TO anon, authenticated;
+GRANT SELECT ON public.services TO anon, authenticated;
+GRANT SELECT ON public.media TO anon, authenticated;
+GRANT INSERT ON public.leads TO anon, authenticated;
+GRANT SELECT ON public.public_clients TO anon, authenticated;
+
+COMMIT;

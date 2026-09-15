@@ -1,10 +1,21 @@
 -- ====================================================================
--- HEONA MEDIA - DEFENSIVE SECURITY & SCHEMA SYNCHRONIZATION MIGRATION (v2.0)
+-- HEONA MEDIA - DEFENSIVE SECURITY & SCHEMA SYNCHRONIZATION MIGRATION (v2.1)
 -- An toàn chạy trực tiếp trong Supabase SQL Editor (Idempotent / IF NOT EXISTS)
--- Khắc phục triệt để: RLS Additive OR, Leads Poisoning, Client Private Fields Exposure
 -- ====================================================================
 
--- 1. BỔ SUNG CÁC CỘT CÒN THIẾU CHO BẢNG LEADS (CRM KHÁCH HÀNG)
+BEGIN;
+
+-- 1. BỔ SUNG CÁC CỘT CÒN THIẾU TRƯỚC TIÊN (TRÁNH LỖI 42703 COLUMN NOT EXIST)
+ALTER TABLE IF EXISTS clients ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'active';
+ALTER TABLE IF EXISTS clients ADD COLUMN IF NOT EXISTS contact_person VARCHAR(100);
+ALTER TABLE IF EXISTS clients ADD COLUMN IF NOT EXISTS phone VARCHAR(50);
+ALTER TABLE IF EXISTS clients ADD COLUMN IF NOT EXISTS email VARCHAR(255);
+ALTER TABLE IF EXISTS clients ADD COLUMN IF NOT EXISTS notes TEXT;
+UPDATE clients SET status = 'active' WHERE status IS NULL;
+
+ALTER TABLE IF EXISTS media ADD COLUMN IF NOT EXISTS is_public BOOLEAN NOT NULL DEFAULT true;
+UPDATE media SET is_public = true WHERE is_public IS NULL;
+
 ALTER TABLE IF EXISTS leads ADD COLUMN IF NOT EXISTS company VARCHAR(255);
 ALTER TABLE IF EXISTS leads ADD COLUMN IF NOT EXISTS service_interested VARCHAR(255);
 ALTER TABLE IF EXISTS leads ADD COLUMN IF NOT EXISTS source_page VARCHAR(255);
@@ -56,6 +67,7 @@ ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
 ALTER TABLE services ENABLE ROW LEVEL SECURITY;
 ALTER TABLE activity_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
+ALTER TABLE clients ENABLE ROW LEVEL SECURITY;
 
 -- 6. XÓA MỌI CHÍNH SÁCH CŨ ĐỂ TRÁNH HIỆN TƯỢNG CỘNG GỘP (ADDITIVE RLS OR)
 DROP POLICY IF EXISTS "Public Submit Leads" ON leads;
@@ -73,6 +85,9 @@ DROP POLICY IF EXISTS "Admin Full Access Activity Logs" ON activity_logs;
 
 DROP POLICY IF EXISTS "Admin Access Notifications" ON notifications;
 DROP POLICY IF EXISTS "Admin Full Access Notifications" ON notifications;
+
+DROP POLICY IF EXISTS "Public Read Clients" ON clients;
+DROP POLICY IF EXISTS "Admin Full Access Clients" ON clients;
 
 -- 7. THIẾT LẬP CHÍNH SÁCH BẢO MẬT CHẶT CHẼ (POLICIES)
 
@@ -111,6 +126,24 @@ WITH CHECK (
   LOWER(COALESCE(auth.jwt() ->> 'email', '')) IN ('thienph.idpkey@gmail.com', 'heonamedia@gmail.com')
 );
 
+-- [CLIENTS] Khóa bảng gốc clients với công chúng, chỉ mở qua View an toàn
+REVOKE ALL ON clients FROM anon;
+CREATE POLICY "Admin Full Access Clients" ON clients FOR ALL 
+TO authenticated 
+USING (
+  LOWER(COALESCE(auth.jwt() ->> 'email', '')) IN ('thienph.idpkey@gmail.com', 'heonamedia@gmail.com')
+)
+WITH CHECK (
+  LOWER(COALESCE(auth.jwt() ->> 'email', '')) IN ('thienph.idpkey@gmail.com', 'heonamedia@gmail.com')
+);
+
+CREATE OR REPLACE VIEW public_clients WITH (security_invoker = false) AS
+  SELECT id, name, logo, website, industry, description
+  FROM clients
+  WHERE COALESCE(status, 'active') = 'active';
+
+GRANT SELECT ON public_clients TO anon, authenticated;
+
 -- [ACTIVITY_LOGS] Chỉ Admin Whitelist mới được xem và ghi log
 CREATE POLICY "Admin Full Access Activity Logs" ON activity_logs FOR ALL 
 TO authenticated 
@@ -130,3 +163,5 @@ USING (
 WITH CHECK (
   LOWER(COALESCE(auth.jwt() ->> 'email', '')) IN ('thienph.idpkey@gmail.com', 'heonamedia@gmail.com')
 );
+
+COMMIT;
