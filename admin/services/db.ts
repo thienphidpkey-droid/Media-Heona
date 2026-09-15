@@ -134,8 +134,15 @@ ensureDatabaseSeeded();
 export async function syncFromSupabase(): Promise<void> {
   if (typeof window === 'undefined') return;
   try {
+    const currentUserRaw = localStorage.getItem('heona_cms_current_user');
+    const isAdminUser = !!currentUserRaw;
+
     // Sync Projects from Supabase with Smart Merge (never delete local items)
-    const { data: dbProjects, error: pErr } = await supabase.from('projects').select('*');
+    let projectQuery = supabase.from('projects').select('*');
+    if (!isAdminUser) {
+      projectQuery = projectQuery.eq('status', 'published');
+    }
+    const { data: dbProjects, error: pErr } = await projectQuery;
     if (!pErr && dbProjects && dbProjects.length > 0) {
       const mapped: Project[] = dbProjects.map((p) => ({
         id: p.id,
@@ -181,7 +188,11 @@ export async function syncFromSupabase(): Promise<void> {
     }
 
     // Sync Articles from Supabase with Smart Merge
-    const { data: dbArticles, error: aErr } = await supabase.from('articles').select('*');
+    let articleQuery = supabase.from('articles').select('*');
+    if (!isAdminUser) {
+      articleQuery = articleQuery.eq('status', 'published');
+    }
+    const { data: dbArticles, error: aErr } = await articleQuery;
     if (!aErr && dbArticles && dbArticles.length > 0) {
       const mappedArt: Article[] = dbArticles.map((a) => ({
         id: a.id,
@@ -214,34 +225,41 @@ export async function syncFromSupabase(): Promise<void> {
       setItem(STORAGE_KEYS.ARTICLES, mergedArticles);
     }
 
-    // Sync Leads from Supabase (if user has access or session is present)
-    try {
-      const { data: dbLeads, error: lErr } = await supabase.from('leads').select('*');
-      if (!lErr && dbLeads && dbLeads.length > 0) {
-        const mappedLeads: Lead[] = dbLeads.map((l: any) => ({
-          id: l.id,
-          name: l.name,
-          phone: l.phone,
-          email: l.email,
-          company: l.company || '',
-          serviceInterested: l.service_interested || l.service || '',
-          message: l.message || '',
-          sourcePage: l.source_page || 'Website',
-          status: l.status || 'New',
-          notes: l.notes || '',
-          createdAt: l.created_at ? new Date(l.created_at).toISOString().replace('T', ' ').slice(0, 16) : new Date().toISOString().slice(0, 16)
-        }));
+    // Sync Leads from Supabase (chỉ thực hiện khi có phiên làm việc của Quản trị viên, giới hạn 200 mới nhất chống DoS)
+    if (isAdminUser) {
+      try {
+        const { data: dbLeads, error: lErr } = await supabase
+          .from('leads')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(200);
 
-        const localLeads = getItem<Lead[]>(STORAGE_KEYS.LEADS, SEED_LEADS);
-        const mergedLeads = [...mappedLeads];
-        for (const ll of localLeads) {
-          if (!mergedLeads.some((ml) => ml.id === ll.id || (ml.email === ll.email && ml.phone === ll.phone && ml.createdAt === ll.createdAt))) {
-            mergedLeads.push(ll);
+        if (!lErr && dbLeads && dbLeads.length > 0) {
+          const mappedLeads: Lead[] = dbLeads.map((l: any) => ({
+            id: l.id,
+            name: l.name,
+            phone: l.phone,
+            email: l.email,
+            company: l.company || '',
+            serviceInterested: l.service_interested || l.service || '',
+            message: l.message || '',
+            sourcePage: l.source_page || 'Website',
+            status: l.status || 'New',
+            notes: l.notes || '',
+            createdAt: l.created_at ? new Date(l.created_at).toISOString().replace('T', ' ').slice(0, 16) : new Date().toISOString().slice(0, 16)
+          }));
+
+          const localLeads = getItem<Lead[]>(STORAGE_KEYS.LEADS, SEED_LEADS);
+          const mergedLeads = [...mappedLeads];
+          for (const ll of localLeads) {
+            if (!mergedLeads.some((ml) => ml.id === ll.id || (ml.email === ll.email && ml.phone === ll.phone && ml.createdAt === ll.createdAt))) {
+              mergedLeads.push(ll);
+            }
           }
+          setItem(STORAGE_KEYS.LEADS, mergedLeads);
         }
-        setItem(STORAGE_KEYS.LEADS, mergedLeads);
-      }
-    } catch (lSyncErr) {}
+      } catch (lSyncErr) {}
+    }
   } catch (e) {
     console.warn('[Supabase Sync] Background sync skipped:', e);
   }
@@ -459,7 +477,7 @@ export const ProjectsService = {
   },
 
   getPublished(): Project[] {
-    return this.getAll().filter((p) => p.status !== 'draft' && p.status !== 'archived');
+    return this.getAll().filter((p) => p.status === 'published');
   },
 
   getByCategory(category: string): Project[] {
@@ -818,15 +836,15 @@ export const LeadsService = {
     // Đồng bộ trực tiếp lên cơ sở dữ liệu Supabase Cloud
     try {
       const payload: Record<string, any> = {
-        name: newLead.name,
-        phone: newLead.phone,
-        email: newLead.email,
-        service: newLead.serviceInterested || '',
-        message: newLead.message || '',
-        status: newLead.status || 'New'
+        name: (newLead.name || '').trim().slice(0, 100),
+        phone: (newLead.phone || '').trim().slice(0, 20),
+        email: (newLead.email || '').trim().slice(0, 100),
+        service: (newLead.serviceInterested || '').trim().slice(0, 200),
+        message: (newLead.message || '').trim().slice(0, 2000),
+        status: 'New'
       };
-      if (newLead.company) payload.company = newLead.company;
-      if (newLead.sourcePage) payload.source_page = newLead.sourcePage;
+      if (newLead.company) payload.company = newLead.company.trim().slice(0, 100);
+      if (newLead.sourcePage) payload.source_page = newLead.sourcePage.trim().slice(0, 100);
 
       supabase
         .from('leads')

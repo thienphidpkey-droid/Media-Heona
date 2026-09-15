@@ -24,6 +24,7 @@ import { Article, ContentStatus } from '../../../types';
 import { useToast } from '../../components/Toast';
 import { MediaPickerModal } from '../../components/MediaPickerModal';
 import { VisualEditor } from '../../components/VisualEditor';
+import { sanitizeHtml } from '../../../utils/sanitizeHtml';
 
 function extractYoutubeId(url: string): string | null {
   if (!url) return null;
@@ -909,7 +910,7 @@ export const ArticleEditor: React.FC = () => {
               />
               <div
                 className="prose prose-invert max-w-none text-gray-200 leading-relaxed text-sm"
-                dangerouslySetInnerHTML={{ __html: content }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(content) }}
               />
 
               {ctaEnabled && (

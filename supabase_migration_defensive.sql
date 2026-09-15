@@ -1,6 +1,7 @@
 -- ====================================================================
--- HEONA MEDIA - DEFENSIVE SECURITY & SCHEMA SYNCHRONIZATION MIGRATION
+-- HEONA MEDIA - DEFENSIVE SECURITY & SCHEMA SYNCHRONIZATION MIGRATION (v2.0)
 -- An toàn chạy trực tiếp trong Supabase SQL Editor (Idempotent / IF NOT EXISTS)
+-- Khắc phục triệt để: RLS Additive OR, Leads Poisoning, Client Private Fields Exposure
 -- ====================================================================
 
 -- 1. BỔ SUNG CÁC CỘT CÒN THIẾU CHO BẢNG LEADS (CRM KHÁCH HÀNG)
@@ -56,36 +57,76 @@ ALTER TABLE services ENABLE ROW LEVEL SECURITY;
 ALTER TABLE activity_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
 
--- 6. THIẾT LẬP CHÍNH SÁCH BẢO MẬT (POLICIES)
-
--- [LEADS] Khách vãng lai gửi form liên hệ (INSERT công khai)
+-- 6. XÓA MỌI CHÍNH SÁCH CŨ ĐỂ TRÁNH HIỆN TƯỢNG CỘNG GỘP (ADDITIVE RLS OR)
 DROP POLICY IF EXISTS "Public Submit Leads" ON leads;
-CREATE POLICY "Public Submit Leads" ON leads FOR INSERT WITH CHECK (true);
-
--- [LEADS] Admin Whitelist có toàn quyền Đọc/Sửa/Xóa Lead
+DROP POLICY IF EXISTS "Public Submit Lead" ON leads;
+DROP POLICY IF EXISTS "Public Submit Clean Leads" ON leads;
 DROP POLICY IF EXISTS "Admin Full Access Leads" ON leads;
-CREATE POLICY "Admin Full Access Leads" ON leads FOR ALL USING (
+DROP POLICY IF EXISTS "Admin Manage Leads" ON leads;
+
+DROP POLICY IF EXISTS "Public Read Services" ON services;
+DROP POLICY IF EXISTS "Public Read Published Services" ON services;
+DROP POLICY IF EXISTS "Admin Full Access Services" ON services;
+
+DROP POLICY IF EXISTS "Admin Access Activity Logs" ON activity_logs;
+DROP POLICY IF EXISTS "Admin Full Access Activity Logs" ON activity_logs;
+
+DROP POLICY IF EXISTS "Admin Access Notifications" ON notifications;
+DROP POLICY IF EXISTS "Admin Full Access Notifications" ON notifications;
+
+-- 7. THIẾT LẬP CHÍNH SÁCH BẢO MẬT CHẶT CHẼ (POLICIES)
+
+-- [LEADS] Khách vãng lai chỉ được gửi lead sạch với status 'New', notes IS NULL và giới hạn độ dài
+CREATE POLICY "Public Submit Clean Leads" ON leads FOR INSERT WITH CHECK (
+  status = 'New' AND
+  notes IS NULL AND
+  char_length(name) BETWEEN 2 AND 100 AND
+  char_length(phone) BETWEEN 8 AND 20 AND
+  char_length(email) BETWEEN 5 AND 100 AND
+  char_length(COALESCE(message, '')) <= 2000 AND
+  char_length(COALESCE(service, '')) <= 200
+);
+
+-- [LEADS] Chỉ Admin Whitelist có toàn quyền Đọc/Sửa/Xóa Lead
+CREATE POLICY "Admin Full Access Leads" ON leads FOR ALL 
+TO authenticated 
+USING (
+  LOWER(COALESCE(auth.jwt() ->> 'email', '')) IN ('thienph.idpkey@gmail.com', 'heonamedia@gmail.com')
+)
+WITH CHECK (
   LOWER(COALESCE(auth.jwt() ->> 'email', '')) IN ('thienph.idpkey@gmail.com', 'heonamedia@gmail.com')
 );
 
--- [SERVICES] Khách công khai được đọc danh sách dịch vụ đã đăng
-DROP POLICY IF EXISTS "Public Read Published Services" ON services;
-CREATE POLICY "Public Read Published Services" ON services FOR SELECT USING (status = 'published');
+-- [SERVICES] Khách công khai chỉ được đọc dịch vụ đã xuất bản
+CREATE POLICY "Public Read Published Services" ON services FOR SELECT 
+USING (status = 'published');
 
 -- [SERVICES] Admin Whitelist có toàn quyền quản lý dịch vụ
-DROP POLICY IF EXISTS "Admin Full Access Services" ON services;
-CREATE POLICY "Admin Full Access Services" ON services FOR ALL USING (
+CREATE POLICY "Admin Full Access Services" ON services FOR ALL 
+TO authenticated 
+USING (
+  LOWER(COALESCE(auth.jwt() ->> 'email', '')) IN ('thienph.idpkey@gmail.com', 'heonamedia@gmail.com')
+)
+WITH CHECK (
   LOWER(COALESCE(auth.jwt() ->> 'email', '')) IN ('thienph.idpkey@gmail.com', 'heonamedia@gmail.com')
 );
 
 -- [ACTIVITY_LOGS] Chỉ Admin Whitelist mới được xem và ghi log
-DROP POLICY IF EXISTS "Admin Access Activity Logs" ON activity_logs;
-CREATE POLICY "Admin Access Activity Logs" ON activity_logs FOR ALL USING (
+CREATE POLICY "Admin Full Access Activity Logs" ON activity_logs FOR ALL 
+TO authenticated 
+USING (
+  LOWER(COALESCE(auth.jwt() ->> 'email', '')) IN ('thienph.idpkey@gmail.com', 'heonamedia@gmail.com')
+)
+WITH CHECK (
   LOWER(COALESCE(auth.jwt() ->> 'email', '')) IN ('thienph.idpkey@gmail.com', 'heonamedia@gmail.com')
 );
 
 -- [NOTIFICATIONS] Chỉ Admin Whitelist mới được xem và quản lý thông báo
-DROP POLICY IF EXISTS "Admin Access Notifications" ON notifications;
-CREATE POLICY "Admin Access Notifications" ON notifications FOR ALL USING (
+CREATE POLICY "Admin Full Access Notifications" ON notifications FOR ALL 
+TO authenticated 
+USING (
+  LOWER(COALESCE(auth.jwt() ->> 'email', '')) IN ('thienph.idpkey@gmail.com', 'heonamedia@gmail.com')
+)
+WITH CHECK (
   LOWER(COALESCE(auth.jwt() ->> 'email', '')) IN ('thienph.idpkey@gmail.com', 'heonamedia@gmail.com')
 );

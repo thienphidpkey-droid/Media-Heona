@@ -23,6 +23,7 @@ import {
   Lightbulb
 } from 'lucide-react';
 import { MediaPickerModal } from './MediaPickerModal';
+import { sanitizeHtml } from '../../utils/sanitizeHtml';
 
 interface VisualEditorProps {
   value: string;
@@ -58,7 +59,7 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({
   useEffect(() => {
     if (editorRef.current && editorMode === 'visual') {
       if (editorRef.current.innerHTML !== value) {
-        editorRef.current.innerHTML = value;
+        editorRef.current.innerHTML = sanitizeHtml(value);
       }
     }
     updateStats(value);
