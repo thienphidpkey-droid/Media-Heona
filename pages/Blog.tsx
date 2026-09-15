@@ -5,6 +5,7 @@ import { BlogPost } from '../types';
 import { Calendar, User, ArrowLeft, ArrowRight, Eye } from 'lucide-react';
 import { DOMAIN, SEO } from '../components/SEO';
 import { ProgressiveImage } from '../components/ProgressiveImage';
+import { sanitizeHtml } from '../utils/sanitizeHtml';
 
 const POSTS: BlogPost[] = [
   {
@@ -349,7 +350,7 @@ export const Blog: React.FC = () => {
                   {selectedPost.meta}
                 </p>
 
-                <div dangerouslySetInnerHTML={{ __html: selectedPost.content || '' }} />
+                <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(selectedPost.content || '') }} />
               </div>
 
               <div className="mt-8 pt-6 border-t border-white/10 text-center space-y-4">

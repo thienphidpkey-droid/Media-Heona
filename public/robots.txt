@@ -1,6 +1,8 @@
 # HEONA MEDIA - robots.txt with AI Crawlers Allowed & GEO Optimization
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /admin/
 
 # 13 AI Crawlers Explicitly Allowed for AI Search & GEO Optimization
 User-agent: GPTBot

@@ -227,9 +227,10 @@ export const Contact: React.FC = () => {
 
                             <div className="grid md:grid-cols-2 gap-5">
                                 <div className="flex flex-col gap-1.5">
-                                    <label className="text-xs text-textMuted font-medium">Họ tên *</label>
+                                    <label htmlFor="contact_name" className="text-xs text-textMuted font-medium">Họ tên *</label>
                                     <input
                                         type="text"
+                                        id="contact_name"
                                         name="name"
                                         required
                                         minLength={2}
@@ -239,9 +240,10 @@ export const Contact: React.FC = () => {
                                     />
                                 </div>
                                 <div className="flex flex-col gap-1.5">
-                                    <label className="text-xs text-textMuted font-medium">Công ty</label>
+                                    <label htmlFor="contact_company" className="text-xs text-textMuted font-medium">Công ty</label>
                                     <input
                                         type="text"
+                                        id="contact_company"
                                         name="company"
                                         maxLength={150}
                                         placeholder="Tên công ty..."
@@ -252,9 +254,10 @@ export const Contact: React.FC = () => {
 
                             <div className="grid md:grid-cols-2 gap-5">
                                 <div className="flex flex-col gap-1.5">
-                                    <label className="text-xs text-textMuted font-medium">Số điện thoại *</label>
+                                    <label htmlFor="contact_phone" className="text-xs text-textMuted font-medium">Số điện thoại *</label>
                                     <input
                                         type="tel"
+                                        id="contact_phone"
                                         name="phone"
                                         required
                                         inputMode="tel"
@@ -266,9 +269,10 @@ export const Contact: React.FC = () => {
                                     />
                                 </div>
                                 <div className="flex flex-col gap-1.5">
-                                    <label className="text-xs text-textMuted font-medium">Email *</label>
+                                    <label htmlFor="contact_email" className="text-xs text-textMuted font-medium">Email *</label>
                                     <input
                                         type="email"
+                                        id="contact_email"
                                         name="email"
                                         required
                                         maxLength={254}
@@ -280,8 +284,9 @@ export const Contact: React.FC = () => {
 
                             <div className="grid md:grid-cols-2 gap-5">
                                 <div className="flex flex-col gap-1.5">
-                                    <label className="text-xs text-textMuted font-medium">Loại dịch vụ</label>
+                                    <label htmlFor="contact_service" className="text-xs text-textMuted font-medium">Loại dịch vụ</label>
                                     <select
+                                        id="contact_service"
                                         name="service"
                                         className="bg-[#111116] border border-borderSubtle rounded-lg px-4 py-3 text-sm text-white focus:border-primary focus:outline-none focus:bg-[#15151c] transition-all appearance-none"
                                     >
@@ -294,8 +299,9 @@ export const Contact: React.FC = () => {
                                     </select>
                                 </div>
                                 <div className="flex flex-col gap-1.5">
-                                    <label className="text-xs text-textMuted font-medium">Ngân sách dự kiến</label>
+                                    <label htmlFor="contact_budget" className="text-xs text-textMuted font-medium">Ngân sách dự kiến</label>
                                     <select
+                                        id="contact_budget"
                                         name="budget"
                                         className="bg-[#111116] border border-borderSubtle rounded-lg px-4 py-3 text-sm text-white focus:border-primary focus:outline-none focus:bg-[#15151c] transition-all appearance-none"
                                     >
@@ -309,8 +315,9 @@ export const Contact: React.FC = () => {
                             </div>
 
                             <div className="flex flex-col gap-1.5">
-                                <label className="text-xs text-textMuted font-medium">Nội dung yêu cầu</label>
+                                <label htmlFor="contact_message" className="text-xs text-textMuted font-medium">Nội dung yêu cầu</label>
                                 <textarea
+                                    id="contact_message"
                                     name="message"
                                     required
                                     minLength={10}
@@ -320,8 +327,8 @@ export const Contact: React.FC = () => {
                                 ></textarea>
                             </div>
 
-                            <label className="flex items-start gap-3 text-xs text-textMuted leading-relaxed">
-                                <input type="checkbox" name="privacy_consent" required className="mt-0.5 accent-primary" />
+                            <label htmlFor="contact_privacy_consent" className="flex items-start gap-3 text-xs text-textMuted leading-relaxed cursor-pointer">
+                                <input id="contact_privacy_consent" type="checkbox" name="privacy_consent" required className="mt-0.5 accent-primary" />
                                 <span>
                                     Tôi đồng ý để HEONA MEDIA sử dụng thông tin trên nhằm phản hồi yêu cầu theo{' '}
                                     <Link to="/privacy" className="text-primary hover:underline">chính sách quyền riêng tư</Link>.
