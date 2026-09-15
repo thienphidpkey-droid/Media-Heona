@@ -1,4 +1,4 @@
-﻿# Feature Specifications - Heona Media
+# Feature Specifications - Heona Media
 
 Tài liệu danh mục tính năng chi tiết của hệ thống Heona Media (Public Website & Admin Content OS).
 
@@ -27,6 +27,11 @@ Tài liệu danh mục tính năng chi tiết của hệ thống Heona Media (Pu
 ### 1.5. Form Liên hệ Không cần Backend (EmailJS Integration)
 - Khách hàng điền thông tin tư vấn/báo giá được gửi trực tiếp về email điều hành `heonamedia@gmail.com` qua SDK EmailJS, đồng thời lưu vào Hộp thư quản trị.
 
+### 1.6. Cửa sổ Đọc Bài viết Blog (Interactive Modal Reader)
+- Bấm vào bất kỳ bài viết nào sẽ mở ngay cửa sổ Popup (Modal) kính mờ trung tâm, không reload trang, không mất vị trí cuộn của danh sách.
+- Hỗ trợ đóng nhanh qua nút X, click ngoài hoặc phím ESC (tự động khóa cuộn trang nền).
+- URL tự động cập nhật `/blog/:slug` đảm bảo chia sẻ link chuẩn SEO và thu thập dữ liệu bởi Googlebot.
+
 ---
 
 ## 2. Tính năng Quản trị Nội bộ (Admin Content OS Features)
@@ -52,3 +57,13 @@ Tài liệu danh mục tính năng chi tiết của hệ thống Heona Media (Pu
 
 ### 2.4. Thư viện Đa phương tiện (Media Library)
 - Kho lưu trữ ảnh tập trung, hỗ trợ chọn nhanh vào bài viết qua component `MediaPickerModal`.
+
+### 2.5. Trích xuất Thumbnail Tự động từ YouTube & Đa nguồn Ảnh
+- Tự động nhận diện URL YouTube (`watch`, `youtu.be`, `shorts`) trong `ArticleEditor`, lấy ảnh bìa HD chất lượng cao (`maxresdefault.jpg` fallback `hqdefault.jpg`).
+- Hỗ trợ dán link ảnh trực tiếp từ bên ngoài hoặc chọn từ Thư viện Media.
+
+### 2.6. Quản lý Khách hàng & Logo Đối tác (Client Management)
+- Modal chỉnh sửa thông tin khách hàng hỗ trợ: Nhập link ảnh (`type="text"` chấp nhận cả link nội bộ và link ngoài), tải ảnh trực tiếp từ máy tính (tự động nén chuẩn WebP) và chọn từ Thư viện Media.
+
+### 2.7. Sắp xếp Nội dung Thông minh (Newest First)
+- Danh sách Bài viết (`ArticleList`) và Dự án (`ProjectList`) tự động ưu tiên nội dung mới nhất lên đầu bảng dựa trên mốc thời gian chuẩn hóa.

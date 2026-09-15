@@ -1,10 +1,30 @@
-﻿# ROADMAP - HEONA MEDIA
+# ROADMAP - HEONA MEDIA
 
 Lộ trình phát triển sản phẩm, các hạng mục đã hoàn thành và kế hoạch tương lai của hệ thống HEONA MEDIA.
 
 ---
 
 ## 1. Đã hoàn thành (Completed Milestones)
+
+### Phiên bản v1.5 (15/09/2026) - Security Hardening, Media Enhancements & Interactive Blog Modal
+- [x] **Supabase Security Hardening & Zero-Trust RLS (v4.2):**
+  - Áp dụng Migration RLS v4.2 tự động kiểm tra và vá cột thiếu (`status`, `contact_person`, `phone`, `email`, `notes`), chống lỗi Postgres 42703.
+  - Phân quyền chính xác Supabase Storage không can thiệp quyền sở hữu `storage.objects`, loại bỏ lỗi 42501.
+  - Khởi tạo Privileged Projection View `public_clients` (`security_invoker = false`) chỉ công khai các trường an toàn, thu hồi toàn bộ quyền đọc thô bảng `clients` từ `anon`.
+  - Thiết lập hàm định danh tập trung `public.is_admin()` whitelist email Quản trị viên (`thienph.idpkey@gmail.com` và `heonamedia@gmail.com`).
+  - Gỡ bỏ hoàn toàn cụm nút chuyển quyền test ảo (mock switcher) và dọn sạch dữ liệu mẫu cũ trong `localStorage`.
+- [x] **Tự động Trích xuất Thumbnail YouTube:**
+  - Nhận diện URL YouTube đa dạng (`youtube.com/watch`, `youtu.be`, `shorts`), tự động lấy ảnh bìa HD chất lượng cao (`maxresdefault.jpg` fallback `hqdefault.jpg`).
+  - Mở rộng Content Security Policy (CSP) trên Vercel cho phép tải ảnh từ domain `ytimg.com` và `youtube.com`.
+- [x] **Cửa sổ Popup (Modal) Đọc Bài viết Blog:**
+  - Bấm vào bài viết mở cửa sổ Popup nổi bật với nền làm mờ (`backdrop-blur-md`), giữ nguyên vị trí cuộn danh sách.
+  - Tự động khóa cuộn trang (`body overflow: hidden`), đóng nhanh bằng nút X, click ngoài hoặc phím ESC.
+  - Tự động đồng bộ URL `/blog/:slug` đảm bảo chia sẻ link và SEO crawlability.
+- [x] **Quản lý Logo Khách hàng:**
+  - Bổ sung ô nhập link ảnh (`type="text"`) và upload ảnh trực tiếp (tự động nén WebP) trong modal Khách hàng.
+  - Tích hợp chọn nhanh từ Thư viện Media (`MediaPickerModal`).
+- [x] **Sắp xếp Nội dung Mới nhất Trước:**
+  - Danh sách bài viết (`ArticleList`) và dự án (`ProjectList`) tự động ưu tiên bài mới nhất lên trên đầu.
 
 ### Phiên bản v1.4 (15/09/2026) - Đợt Tái cấu trúc Toàn diện Admin UI/UX
 - [x] **Redesign Case Study Editor (ProjectEditor):**

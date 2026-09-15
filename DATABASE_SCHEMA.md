@@ -1,4 +1,4 @@
-﻿# Database Schema & Data Models - Heona Media
+# Database Schema & Data Models - Heona Media
 
 Tài liệu mô tả toàn bộ cấu trúc dữ liệu, entities và cơ chế lưu trữ của hệ thống Heona Media CMS.
 
@@ -6,9 +6,10 @@ Tài liệu mô tả toàn bộ cấu trúc dữ liệu, entities và cơ chế 
 
 ## 1. Kiến trúc lưu trữ (Storage Architecture)
 
-- **Cơ chế hiện tại:** `localStorage` trên trình duyệt thông qua tầng dịch vụ `admin/services/db.ts`.
-- **Backend / Database Server:** Không sử dụng Supabase hay SQL database riêng ở giai đoạn hiện tại (Zero-infrastructure cost, hoàn toàn client-side).
-- **Tầng trừu tượng hóa (Service Layer):** Tất cả thao tác đọc/ghi đều đi qua các Service (`ProjectsService`, `ArticlesService`, `ClientsService`, `LeadsService`, `MediaService`, `AuthService`). Khi cần chuyển sang Supabase / REST API, chỉ cần thay đổi ruột của các Service này mà không ảnh hưởng tới UI Components.
+- **Cơ chế lai (Hybrid Cloud & Offline-First):** Kết hợp bộ nhớ đệm tốc độ cao `localStorage` trên trình duyệt và Cơ sở dữ liệu đám mây **Supabase PostgreSQL** thông qua tầng dịch vụ `admin/services/db.ts` và `admin/services/supabase.ts`.
+- **Đồng bộ Đám mây (Supabase Cloud Sync):** Toàn bộ dữ liệu dự án, bài viết, khách hàng, leads và media được đồng bộ hai chiều với Supabase.
+- **Bảo mật RLS & View Chiếu (Zero-Trust):** Toàn bộ các bảng trên Supabase đều được kích hoạt `FORCE ROW LEVEL SECURITY`. Bảng `clients` được bảo vệ phía sau View chiếu công khai `public_clients` (`security_invoker = false`), chỉ cho phép Quản trị viên trong Whitelist (`public.is_admin()`) thực hiện các thao tác ghi.
+- **Tầng trừu tượng hóa (Service Layer):** Tất cả thao tác đọc/ghi đều đi qua các Service (`ProjectsService`, `ArticlesService`, `ClientsService`, `LeadsService`, `MediaService`, `AuthService`).
 
 ---
 
