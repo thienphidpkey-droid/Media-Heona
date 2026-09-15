@@ -1,7 +1,7 @@
 -- ==============================================================================
--- HEONA MEDIA - SUPABASE PRODUCTION ROW-LEVEL SECURITY (RLS) HARDENING (v4.1)
+-- HEONA MEDIA - SUPABASE PRODUCTION ROW-LEVEL SECURITY (RLS) HARDENING (v4.2)
 -- BẢN PRODUCTION HOÀN CHỈNH: ATOMIC TRANSACTION, PRE-MIGRATION COLUMN PATCHES,
--- STORAGE SECURITY, IS_ADMIN() FUNCTION, EXPLICIT GRANTS & SECURITY DEFINER VIEW.
+-- IS_ADMIN() FUNCTION, EXPLICIT GRANTS, SECURITY DEFINER VIEW & SAFE STORAGE POLICIES.
 --
 -- Chạy toàn bộ script này trong Supabase SQL Editor:
 -- https://supabase.com/dashboard/project/fktotmzqfbesbidpqbqb/sql
@@ -147,7 +147,7 @@ TO authenticated
 USING (public.is_admin())
 WITH CHECK (public.is_admin());
 
--- 3. Tạo View công khai bảo mật với cảnh báo kiến trúc:
+-- 3. Tạo View công khai bảo mật:
 -- ==============================================================================
 -- CẢNH BÁO BẢO MẬT: ĐÂY LÀ SECURITY DEFINER PROJECTION CÓ CHỦ ĐÍCH.
 -- View này là cổng duy nhất cho phép website công khai hiển thị logo đối tác.
@@ -255,40 +255,7 @@ WITH CHECK (public.is_admin());
 
 
 -- ==============================================================================
--- BƯỚC 11: BẢO VỆ SUPABASE STORAGE (STORAGE.OBJECTS)
--- Ngăn chặn kẻ tấn công upload trộm hoặc bơm rác làm đầy dung lượng Bucket
--- ==============================================================================
-ALTER TABLE IF EXISTS storage.objects ENABLE ROW LEVEL SECURITY;
-
-DO $$ 
-DECLARE 
-    spol RECORD;
-BEGIN 
-    FOR spol IN 
-        SELECT policyname 
-        FROM pg_policies 
-        WHERE schemaname = 'storage' AND tablename = 'objects'
-    LOOP 
-        EXECUTE format('DROP POLICY IF EXISTS %I ON storage.objects;', spol.policyname);
-    END LOOP; 
-END $$;
-
--- 1. Cho phép công chúng ĐỌC các tệp nằm trong bucket công khai (media / public-media)
-CREATE POLICY "Public Read Storage Objects"
-ON storage.objects FOR SELECT
-TO public
-USING (bucket_id IN ('media', 'public-media'));
-
--- 2. CHỈ DUY NHẤT Admin Whitelist mới được phép UPLOAD / THAY ĐỔI / XÓA tệp trong Storage
-CREATE POLICY "Admin Manage Storage Objects"
-ON storage.objects FOR ALL
-TO authenticated
-USING (public.is_admin())
-WITH CHECK (public.is_admin());
-
-
--- ==============================================================================
--- BƯỚC 12: PHÂN QUYỀN CƠ SỞ DỮ LIỆU TƯỜNG MINH (EXPLICIT SQL GRANTS)
+-- BƯỚC 11: PHÂN QUYỀN CƠ SỞ DỮ LIỆU TƯỜNG MINH (EXPLICIT SQL GRANTS)
 -- ==============================================================================
 GRANT USAGE ON SCHEMA public TO anon, authenticated;
 GRANT SELECT ON public.articles TO anon, authenticated;
@@ -299,3 +266,28 @@ GRANT INSERT ON public.leads TO anon, authenticated;
 GRANT SELECT ON public.public_clients TO anon, authenticated;
 
 COMMIT;
+
+-- ==============================================================================
+-- BƯỚC 12: BẢO VỆ SUPABASE STORAGE (AN TOÀN / KHÔNG DỪNG NẾU THIẾU QUYỀN OWNER)
+-- Bảng storage.objects được sở hữu bởi role supabase_storage_admin.
+-- Khối lệnh này sẽ tự động thử gán policy nếu có quyền, và không làm gián đoạn hệ thống.
+-- ==============================================================================
+DO $$ 
+BEGIN 
+  BEGIN
+    DROP POLICY IF EXISTS "Public Read Storage Objects" ON storage.objects;
+    CREATE POLICY "Public Read Storage Objects"
+    ON storage.objects FOR SELECT
+    TO public
+    USING (bucket_id IN ('media', 'public-media'));
+
+    DROP POLICY IF EXISTS "Admin Manage Storage Objects" ON storage.objects;
+    CREATE POLICY "Admin Manage Storage Objects"
+    ON storage.objects FOR ALL
+    TO authenticated
+    USING (public.is_admin())
+    WITH CHECK (public.is_admin());
+  EXCEPTION WHEN OTHERS THEN 
+    RAISE NOTICE 'Thông báo: storage.objects do role supabase_storage_admin quản lý. Hãy cấu hình Storage Policies qua tab Storage -> Configuration -> Policies trên Supabase Dashboard nếu cần.';
+  END;
+END $$;
