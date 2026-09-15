@@ -134,7 +134,7 @@ ensureDatabaseSeeded();
 export async function syncFromSupabase(): Promise<void> {
   if (typeof window === 'undefined') return;
   try {
-    // Sync Projects from Supabase
+    // Sync Projects from Supabase with Smart Merge (never delete local items)
     const { data: dbProjects, error: pErr } = await supabase.from('projects').select('*');
     if (!pErr && dbProjects && dbProjects.length > 0) {
       const mapped: Project[] = dbProjects.map((p) => ({
@@ -168,10 +168,19 @@ export async function syncFromSupabase(): Promise<void> {
         createdAt: p.created_at,
         updatedAt: p.updated_at
       }));
-      setItem(STORAGE_KEYS.PROJECTS, mapped);
+
+      // Smart merge: keep any local projects not yet in Supabase
+      const localProjects = getItem<Project[]>(STORAGE_KEYS.PROJECTS, SEED_PROJECTS);
+      const mergedProjects = [...mapped];
+      for (const lp of localProjects) {
+        if (!mergedProjects.some((mp) => mp.slug === lp.slug || String(mp.id) === String(lp.id))) {
+          mergedProjects.push(lp);
+        }
+      }
+      setItem(STORAGE_KEYS.PROJECTS, mergedProjects);
     }
 
-    // Sync Articles from Supabase
+    // Sync Articles from Supabase with Smart Merge
     const { data: dbArticles, error: aErr } = await supabase.from('articles').select('*');
     if (!aErr && dbArticles && dbArticles.length > 0) {
       const mappedArt: Article[] = dbArticles.map((a) => ({
@@ -193,7 +202,16 @@ export async function syncFromSupabase(): Promise<void> {
         seo: a.seo,
         ctaBlock: undefined
       }));
-      setItem(STORAGE_KEYS.ARTICLES, mappedArt);
+
+      // Smart merge: keep any local articles not yet in Supabase
+      const localArticles = getItem<Article[]>(STORAGE_KEYS.ARTICLES, SEED_ARTICLES);
+      const mergedArticles = [...mappedArt];
+      for (const la of localArticles) {
+        if (!mergedArticles.some((ma) => ma.slug === la.slug || String(ma.id) === String(la.id))) {
+          mergedArticles.push(la);
+        }
+      }
+      setItem(STORAGE_KEYS.ARTICLES, mergedArticles);
     }
   } catch (e) {
     console.warn('[Supabase Sync] Background sync skipped:', e);

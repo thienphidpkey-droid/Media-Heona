@@ -1,4 +1,4 @@
-﻿# Security Policy & Considerations - Heona Media
+# Security Policy & Considerations - Heona Media
 
 Tài liệu mô tả chính sách bảo mật, các rủi ro tiềm ẩn và giải pháp phòng vệ của website Heona Media.
 
@@ -23,4 +23,9 @@ Hệ thống Heona Media hoạt động theo mô hình Jamstack (Client-Side SPA
 - Để phòng chống spam bot gửi tràn form, ban quản trị cấu hình Rate Limiting và Captcha trên bảng điều khiển quản trị EmailJS Dashboard.
 
 ### 2.3. Bảo mật Khu vực Quản trị (/admin/*)
-- Giao diện Admin phục vụ công tác biên tập nội bộ. Trên môi trường production Vercel, khuyến nghị bật tính năng **Vercel Password Protection** hoặc giới hạn IP nội bộ cho tiền tố `/admin` để ngăn chặn truy cập trái phép.
+- **Ẩn hoàn toàn điểm truy cập công khai (Stealth Mode):** Toàn bộ link hoặc nút bấm điều hướng vào `/admin` đã được loại bỏ khỏi giao diện người dùng. Nếu khách truy cập thông thường nhập thẳng `/admin` hoặc `/admin/login` trên thanh địa chỉ khi chưa xác thực, hệ thống lập tức tự động chuyển hướng (`redirect`) về trang chủ (`/`), ngăn ngừa hoàn toàn việc dò quét hoặc tấn công brute-force.
+- **Cơ chế kích hoạt Đăng nhập Ẩn:** Quản trị viên sử dụng tổ hợp phím **`Ctrl + Shift + A`** (hoặc `Cmd + Shift + A` trên MacOS) để mở Modal xác thực bảo mật nội bộ.
+- **Xác thực Google OAuth 2.0 & Danh sách Trắng (Email Whitelist):**
+  - CMS tích hợp trực tiếp với Supabase Auth sử dụng Google OAuth 2.0.
+  - Bắt buộc kiểm tra danh sách email quản trị viên được phép (`VITE_ADMIN_WHITELIST_EMAILS` hoặc danh sách mặc định). Bất kỳ tài khoản Google nào không nằm trong danh sách được cấp quyền sẽ bị từ chối và tự động đăng xuất ngay lập tức.
+- Trên môi trường production Vercel, tiếp tục khuyến nghị bật tính năng **Vercel Password Protection** hoặc giới hạn IP nội bộ cho tiền tố `/admin` để gia tăng lớp phòng vệ hạ tầng.

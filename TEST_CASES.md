@@ -1,4 +1,4 @@
-﻿# Test Cases & QA Checklist - Heona Media
+# Test Cases & QA Checklist - Heona Media
 
 Tài liệu hướng dẫn quy trình kiểm thử thủ công và danh mục kiểm tra chất lượng phần mềm (QA Checklist).
 
@@ -33,3 +33,5 @@ Tài liệu hướng dẫn quy trình kiểm thử thủ công và danh mục ki
 | **TC-09** | Floating Dock Menu (Mobile) | Thu nhỏ màn hình < 1024px hoặc mở điện thoại | Thanh dock nổi cố định dưới đáy màn hình, chạm chuyển trang trơn tru |
 | **TC-10** | Form gửi liên hệ | Điền form tại `/contact` và nhấn Gửi | EmailJS nhận dữ liệu, hiển thị thông báo thành công |
 | **TC-11** | Kiểm tra Build & Prerender | Chạy `npm run build` | Lệnh thoát mã `0`, đủ 15 trang tĩnh được prerender thành công |
+| **TC-12** | Đăng nhập Ẩn bằng phím tắt | Trên bất kỳ trang công khai nào, bấm `Ctrl + Shift + A` (hoặc `Cmd + Shift + A`) | Xuất hiện Modal Quản trị bí mật, cho phép nhập email/mật khẩu hoặc chọn nhanh vai trò |
+| **TC-13** | Chặn URL `/admin` trực tiếp | Mở ẩn danh hoặc xóa local user, gõ trực tiếp `localhost:5173/admin` | Hệ thống tự động redirect về trang chủ (`/`), không để lộ giao diện admin |

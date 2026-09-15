@@ -1,4 +1,4 @@
-﻿# Routing Architecture - Heona Media
+# Routing Architecture - Heona Media
 
 Tài liệu bản đồ định tuyến URL của toàn bộ hệ thống Heona Media (Public + Admin).
 
@@ -26,11 +26,12 @@ Tất cả các trang public đều được lazy load và bọc trong `<Suspens
 
 ## 2. Bản đồ Tuyến đường Quản trị (Admin Routes)
 
-Tất cả các route admin nằm dưới prefix `/admin/*` và được bảo vệ bởi phiên làm việc nội bộ (`<ProtectedRoute>`).
+Tất cả các route admin nằm dưới prefix `/admin/*` và được bảo vệ nghiêm ngặt (`<ProtectedRoute>`). Nếu chưa đăng nhập, việc truy cập trực tiếp URL `/admin` hoặc `/admin/login` sẽ tự động redirect về trang chủ (`/`) để ẩn hoàn toàn trang quản trị.
+- **Kích hoạt Đăng nhập Ẩn**: Bấm tổ hợp phím **`Ctrl + Shift + A`** (hoặc `Cmd + Shift + A` trên Mac), hoặc gõ 5 lần liên tiếp vào dòng chữ bản quyền `© HEONA MEDIA` ở Footer trên thiết bị di động.
 
 | Đường dẫn (URL) | Component | Chức năng |
 |---|---|---|
-| `/admin/login` | `admin/pages/Login.tsx` | Màn hình đăng nhập quản trị viên |
+| `/admin/login` | Redirect to `/` | Đã ẩn link đăng nhập trực tiếp (kích hoạt bằng `Ctrl+Shift+A`) |
 | `/admin` | `admin/pages/Dashboard.tsx` | Bảng điều khiển trung tâm & việc cần xử lý |
 | `/admin/articles` | `admin/pages/articles/ArticleList.tsx` | Quản lý danh sách bài viết |
 | `/admin/articles/new` | `admin/pages/articles/ArticleEditor.tsx` | Soạn thảo bài viết mới |

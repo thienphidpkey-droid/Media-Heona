@@ -75,7 +75,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const handleLogout = () => {
     AuthService.logout();
     showToast('Đã đăng xuất khỏi hệ thống', 'info');
-    navigate('/admin/login');
+    navigate('/');
   };
 
   const handleSwitchRole = (role: Role) => {

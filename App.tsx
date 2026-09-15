@@ -1,5 +1,5 @@
 import React, { useLayoutEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import { ContentProvider } from './context/ContentContext';
 import { Home } from './pages/Home';
@@ -16,7 +16,7 @@ import { NotFound } from './pages/NotFound';
 import { ToastProvider } from './admin/components/Toast';
 import { ProtectedRoute } from './admin/components/ProtectedRoute';
 import { AdminLayout } from './admin/components/layout/AdminLayout';
-import { Login } from './admin/pages/Login';
+import { HiddenAdminModal } from './admin/components/HiddenAdminModal';
 import { Dashboard } from './admin/pages/Dashboard';
 import { ArticleList } from './admin/pages/articles/ArticleList';
 import { ArticleEditor } from './admin/pages/articles/ArticleEditor';
@@ -48,7 +48,7 @@ const PublicPage: React.FC<{ element: React.ReactElement }> = ({ element }) => {
 export const AppRoutes: React.FC = () => (
   <Routes>
     {/* ================= ADMIN CMS ROUTES ================= */}
-    <Route path="/admin/login" element={<Login />} />
+    <Route path="/admin/login" element={<Navigate to="/" replace />} />
 
     <Route
       path="/admin"
@@ -235,6 +235,7 @@ const App: React.FC = () => {
       <ContentProvider>
         <Router>
           <ScrollToTop />
+          <HiddenAdminModal />
           <AppRoutes />
         </Router>
       </ContentProvider>
