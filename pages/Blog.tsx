@@ -178,7 +178,19 @@ export const BLOG_POSTS = POSTS;
 
 const formatDate = (date?: string) => {
   if (!date) return '';
-  return new Intl.DateTimeFormat('vi-VN').format(new Date(`${date}T00:00:00+07:00`));
+  try {
+    const parsedDate = date.includes('T') ? new Date(date) : new Date(`${date}T00:00:00+07:00`);
+    if (isNaN(parsedDate.getTime())) {
+      const fallback = new Date(date);
+      if (!isNaN(fallback.getTime())) {
+        return new Intl.DateTimeFormat('vi-VN').format(fallback);
+      }
+      return date;
+    }
+    return new Intl.DateTimeFormat('vi-VN').format(parsedDate);
+  } catch {
+    return date;
+  }
 };
 
 import { ArticlesService, subscribe } from '../admin/services/db';

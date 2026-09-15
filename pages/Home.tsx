@@ -39,6 +39,7 @@ export const Home: React.FC = () => {
         title="Tổ chức sự kiện & Sản xuất Media"
         description="HEONA MEDIA chuyên tổ chức sự kiện trọn gói, livestream chuyên nghiệp, quay phim doanh nghiệp và xây dựng thương hiệu cá nhân uy tín tại TP.HCM."
         keywords="tổ chức sự kiện tphcm, livestream sự kiện, quay phim sự kiện, xây dựng nhân hiệu, heona media"
+        preloadImage="/images/hero-1.webp"
       />
 
       <Section className="pt-10 pb-8 md:pt-20 md:pb-16 relative overflow-hidden bg-gradient-to-b from-[#0b0b0d]/50 to-[#08080a]/50">

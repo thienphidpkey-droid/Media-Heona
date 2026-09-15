@@ -16,6 +16,7 @@ interface SEOProps {
   robots?: string;
   faq?: FAQItem[];
   customSchema?: Record<string, unknown> | Array<Record<string, unknown>>;
+  preloadImage?: string;
 }
 
 export const DOMAIN = 'https://www.heonamedia.com';
@@ -29,7 +30,8 @@ export const SEO: React.FC<SEOProps> = ({
   keywords = 'Tổ chức sự kiện, Event Agency, Media Production, Livestream, Quay phim sự kiện, Xây dựng thương hiệu cá nhân, Chụp ảnh profile cá nhân, Chụp ảnh chân dung nghề nghiệp, TP.HCM, Cho thuê âm thanh ánh sáng, Heona Media',
   robots = 'index, follow, max-image-preview:large',
   faq,
-  customSchema
+  customSchema,
+  preloadImage
 }) => {
   const fullUrl = url ? `${DOMAIN}${url}` : DOMAIN;
   const fullTitle = `${title} | HEONA MEDIA`;
@@ -197,6 +199,9 @@ export const SEO: React.FC<SEOProps> = ({
       <meta name="ICBM" content="10.8372, 106.6625" />
       
       <link rel="canonical" href={fullUrl} />
+      {preloadImage && (
+        <link rel="preload" as="image" href={preloadImage} type="image/webp" />
+      )}
 
       {/* Open Graph */}
       <meta property="og:type" content={type} />
