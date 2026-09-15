@@ -15,6 +15,7 @@ import {
 import { MediaService, subscribe } from '../../services/db';
 import { MediaItem } from '../../../types';
 import { useToast } from '../../components/Toast';
+import { processUploadToWebp } from '../../../utils/imageToWebp';
 
 export const MediaLibrary: React.FC = () => {
   const { showToast } = useToast();
@@ -29,31 +30,33 @@ export const MediaLibrary: React.FC = () => {
     return () => unsub();
   }, []);
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
     let count = 0;
-    Array.from(files).forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const url = event.target?.result as string;
+    for (const file of Array.from(files)) {
+      try {
+        const processed = await processUploadToWebp(file);
         MediaService.add({
-          filename: file.name,
-          url,
-          fileType: file.type.startsWith('video') ? 'video' : 'image',
-          mimeType: file.type,
-          sizeBytes: file.size,
-          altText: file.name.replace(/\.[^/.]+$/, ''),
+          filename: processed.filename,
+          url: processed.url,
+          fileType: processed.fileType,
+          mimeType: processed.mimeType,
+          sizeBytes: processed.sizeBytes,
+          resolution: processed.resolution,
+          altText: processed.altText,
           uploadedBy: 'Admin'
         });
         count++;
-        if (count === files.length) {
-          showToast(`Đã tải lên thành công ${count} tệp media!`, 'success');
-        }
-      };
-      reader.readAsDataURL(file);
-    });
+      } catch (err) {
+        console.error('Lỗi chuyển đổi WebP:', err);
+      }
+    }
+
+    if (count > 0) {
+      showToast(`Đã tự động tối ưu & chuyển đổi ${count} tệp sang WebP thành công!`, 'success');
+    }
   };
 
   const handleCopyUrl = (url: string) => {

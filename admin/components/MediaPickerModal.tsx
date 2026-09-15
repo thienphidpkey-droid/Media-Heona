@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { X, Upload, Check, Image as ImageIcon, Search } from 'lucide-react';
 import { MediaService } from '../services/db';
 import { MediaItem } from '../../types';
+import { processUploadToWebp } from '../../utils/imageToWebp';
 
 interface MediaPickerModalProps {
   isOpen: boolean;
@@ -17,34 +18,48 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
   onSelect,
   title = 'Chọn hình ảnh từ Thư viện Media'
 }) => {
-  const [mediaList, setMediaList] = useState<MediaItem[]>(MediaService.getAll());
+  const [mediaList, setMediaList] = useState<MediaItem[]>(() => MediaService.getAll());
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUrl, setSelectedUrl] = useState<string | null>(null);
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    if (isOpen) {
+      setMediaList(MediaService.getAll());
+    }
+  }, [isOpen]);
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    Array.from(files).forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const url = event.target?.result as string;
+    for (const file of Array.from(files)) {
+      try {
+        const processed = await processUploadToWebp(file);
         const newItem = MediaService.add({
-          filename: file.name,
-          url,
-          fileType: file.type.startsWith('video') ? 'video' : 'image',
-          mimeType: file.type,
-          sizeBytes: file.size,
-          altText: file.name.replace(/\.[^/.]+$/, ''),
+          filename: processed.filename,
+          url: processed.url,
+          fileType: processed.fileType,
+          mimeType: processed.mimeType,
+          sizeBytes: processed.sizeBytes,
+          resolution: processed.resolution,
+          altText: processed.altText,
           uploadedBy: 'Admin'
         });
         setMediaList(MediaService.getAll());
         setSelectedUrl(newItem.url);
-      };
-      reader.readAsDataURL(file);
-    });
+      } catch (err) {
+        console.error('Lỗi tự động convert ảnh sang WebP:', err);
+      }
+    }
   };
 
   const filteredMedia = mediaList.filter((m) =>
@@ -58,15 +73,6 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
       onClose();
     }
   };
-
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
 
   if (!isOpen || typeof document === 'undefined') return null;
 

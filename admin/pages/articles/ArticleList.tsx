@@ -19,6 +19,11 @@ import { AuthService } from '../../services/auth';
 import { Article, ContentStatus } from '../../../types';
 import { useToast } from '../../components/Toast';
 
+const formatPublishDate = (dateStr?: string) => {
+  if (!dateStr) return '—';
+  return dateStr.includes('T') ? dateStr.split('T')[0] : dateStr.slice(0, 10);
+};
+
 export const ArticleList: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -349,7 +354,7 @@ export const ArticleList: React.FC = () => {
                         </div>
                       </td>
                       <td className="py-3.5 px-4 text-gray-400 whitespace-nowrap text-[11px]">
-                        {article.publishedAt || article.createdAt}
+                        {formatPublishDate(article.publishedAt || article.createdAt)}
                       </td>
                       <td className="py-3.5 px-5 text-right">
                         <div className="flex items-center justify-end gap-1">

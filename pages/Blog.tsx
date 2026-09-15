@@ -200,7 +200,7 @@ const getCmsPosts = (): BlogPost[] => {
   try {
     const published = ArticlesService.getPublished();
     if (published.length > 0) {
-      return published.map((a, idx) => ({
+      const mapped = published.map((a, idx) => ({
         id: typeof a.id === 'number' ? a.id : idx + 100,
         slug: a.slug,
         tag: a.tags?.[0] || a.category,
@@ -224,9 +224,19 @@ const getCmsPosts = (): BlogPost[] => {
         `
             : '')
       }));
+
+      return mapped.sort((a, b) => {
+        const timeA = new Date(a.date || '').getTime() || 0;
+        const timeB = new Date(b.date || '').getTime() || 0;
+        return timeB - timeA;
+      });
     }
   } catch {}
-  return POSTS;
+  return [...POSTS].sort((a, b) => {
+    const timeA = new Date(a.date || '').getTime() || 0;
+    const timeB = new Date(b.date || '').getTime() || 0;
+    return timeB - timeA;
+  });
 };
 
 export const Blog: React.FC = () => {

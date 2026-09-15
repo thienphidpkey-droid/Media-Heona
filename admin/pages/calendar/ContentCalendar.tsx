@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Calendar as CalendarIcon, FileText, Briefcase, ChevronLeft, ChevronRight } from 'lucide-react';
 import { ArticlesService, ProjectsService } from '../../services/db';
 
+const formatSimpleDate = (s?: string) => s ? (s.includes('T') ? s.split('T')[0] : s.slice(0, 10)) : '—';
+
 export const ContentCalendar: React.FC = () => {
   const articles = ArticlesService.getAll();
   const projects = ProjectsService.getAll();
@@ -51,7 +53,7 @@ export const ContentCalendar: React.FC = () => {
                 <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 capitalize">
                   {a.status}
                 </span>
-                <p className="text-[10px] text-gray-400 mt-1 font-medium">{a.publishedAt || a.createdAt}</p>
+                <p className="text-[10px] text-gray-400 mt-1 font-medium">{formatSimpleDate(a.publishedAt || a.createdAt)}</p>
               </div>
             </div>
           ))}

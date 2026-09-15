@@ -285,11 +285,21 @@ if (typeof window !== 'undefined') {
 // ==========================================
 export const ArticlesService = {
   getAll(): Article[] {
-    return getItem<Article[]>(STORAGE_KEYS.ARTICLES, SEED_ARTICLES);
+    return getItem<Article[]>(STORAGE_KEYS.ARTICLES, SEED_ARTICLES).sort((a, b) => {
+      const timeA = new Date(a.publishedAt || a.createdAt || '').getTime() || 0;
+      const timeB = new Date(b.publishedAt || b.createdAt || '').getTime() || 0;
+      return timeB - timeA;
+    });
   },
 
   getPublished(): Article[] {
-    return this.getAll().filter((a) => a.status === 'published');
+    return this.getAll()
+      .filter((a) => a.status === 'published')
+      .sort((a, b) => {
+        const timeA = new Date(a.publishedAt || a.createdAt || '').getTime() || 0;
+        const timeB = new Date(b.publishedAt || b.createdAt || '').getTime() || 0;
+        return timeB - timeA;
+      });
   },
 
   getBySlug(slug: string): Article | undefined {

@@ -21,6 +21,8 @@ import { LeadsService, subscribe } from '../../services/db';
 import { Lead, LeadStatus } from '../../../types';
 import { useToast } from '../../components/Toast';
 
+const formatSimpleDate = (s?: string) => s ? (s.includes('T') ? s.split('T')[0] : s.slice(0, 10)) : '—';
+
 export const LeadList: React.FC = () => {
   const { showToast } = useToast();
   const [leads, setLeads] = useState<Lead[]>(LeadsService.getAll());
@@ -288,8 +290,8 @@ export const LeadList: React.FC = () => {
                         ))}
                       </select>
                     </td>
-                    <td className="py-3.5 px-4 text-gray-400 whitespace-nowrap font-mono text-[11px]">
-                      {l.createdAt}
+                    <td className="py-3.5 px-4 text-gray-400 whitespace-nowrap text-[11px]">
+                      {formatSimpleDate(l.createdAt)}
                     </td>
                     <td className="py-3.5 px-5 text-right" onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center justify-end gap-1">
@@ -359,7 +361,7 @@ export const LeadList: React.FC = () => {
                   </div>
                   <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-400">
                     <span className="flex items-center gap-1 text-gray-400">
-                      <Clock className="w-3.5 h-3.5" /> {activeLead.createdAt}
+                      <Clock className="w-3.5 h-3.5" /> {formatSimpleDate(activeLead.createdAt)}
                     </span>
                     <span>•</span>
                     <span className="text-gray-400">
