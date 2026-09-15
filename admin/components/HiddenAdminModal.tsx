@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { AuthService, DEFAULT_WHITELIST_EMAILS } from '../services/auth';
+import { AuthService } from '../services/auth';
 import { useToast } from './Toast';
-import { Lock, Mail, X, ShieldAlert, ArrowRight } from 'lucide-react';
+import { X, ShieldAlert } from 'lucide-react';
 
 export const HiddenAdminModal: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [email, setEmail] = useState('thienph.idpkey@gmail.com');
-  const [password, setPassword] = useState('••••••••');
   const [error, setError] = useState<string | null>(null);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
@@ -70,18 +68,6 @@ export const HiddenAdminModal: React.FC = () => {
     }
   };
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    const res = AuthService.login(email);
-    if (res.success) {
-      showToast(`Chào mừng trở lại, ${res.user?.name}!`, 'success');
-      setIsOpen(false);
-      navigate('/admin');
-    } else {
-      setError(res.error || 'Email không hợp lệ hoặc chưa được cấp quyền.');
-    }
-  };
-
   if (!isOpen) return null;
 
   return (
@@ -94,7 +80,7 @@ export const HiddenAdminModal: React.FC = () => {
       />
 
       {/* Modal Card */}
-      <div className="relative w-full max-w-md bg-[#111115] border border-white/10 rounded-2xl p-6 md:p-8 shadow-2xl text-white z-10 animate-scale-up">
+      <div className="relative w-full max-w-sm bg-[#111115] border border-white/10 rounded-2xl p-6 md:p-8 shadow-2xl text-white z-10 animate-scale-up">
         {/* Header */}
         <div className="flex items-start justify-between mb-6">
           <div className="flex items-center gap-3">
@@ -108,14 +94,14 @@ export const HiddenAdminModal: React.FC = () => {
                   Ctrl+Shift+A
                 </span>
               </div>
-              <p className="text-xs text-textMuted mt-0.5">Xác thực Google OAuth & Phân quyền bảo mật</p>
+              <p className="text-xs text-textMuted mt-0.5">Xác thực duy nhất qua Google OAuth</p>
             </div>
           </div>
 
           <button
             type="button"
             onClick={() => setIsOpen(false)}
-            className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
+            className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
             title="Đóng (Esc)"
           >
             <X size={18} />
@@ -129,78 +115,25 @@ export const HiddenAdminModal: React.FC = () => {
           </div>
         )}
 
-        {/* Google OAuth Login Button */}
-        <div className="mb-5">
+        {/* Google OAuth Login Button - ONLY LOGIN METHOD */}
+        <div className="my-2">
           <button
             type="button"
             onClick={handleGoogleLogin}
             disabled={isGoogleLoading}
-            className="w-full py-3 px-4 rounded-xl bg-white hover:bg-gray-100 text-gray-900 font-bold text-xs flex items-center justify-center gap-3 shadow-lg shadow-white/5 transition-all cursor-pointer hover:scale-[1.01] active:scale-[0.99] disabled:opacity-60"
+            className="w-full py-3.5 px-4 rounded-xl bg-white hover:bg-gray-100 text-gray-900 font-bold text-sm flex items-center justify-center gap-3 shadow-lg shadow-white/5 transition-all cursor-pointer hover:scale-[1.01] active:scale-[0.99] disabled:opacity-60"
           >
-            <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
               <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
               <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.98 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
               <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
             </svg>
-            <span>{isGoogleLoading ? 'Đang kết nối Google...' : 'Đăng nhập bảo mật với Google'}</span>
+            <span>{isGoogleLoading ? 'Đang kết nối Google...' : 'Đăng nhập với Google'}</span>
           </button>
         </div>
 
-        <div className="relative flex py-2 items-center mb-4">
-          <div className="flex-grow border-t border-white/10"></div>
-          <span className="flex-shrink mx-3 text-[10px] text-gray-500 uppercase tracking-wider font-semibold">
-            hoặc đăng nhập nội bộ
-          </span>
-          <div className="flex-grow border-t border-white/10"></div>
-        </div>
-
-        {/* Login Form */}
-        <form onSubmit={handleLogin} className="space-y-3.5">
-          <div>
-            <label className="block text-[11px] font-bold text-gray-300 uppercase tracking-wider mb-1.5">
-              Email Quản trị
-            </label>
-            <div className="relative">
-              <Mail className="w-4 h-4 text-gray-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                placeholder="thienph.idpkey@gmail.com"
-                className="w-full pl-10 pr-4 py-2 bg-[#17171e] border border-white/10 rounded-xl text-xs font-medium text-white focus:outline-none focus:border-primary placeholder:text-gray-500 transition-colors"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-[11px] font-bold text-gray-300 uppercase tracking-wider mb-1.5">
-              Mật khẩu
-            </label>
-            <div className="relative">
-              <Lock className="w-4 h-4 text-gray-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                placeholder="••••••••"
-                className="w-full pl-10 pr-4 py-2 bg-[#17171e] border border-white/10 rounded-xl text-xs font-medium text-white focus:outline-none focus:border-primary placeholder:text-gray-500 transition-colors"
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-primary to-secondary text-white font-bold text-xs flex items-center justify-center gap-2 hover:opacity-95 shadow-lg shadow-primary/20 transition-all cursor-pointer"
-          >
-            <span>Xác thực & Mở CMS</span>
-            <ArrowRight size={14} />
-          </button>
-        </form>
-
-        <div className="mt-5 pt-4 border-t border-white/10 text-center">
+        <div className="mt-6 pt-4 border-t border-white/10 text-center">
           <span className="text-[10px] text-gray-500">
             Bấm <kbd className="px-1.5 py-0.5 rounded bg-white/10 font-mono text-[9px]">Esc</kbd> hoặc click ngoài để đóng
           </span>
