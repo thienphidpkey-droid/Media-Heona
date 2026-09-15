@@ -23,6 +23,7 @@ import {
   SEED_ACTIVITY_LOGS,
   SEED_NOTIFICATIONS
 } from './seedData';
+import { supabase } from './supabase';
 
 const STORAGE_KEYS = {
   ARTICLES: 'heona_cms_articles',
@@ -128,6 +129,140 @@ export function ensureDatabaseSeeded(): void {
 ensureDatabaseSeeded();
 
 // ==========================================
+// SUPABASE CLOUD SYNC HELPERS
+// ==========================================
+export async function syncFromSupabase(): Promise<void> {
+  if (typeof window === 'undefined') return;
+  try {
+    // Sync Projects from Supabase
+    const { data: dbProjects, error: pErr } = await supabase.from('projects').select('*');
+    if (!pErr && dbProjects && dbProjects.length > 0) {
+      const mapped: Project[] = dbProjects.map((p) => ({
+        id: p.id,
+        title: p.title,
+        slug: p.slug,
+        category: p.category,
+        clientId: p.client_id,
+        clientName: p.client_name,
+        industry: p.industry,
+        services: p.services || [],
+        location: p.location,
+        startDate: p.start_date,
+        endDate: p.end_date,
+        image: p.cover_image || p.image || '/images/project-1.webp',
+        coverImage: p.cover_image || p.image || '/images/project-1.webp',
+        featuredVideo: p.featured_video,
+        status: p.status,
+        description: p.description,
+        projectIntro: p.project_intro,
+        clientBackground: p.client_background,
+        challenge: p.challenge,
+        projectGoals: p.project_goals,
+        solutionSummary: p.solution_summary,
+        processSteps: p.process_steps || [],
+        results: p.results || [],
+        qualitativeResults: p.qualitative_results || [],
+        gallery: p.gallery || [],
+        testimonial: p.testimonial,
+        seo: p.seo,
+        createdAt: p.created_at,
+        updatedAt: p.updated_at
+      }));
+      setItem(STORAGE_KEYS.PROJECTS, mapped);
+    }
+
+    // Sync Articles from Supabase
+    const { data: dbArticles, error: aErr } = await supabase.from('articles').select('*');
+    if (!aErr && dbArticles && dbArticles.length > 0) {
+      const mappedArt: Article[] = dbArticles.map((a) => ({
+        id: a.id,
+        title: a.title,
+        slug: a.slug,
+        shortDesc: a.excerpt || a.content?.slice(0, 150) || '',
+        excerpt: a.excerpt || '',
+        content: a.content,
+        thumbnail: a.thumbnail || '/images/hero-1.webp',
+        author: a.author || 'Heona Media Team',
+        category: a.category || 'Kiến thức',
+        tags: a.tags || [],
+        status: a.status || 'draft',
+        views: 0,
+        publishedAt: a.published_at,
+        createdAt: a.created_at,
+        updatedAt: a.updated_at,
+        seo: a.seo,
+        ctaBlock: undefined
+      }));
+      setItem(STORAGE_KEYS.ARTICLES, mappedArt);
+    }
+  } catch (e) {
+    console.warn('[Supabase Sync] Background sync skipped:', e);
+  }
+}
+
+function syncProjectToSupabase(p: Project) {
+  try {
+    supabase.from('projects').upsert({
+      title: p.title,
+      slug: p.slug,
+      category: p.category,
+      client_name: p.clientName,
+      client_id: p.clientId || null,
+      industry: p.industry,
+      services: p.services || [],
+      location: p.location,
+      start_date: p.startDate || null,
+      end_date: p.endDate || null,
+      cover_image: p.coverImage || p.image,
+      image: p.coverImage || p.image,
+      featured_video: p.featuredVideo || null,
+      status: p.status,
+      description: p.description,
+      project_intro: p.projectIntro,
+      client_background: p.clientBackground,
+      challenge: p.challenge,
+      project_goals: p.projectGoals,
+      solution_summary: p.solutionSummary,
+      process_steps: p.processSteps || [],
+      results: p.results || [],
+      qualitative_results: p.qualitativeResults || [],
+      gallery: p.gallery || [],
+      testimonial: p.testimonial || {},
+      seo: p.seo || {}
+    }, { onConflict: 'slug' }).then(({ error }) => {
+      if (error) console.warn('[Supabase Project Sync Error]:', error.message);
+      else console.log('[Supabase Project Sync] Synced:', p.title);
+    });
+  } catch (e) {}
+}
+
+function syncArticleToSupabase(a: Article) {
+  try {
+    supabase.from('articles').upsert({
+      title: a.title,
+      slug: a.slug,
+      excerpt: a.shortDesc || '',
+      content: a.content,
+      category: a.category,
+      tags: a.tags || [],
+      author: a.author,
+      thumbnail: a.thumbnail,
+      status: a.status,
+      seo: a.seo || {},
+      published_at: a.publishedAt || null
+    }, { onConflict: 'slug' }).then(({ error }) => {
+      if (error) console.warn('[Supabase Article Sync Error]:', error.message);
+      else console.log('[Supabase Article Sync] Synced:', a.title);
+    });
+  } catch (e) {}
+}
+
+// Trigger initial sync if in browser
+if (typeof window !== 'undefined') {
+  syncFromSupabase();
+}
+
+// ==========================================
 // ARTICLES (BLOG) CRUD
 // ==========================================
 export const ArticlesService = {
@@ -171,6 +306,7 @@ export const ArticlesService = {
         list[index] = updated;
         setItem(STORAGE_KEYS.ARTICLES, list);
         ActivityLogService.log('đã cập nhật bài viết', 'article', updated.title);
+        syncArticleToSupabase(updated);
         return updated;
       }
     }
@@ -204,6 +340,7 @@ export const ArticlesService = {
     list.unshift(newArticle);
     setItem(STORAGE_KEYS.ARTICLES, list);
     ActivityLogService.log('đã tạo bài viết mới', 'article', newArticle.title);
+    syncArticleToSupabase(newArticle);
     return newArticle;
   },
 
@@ -214,6 +351,7 @@ export const ArticlesService = {
     const filtered = list.filter((a) => String(a.id) !== String(id));
     setItem(STORAGE_KEYS.ARTICLES, filtered);
     ActivityLogService.log('đã xóa bài viết', 'article', item.title);
+    try { supabase.from('articles').delete().eq('slug', item.slug).then(() => {}); } catch(e) {}
     return true;
   },
 
@@ -303,6 +441,7 @@ export const ProjectsService = {
         list[index] = updated;
         setItem(STORAGE_KEYS.PROJECTS, list);
         ActivityLogService.log('đã cập nhật dự án', 'project', updated.title);
+        syncProjectToSupabase(updated);
         return updated;
       }
     }
@@ -345,6 +484,7 @@ export const ProjectsService = {
     list.unshift(newProject);
     setItem(STORAGE_KEYS.PROJECTS, list);
     ActivityLogService.log('đã tạo dự án mới', 'project', newProject.title);
+    syncProjectToSupabase(newProject);
     return newProject;
   },
 
@@ -355,6 +495,7 @@ export const ProjectsService = {
     const filtered = list.filter((p) => String(p.id) !== String(id));
     setItem(STORAGE_KEYS.PROJECTS, filtered);
     ActivityLogService.log('đã xóa dự án', 'project', item.title);
+    try { supabase.from('projects').delete().eq('slug', item.slug).then(() => {}); } catch(e) {}
     return true;
   }
 };
