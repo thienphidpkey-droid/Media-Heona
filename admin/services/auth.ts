@@ -1,5 +1,5 @@
 import { CMSUser, Role } from '../../types';
-import { UsersService, syncFromSupabase } from './db';
+import { UsersService, syncFromSupabase, STORAGE_KEYS } from './db';
 import { supabase } from './supabase';
 
 const AUTH_STORAGE_KEY = 'heona_cms_current_user';
@@ -207,6 +207,13 @@ export const AuthService = {
       await supabase.auth.signOut();
     } catch (e) {}
     this.setCurrentUser(null);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.removeItem(STORAGE_KEYS.LEADS);
+        localStorage.removeItem(STORAGE_KEYS.LOGS);
+        localStorage.removeItem(STORAGE_KEYS.NOTIFICATIONS);
+      } catch (e) {}
+    }
   },
 
   // Permissions helpers

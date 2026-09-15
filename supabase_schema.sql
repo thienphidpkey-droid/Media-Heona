@@ -124,6 +124,7 @@ CREATE TABLE IF NOT EXISTS media (
   resolution VARCHAR(50),
   alt_text TEXT,
   caption TEXT,
+  is_public BOOLEAN NOT NULL DEFAULT true,
   client_id UUID REFERENCES clients(id) ON DELETE SET NULL,
   project_id UUID REFERENCES projects(id) ON DELETE SET NULL,
   uploaded_by VARCHAR(255),
@@ -186,9 +187,99 @@ ALTER TABLE clients ENABLE ROW LEVEL SECURITY;
 ALTER TABLE media ENABLE ROW LEVEL SECURITY;
 ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
 
--- Public can read published articles, projects, and services
+-- Helper function to check admin whitelist
+CREATE OR REPLACE FUNCTION public.is_admin() 
+RETURNS BOOLEAN AS $$
+BEGIN
+  RETURN LOWER(COALESCE(auth.jwt() ->> 'email', '')) IN (
+    'thienph.idpkey@gmail.com',
+    'heonamedia@gmail.com'
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
+
+-- Public can read published articles, projects, services, and public media
 CREATE POLICY "Public Read Published Articles" ON articles FOR SELECT USING (status = 'published');
+CREATE POLICY "Admin Full Access Articles" ON articles FOR ALL TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
+
 CREATE POLICY "Public Read Published Projects" ON projects FOR SELECT USING (status = 'published');
+CREATE POLICY "Admin Full Access Projects" ON projects FOR ALL TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
+
 CREATE POLICY "Public Read Services" ON services FOR SELECT USING (true);
-CREATE POLICY "Public Read Clients Logo" ON clients FOR SELECT USING (status = 'active');
-CREATE POLICY "Public Submit Leads" ON leads FOR INSERT WITH CHECK (true);
+CREATE POLICY "Admin Full Access Services" ON services FOR ALL TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
+
+CREATE POLICY "Public Read Public Media" ON media FOR SELECT USING (is_public = true);
+CREATE POLICY "Admin Full Access Media" ON media FOR ALL TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
+
+-- Hide sensitive client contact info from public; expose via public_clients view
+REVOKE SELECT ON clients FROM anon;
+CREATE POLICY "Admin Full Access Clients" ON clients FOR ALL TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
+
+CREATE OR REPLACE VIEW public_clients WITH (security_invoker = false) AS
+  SELECT id, name, logo, website, industry, description
+  FROM clients
+  WHERE COALESCE(status, 'active') = 'active';
+
+GRANT SELECT ON public_clients TO anon, authenticated;
+
+-- Public can submit clean leads only (no notes, constrained fields)
+CREATE POLICY "Public Submit Clean Leads" ON leads FOR INSERT WITH CHECK (
+  status = 'New' AND
+  notes IS NULL AND
+  char_length(name) BETWEEN 2 AND 100 AND
+  char_length(phone) BETWEEN 8 AND 20 AND
+  char_length(email) BETWEEN 5 AND 100 AND
+  char_length(COALESCE(message, '')) <= 2000 AND
+  char_length(COALESCE(service_interested, '')) <= 200
+);
+CREATE POLICY "Admin Full Access Leads" ON leads FOR ALL TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
+
+-- Rate limit and anti-spam trigger for leads
+CREATE OR REPLACE FUNCTION public.check_lead_rate_limit()
+RETURNS TRIGGER AS $$
+DECLARE
+  v_recent_count INT;
+  v_dup_count INT;
+BEGIN
+  -- 1. Anti-flood duplicate: same phone or email within 5 minutes
+  SELECT COUNT(*) INTO v_dup_count
+  FROM public.leads
+  WHERE (phone = NEW.phone OR LOWER(email) = LOWER(NEW.email))
+    AND created_at > (NOW() - INTERVAL '5 minutes');
+    
+  IF v_dup_count > 0 THEN
+    RAISE EXCEPTION 'Thông tin liên hệ này vừa được gửi. Vui lòng đợi 5 phút trước khi gửi lại.'
+      USING ERRCODE = '23505';
+  END IF;
+
+  -- 2. Global anonymous rate limit: max 15 leads / 10 minutes
+  IF NOT public.is_admin() THEN
+    SELECT COUNT(*) INTO v_recent_count
+    FROM public.leads
+    WHERE created_at > (NOW() - INTERVAL '10 minutes');
+
+    IF v_recent_count >= 15 THEN
+      RAISE EXCEPTION 'Hệ thống đang tiếp nhận lượng yêu cầu lớn. Vui lòng liên hệ trực tiếp hotline 0931 899 427 hoặc thử lại sau ít phút.'
+        USING ERRCODE = 'P0001';
+    END IF;
+  END IF;
+
+  -- 3. Email regex validation
+  IF NEW.email !~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$' THEN
+    RAISE EXCEPTION 'Định dạng email không hợp lệ.' USING ERRCODE = '23514';
+  END IF;
+
+  -- 4. Phone regex validation
+  IF NEW.phone !~* '^[0-9+() -]{8,20}$' THEN
+    RAISE EXCEPTION 'Định dạng số điện thoại không hợp lệ.' USING ERRCODE = '23514';
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS trg_lead_rate_limit ON leads;
+CREATE TRIGGER trg_lead_rate_limit
+BEFORE INSERT ON leads
+FOR EACH ROW
+EXECUTE FUNCTION public.check_lead_rate_limit();

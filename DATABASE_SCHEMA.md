@@ -127,12 +127,14 @@ type ContentStatus = 'published' | 'draft' | 'review' | 'scheduled' | 'archived'
 interface Lead {
   id: string;
   name: string;
-  email: string;
   phone: string;
-  service?: string;
-  budget?: string;
+  email: string;
+  company?: string;
+  serviceInterested?: string; // Tương ứng cột service_interested trong PostgreSQL
   message: string;
-  status: 'New' | 'Contacted' | 'Qualified' | 'Closed';
+  sourcePage?: string;
+  status: 'New' | 'Contacted' | 'Qualified' | 'Proposal' | 'Won' | 'Lost';
+  notes?: string;
   createdAt: string;
 }
 ```

@@ -25,7 +25,7 @@ import {
 } from './seedData';
 import { supabase } from './supabase';
 
-const STORAGE_KEYS = {
+export const STORAGE_KEYS = {
   ARTICLES: 'heona_cms_articles',
   PROJECTS: 'heona_cms_projects',
   SERVICES: 'heona_cms_services',
@@ -259,6 +259,11 @@ export async function syncFromSupabase(): Promise<void> {
           setItem(STORAGE_KEYS.LEADS, mergedLeads);
         }
       } catch (lSyncErr) {}
+    } else {
+      // Bảo vệ PII: Khách vãng lai / Người dùng chưa đăng nhập không lưu trữ Leads trong trình duyệt
+      try {
+        localStorage.removeItem(STORAGE_KEYS.LEADS);
+      } catch (e) {}
     }
   } catch (e) {
     console.warn('[Supabase Sync] Background sync skipped:', e);
@@ -838,20 +843,25 @@ export const LeadsService = {
   },
 
   add(lead: Omit<Lead, 'id' | 'createdAt'>): Lead {
-    const list = this.getAll();
+    const isClientAdmin = typeof window !== 'undefined' && !!localStorage.getItem('heona_cms_current_user');
     const newLead: Lead = {
       id: `lead-${Date.now()}`,
       createdAt: new Date().toISOString().replace('T', ' ').slice(0, 16),
       ...lead
     };
-    list.unshift(newLead);
-    setItem(STORAGE_KEYS.LEADS, list);
-    NotificationService.add({
-      title: 'Lead mới từ website',
-      message: `${newLead.name} (${newLead.phone}) vừa để lại thông tin tư vấn.`,
-      type: 'alert',
-      link: '/admin/leads'
-    });
+
+    // Chỉ lưu vào localStorage nếu người dùng hiện tại là Quản trị viên (bảo vệ quyền riêng tư PII khách)
+    if (isClientAdmin) {
+      const list = this.getAll();
+      list.unshift(newLead);
+      setItem(STORAGE_KEYS.LEADS, list);
+      NotificationService.add({
+        title: 'Lead mới từ website',
+        message: `${newLead.name} (${newLead.phone}) vừa để lại thông tin tư vấn.`,
+        type: 'alert',
+        link: '/admin/leads'
+      });
+    }
 
     // Đồng bộ trực tiếp lên cơ sở dữ liệu Supabase Cloud
     try {
@@ -859,7 +869,7 @@ export const LeadsService = {
         name: (newLead.name || '').trim().slice(0, 100),
         phone: (newLead.phone || '').trim().slice(0, 20),
         email: (newLead.email || '').trim().slice(0, 100),
-        service: (newLead.serviceInterested || '').trim().slice(0, 200),
+        service_interested: (newLead.serviceInterested || '').trim().slice(0, 200),
         message: (newLead.message || '').trim().slice(0, 2000),
         status: 'New'
       };
@@ -881,6 +891,45 @@ export const LeadsService = {
     }
 
     return newLead;
+  },
+
+  // Phương thức gửi Lead bất đồng bộ dành riêng cho Public Contact Form với cơ chế phản hồi lỗi chi tiết
+  async submitLead(lead: Omit<Lead, 'id' | 'createdAt'>): Promise<{ success: boolean; error?: string }> {
+    const isClientAdmin = typeof window !== 'undefined' && !!localStorage.getItem('heona_cms_current_user');
+    const newLead: Lead = {
+      id: `lead-${Date.now()}`,
+      createdAt: new Date().toISOString().replace('T', ' ').slice(0, 16),
+      ...lead
+    };
+
+    if (isClientAdmin) {
+      const list = this.getAll();
+      list.unshift(newLead);
+      setItem(STORAGE_KEYS.LEADS, list);
+    }
+
+    try {
+      const payload: Record<string, any> = {
+        name: (newLead.name || '').trim().slice(0, 100),
+        phone: (newLead.phone || '').trim().slice(0, 20),
+        email: (newLead.email || '').trim().slice(0, 100),
+        service_interested: (newLead.serviceInterested || '').trim().slice(0, 200),
+        message: (newLead.message || '').trim().slice(0, 2000),
+        status: 'New'
+      };
+      if (newLead.company) payload.company = newLead.company.trim().slice(0, 100);
+      if (newLead.sourcePage) payload.source_page = newLead.sourcePage.trim().slice(0, 100);
+
+      const { error } = await supabase.from('leads').insert(payload);
+      if (error) {
+        console.warn('[Supabase Leads submitLead Warning]:', error.message);
+        return { success: false, error: error.message };
+      }
+      return { success: true };
+    } catch (err: any) {
+      console.error('[Supabase Leads submitLead Exception]:', err);
+      return { success: false, error: err?.message || 'Lỗi kết nối cơ sở dữ liệu' };
+    }
   },
 
   delete(id: string): boolean {

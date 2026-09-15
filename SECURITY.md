@@ -18,9 +18,17 @@ Hệ thống Heona Media hoạt động theo mô hình Jamstack (Client-Side SPA
 - React tự động mã hóa (escape) toàn bộ dữ liệu chuỗi khi render ra JSX.
 - Mọi nội dung HTML từ bộ soạn thảo trực quan (WYSIWYG) đều được lọc sạch qua bộ hàm lọc bảo mật [sanitizeHtml](file:///g:/project/GIT%20liquid-automation/Media-Heona/utils/sanitizeHtml.ts) trước khi render qua `dangerouslySetInnerHTML`, triệt tiêu hoàn toàn nguy cơ Stored XSS.
 
-### 2.2. Bảo mật Khóa API EmailJS & Tầng Gửi Lead
-- Khóa công khai `VITE_EMAILJS_PUBLIC_KEY` được thiết kế chuyên biệt để hoạt động an toàn phía client.
-- Dữ liệu form liên hệ gửi lên được cắt gọt giới hạn độ dài trường (clamp field size) để chống DoS tràn bộ nhớ, và trạng thái mặc định luôn bị ép về `New`.
+### 2.2. Bảo mật Form Khách Hàng Tiềm Năng (Leads CRM) & Gửi Lead Đa Kênh
+- **Khóa công khai `VITE_EMAILJS_PUBLIC_KEY`**: Được thiết kế an toàn phía client, tích hợp honeypot ẩn chống bot tự động.
+- **Chuẩn hóa Canonical Schema (`service_interested`)**: Đồng bộ 100% giữa Database Schema, RLS Policies và Client Types (`leads.service_interested`), ngăn chặn hoàn toàn lỗi PostgreSQL 42703 dẫn đến hủy transaction hàng loạt.
+- **Kiểm soát Tần suất & Chống Spam Database Trigger (`trg_lead_rate_limit`)**:
+  - Chống spam gửi lặp: chặn gửi cùng số điện thoại hoặc email trong vòng 5 phút (ERRCODE: `23505`).
+  - Rate limiting toàn cục: giới hạn tối đa 15 lead công khai / 10 phút để bảo vệ bảng leads khỏi nguy cơ DoS flooding và tràn bộ nhớ.
+  - Kiểm tra định dạng Regex Email và Số điện thoại ngay tại tầng DB trước khi cho phép INSERT.
+- **Xử lý Đa Kênh (Dual-Channel Delivery Fallback)**: Form liên hệ tại `/contact` gửi song song qua Supabase Cloud và EmailJS với `Promise.allSettled`. Chỉ báo thành công khi ít nhất 1 kênh nhận dữ liệu; nếu cả 2 kênh đều gián đoạn, hiển thị thông báo lỗi rõ ràng kèm số điện thoại Hotline/Zalo để khách hàng không bị thất lạc liên lạc.
+- **Bảo vệ Dữ liệu Định danh Cá nhân (Zero PII Leakage in Browser)**:
+  - Khách vãng lai gửi form liên hệ không bị ghi đè thông tin PII vào `localStorage`.
+  - Quản trị viên sau khi làm việc khi nhấn Đăng xuất (`logout()`) sẽ lập tức xóa sạch toàn bộ bộ nhớ tạm Leads, Activity Logs và Notifications khỏi trình duyệt.
 
 ### 2.3. Bảo mật Cơ sở Dữ liệu Supabase & Row Level Security (RLS)
 - Áp dụng nguyên tắc Zero-Trust và `FORCE ROW LEVEL SECURITY` trên toàn bộ bảng.

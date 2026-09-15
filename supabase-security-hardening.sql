@@ -199,8 +199,58 @@ WITH CHECK (
   char_length(phone) BETWEEN 8 AND 20 AND
   char_length(email) BETWEEN 5 AND 100 AND
   char_length(COALESCE(message, '')) <= 2000 AND
-  char_length(COALESCE(service, '')) <= 200
+  char_length(COALESCE(service_interested, '')) <= 200
 );
+
+-- Trigger kiểm soát tốc độ gửi (Rate Limiting) & Chống spam trùng lặp cho Leads
+CREATE OR REPLACE FUNCTION public.check_lead_rate_limit()
+RETURNS TRIGGER AS $$
+DECLARE
+  v_recent_count INT;
+  v_dup_count INT;
+BEGIN
+  -- 1. Chống spam gửi liên tục cùng số điện thoại hoặc email trong vòng 5 phút
+  SELECT COUNT(*) INTO v_dup_count
+  FROM public.leads
+  WHERE (phone = NEW.phone OR LOWER(email) = LOWER(NEW.email))
+    AND created_at > (NOW() - INTERVAL '5 minutes');
+    
+  IF v_dup_count > 0 THEN
+    RAISE EXCEPTION 'Thông tin liên hệ này vừa được gửi. Vui lòng đợi 5 phút trước khi gửi lại.'
+      USING ERRCODE = '23505';
+  END IF;
+
+  -- 2. Giới hạn tần suất toàn cục (Rate Limiting): Tối đa 15 leads công khai / 10 phút
+  IF NOT public.is_admin() THEN
+    SELECT COUNT(*) INTO v_recent_count
+    FROM public.leads
+    WHERE created_at > (NOW() - INTERVAL '10 minutes');
+
+    IF v_recent_count >= 15 THEN
+      RAISE EXCEPTION 'Hệ thống đang tiếp nhận lượng yêu cầu lớn. Vui lòng liên hệ trực tiếp hotline 0931 899 427 hoặc thử lại sau ít phút.'
+        USING ERRCODE = 'P0001';
+    END IF;
+  END IF;
+
+  -- 3. Kiểm tra định dạng Regex Email
+  IF NEW.email !~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$' THEN
+    RAISE EXCEPTION 'Định dạng email không hợp lệ.' USING ERRCODE = '23514';
+  END IF;
+
+  -- 4. Kiểm tra định dạng Regex Số điện thoại
+  IF NEW.phone !~* '^[0-9+() -]{8,20}$' THEN
+    RAISE EXCEPTION 'Định dạng số điện thoại không hợp lệ.' USING ERRCODE = '23514';
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS trg_lead_rate_limit ON leads;
+CREATE TRIGGER trg_lead_rate_limit
+BEFORE INSERT ON leads
+FOR EACH ROW
+EXECUTE FUNCTION public.check_lead_rate_limit();
 
 CREATE POLICY "Admin Full Access Leads" 
 ON leads FOR ALL 

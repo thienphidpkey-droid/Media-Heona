@@ -33,7 +33,7 @@ export const Contact: React.FC = () => {
         return () => clearInterval(timer);
     }, [cooldown]);
 
-    const sendEmail = (e: React.FormEvent) => {
+    const sendEmail = async (e: React.FormEvent) => {
         e.preventDefault();
 
         if (!form.current) return;
@@ -64,53 +64,63 @@ export const Contact: React.FC = () => {
         setSubmitStatus('idle');
         setErrorMessage('');
 
-        // Tự động lưu thông tin vào Quản lý Khách hàng Tiềm năng (Leads CRM)
+        const formEl = form.current;
+        const name = ((formEl.elements.namedItem('name') as HTMLInputElement)?.value || '').trim();
+        const phone = ((formEl.elements.namedItem('phone') as HTMLInputElement)?.value || '').trim();
+        const email = ((formEl.elements.namedItem('email') as HTMLInputElement)?.value || '').trim();
+        const company = ((formEl.elements.namedItem('company') as HTMLInputElement)?.value || '').trim();
+        const service = ((formEl.elements.namedItem('service') as HTMLSelectElement)?.value || '').trim();
+        const budget = ((formEl.elements.namedItem('budget') as HTMLSelectElement)?.value || '').trim();
+        const message = ((formEl.elements.namedItem('message') as HTMLTextAreaElement)?.value || '').trim();
+
+        const leadPayload = {
+            name,
+            phone,
+            email,
+            company: company || undefined,
+            serviceInterested: service ? `${service}${budget ? ` (${budget})` : ''}` : undefined,
+            message,
+            sourcePage: 'Trang Liên hệ (/contact)',
+            status: 'New' as const
+        };
+
+        // Gửi song song qua 2 kênh: Database Supabase Cloud và EmailJS Gateway
         try {
-            const formEl = form.current;
-            const name = (formEl.elements.namedItem('name') as HTMLInputElement)?.value || '';
-            const phone = (formEl.elements.namedItem('phone') as HTMLInputElement)?.value || '';
-            const email = (formEl.elements.namedItem('email') as HTMLInputElement)?.value || '';
-            const company = (formEl.elements.namedItem('company') as HTMLInputElement)?.value || '';
-            const service = (formEl.elements.namedItem('service') as HTMLSelectElement)?.value || '';
-            const budget = (formEl.elements.namedItem('budget') as HTMLSelectElement)?.value || '';
-            const message = (formEl.elements.namedItem('message') as HTMLTextAreaElement)?.value || '';
+            const [dbResult, emailResult] = await Promise.allSettled([
+                LeadsService.submitLead(leadPayload),
+                emailjs.sendForm(SERVICE_ID, TEMPLATE_ID, formEl, {
+                    publicKey: PUBLIC_KEY,
+                })
+            ]);
 
-            LeadsService.add({
-                name,
-                phone,
-                email,
-                company: company || undefined,
-                serviceInterested: service ? `${service}${budget ? ` (${budget})` : ''}` : undefined,
-                message,
-                sourcePage: 'Trang Liên hệ (/contact)',
-                status: 'New'
-            });
-        } catch (err) {
-            console.error('Không thể lưu lead vào CMS:', err);
+            const dbSuccess = dbResult.status === 'fulfilled' && dbResult.value.success;
+            const emailSuccess = emailResult.status === 'fulfilled';
+
+            if (dbSuccess || emailSuccess) {
+                // Ít nhất 1 kênh thành công -> Lead đã được ghi nhận an toàn
+                setIsSubmitting(false);
+                setSubmitStatus('success');
+                setCooldown(45);
+                if (form.current) form.current.reset();
+                setTimeout(() => setSubmitStatus('idle'), 6000);
+            } else {
+                // Cả hai kênh đều thất bại
+                const dbErr = dbResult.status === 'fulfilled' ? dbResult.value.error : (dbResult as any).reason?.message;
+                const emailErr = emailResult.status === 'rejected' ? (emailResult as any).reason?.text || (emailResult as any).reason?.message : '';
+                
+                console.error('[Contact Form Dual-Channel Failure]:', { dbErr, emailErr });
+                setIsSubmitting(false);
+                setSubmitStatus('error');
+                setErrorMessage(
+                    dbErr || 'Không thể gửi yêu cầu vào hệ thống lúc này. Quý khách vui lòng gọi Hotline/Zalo: 0931 899 427 để được hỗ trợ tức thì!'
+                );
+            }
+        } catch (fatalErr: any) {
+            console.error('[Contact Form Fatal Error]:', fatalErr);
+            setIsSubmitting(false);
+            setSubmitStatus('error');
+            setErrorMessage('Có lỗi phát sinh khi kết nối máy chủ. Quý khách vui lòng liên hệ Hotline: 0931 899 427.');
         }
-
-        emailjs
-            .sendForm(SERVICE_ID, TEMPLATE_ID, form.current, {
-                publicKey: PUBLIC_KEY,
-            })
-            .then(
-                () => {
-                    setIsSubmitting(false);
-                    setSubmitStatus('success');
-                    setCooldown(45);
-                    if (form.current) form.current.reset();
-                    setTimeout(() => setSubmitStatus('idle'), 5000);
-                },
-                (error) => {
-                    console.error('FAILED...', error);
-                    // Dù emailjs lỗi thì lead vẫn đã được lưu vào hệ thống Admin CRM an toàn
-                    setIsSubmitting(false);
-                    setSubmitStatus('success'); // Hiển thị thành công vì CRM đã nhận thông tin
-                    setCooldown(45);
-                    if (form.current) form.current.reset();
-                    setTimeout(() => setSubmitStatus('idle'), 5000);
-                },
-            );
     };
 
     return (
