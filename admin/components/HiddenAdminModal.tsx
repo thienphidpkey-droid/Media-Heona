@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AuthService } from '../services/auth';
 import { useToast } from './Toast';
-import { X, ShieldAlert } from 'lucide-react';
+import { X } from 'lucide-react';
 
 export const HiddenAdminModal: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -82,21 +82,8 @@ export const HiddenAdminModal: React.FC = () => {
       {/* Modal Card */}
       <div className="relative w-full max-w-sm bg-[#111115] border border-white/10 rounded-2xl p-6 md:p-8 shadow-2xl text-white z-10 animate-scale-up">
         {/* Header */}
-        <div className="flex items-start justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-[#5a2dff] flex items-center justify-center shadow-lg shadow-primary/25">
-              <ShieldAlert className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="text-base font-bold text-white tracking-wide">Quản trị Hệ thống</h3>
-                <span className="text-[10px] px-2 py-0.5 rounded bg-white/10 text-gray-300 font-mono">
-                  Ctrl+Shift+A
-                </span>
-              </div>
-              <p className="text-xs text-textMuted mt-0.5">Xác thực duy nhất qua Google OAuth</p>
-            </div>
-          </div>
+        <div className="flex items-center justify-between mb-5">
+          <h3 className="text-base font-bold text-white tracking-wide">Đăng nhập</h3>
 
           <button
             type="button"
@@ -133,9 +120,9 @@ export const HiddenAdminModal: React.FC = () => {
           </button>
         </div>
 
-        <div className="mt-6 pt-4 border-t border-white/10 text-center">
+        <div className="mt-5 pt-3 border-t border-white/10 text-center">
           <span className="text-[10px] text-gray-500">
-            Bấm <kbd className="px-1.5 py-0.5 rounded bg-white/10 font-mono text-[9px]">Esc</kbd> hoặc click ngoài để đóng
+            Bấm Esc hoặc nhấp ra ngoài để đóng
           </span>
         </div>
       </div>
