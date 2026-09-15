@@ -65,8 +65,8 @@ export const ArticleEditor: React.FC = () => {
     const ytId = extractYoutubeId(raw);
     if (ytId) {
       setIsExtractingYt(true);
-      const maxresUrl = `https://img.youtube.com/vi/${ytId}/maxresdefault.jpg`;
-      const hqUrl = `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`;
+      const maxresUrl = `https://i.ytimg.com/vi/${ytId}/maxresdefault.jpg`;
+      const hqUrl = `https://i.ytimg.com/vi/${ytId}/hqdefault.jpg`;
 
       // Kiểm tra tính khả dụng của maxresdefault
       const testImg = new window.Image();
@@ -500,7 +500,7 @@ export const ArticleEditor: React.FC = () => {
                       }
                     }}
                   />
-                  {thumbnail.includes('youtube.com') && (
+                  {(thumbnail.includes('youtube.com') || thumbnail.includes('ytimg.com')) && (
                     <div className="absolute top-1.5 right-1.5 bg-red-600/90 text-white p-1 rounded-md shadow flex items-center justify-center">
                       <Youtube className="w-3 h-3" />
                     </div>

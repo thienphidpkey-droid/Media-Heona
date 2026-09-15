@@ -155,29 +155,20 @@ interface ContentContextType extends ContentState { }
 const ContentContext = createContext<ContentContextType | undefined>(undefined);
 
 export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [projects, setProjects] = useState<Project[]>(() => {
-    try {
-      const cmsProjects = ProjectsService.getPublished();
-      return cmsProjects.length > 0 ? cmsProjects : DEFAULT_PROJECTS;
-    } catch {
-      return DEFAULT_PROJECTS;
-    }
-  });
-
-  const [services, setServices] = useState<Service[]>(() => {
-    try {
-      const cmsServices = ServicesService.getPublished();
-      return cmsServices.length > 0 ? cmsServices : DEFAULT_SERVICES;
-    } catch {
-      return DEFAULT_SERVICES;
-    }
-  });
+  const [projects, setProjects] = useState<Project[]>(DEFAULT_PROJECTS);
+  const [services, setServices] = useState<Service[]>(DEFAULT_SERVICES);
 
   useEffect(() => {
+    const cmsProjects = ProjectsService.getPublished();
+    if (cmsProjects.length > 0) setProjects(cmsProjects);
+
+    const cmsServices = ServicesService.getPublished();
+    if (cmsServices.length > 0) setServices(cmsServices);
+
     const unsub = subscribe(() => {
-      const cmsProjects = ProjectsService.getPublished();
-      if (cmsProjects.length > 0) {
-        setProjects(cmsProjects);
+      const p = ProjectsService.getPublished();
+      if (p.length > 0) {
+        setProjects(p);
       }
       const cmsServices = ServicesService.getPublished();
       if (cmsServices.length > 0) {

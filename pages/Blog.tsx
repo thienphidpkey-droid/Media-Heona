@@ -243,9 +243,16 @@ export const Blog: React.FC = () => {
   const { slug } = useParams<{ slug?: string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [posts, setPosts] = useState<BlogPost[]>(() => getCmsPosts());
+  const [posts, setPosts] = useState<BlogPost[]>(() => {
+    return [...POSTS].sort((a, b) => {
+      const timeA = new Date(a.date || '').getTime() || 0;
+      const timeB = new Date(b.date || '').getTime() || 0;
+      return timeB - timeA;
+    });
+  });
 
   useEffect(() => {
+    setPosts(getCmsPosts());
     const unsub = subscribe(() => {
       setPosts(getCmsPosts());
     });
@@ -253,7 +260,10 @@ export const Blog: React.FC = () => {
   }, []);
 
   const legacyPostId = searchParams.get('id');
-  const selectedPost = slug ? posts.find((post: BlogPost) => post.slug === slug) : undefined;
+  const selectedPost = slug
+    ? posts.find((post: BlogPost) => post.slug === slug) ||
+      (typeof window !== 'undefined' ? getCmsPosts().find((post: BlogPost) => post.slug === slug) : undefined)
+    : undefined;
   const legacyPost = legacyPostId ? posts.find((post: BlogPost) => post.id === Number(legacyPostId)) : undefined;
 
   useEffect(() => {

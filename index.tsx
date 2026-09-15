@@ -16,7 +16,13 @@ if (rootElement) {
   );
 
   if (rootElement.dataset.prerendered === 'true') {
-    hydrateRoot(rootElement, app);
+    hydrateRoot(rootElement, app, {
+      onRecoverableError(err) {
+        if (import.meta.env.DEV) {
+          console.warn('[Hydration Notice]:', err);
+        }
+      }
+    });
   } else {
     createRoot(rootElement).render(app);
   }
