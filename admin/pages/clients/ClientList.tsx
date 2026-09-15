@@ -271,7 +271,7 @@ export const ClientList: React.FC = () => {
                     <div className="relative flex items-center">
                       <LinkIcon className="w-3.5 h-3.5 text-gray-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
                       <input
-                        type="url"
+                        type="text"
                         value={editingClient.logo || ''}
                         onChange={(e) => setEditingClient({ ...editingClient, logo: e.target.value })}
                         placeholder="Dán link ảnh (https://... hoặc /images/...)"

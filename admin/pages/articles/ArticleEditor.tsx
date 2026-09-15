@@ -512,7 +512,7 @@ export const ArticleEditor: React.FC = () => {
                   <div className="flex flex-wrap sm:flex-nowrap gap-2">
                     <div className="relative flex-1 min-w-[200px]">
                       <input
-                        type="url"
+                        type="text"
                         value={thumbnailUrlInput}
                         onChange={(e) => {
                           const val = e.target.value;
