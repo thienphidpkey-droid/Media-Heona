@@ -4,10 +4,9 @@ import { supabase } from './supabase';
 
 const AUTH_STORAGE_KEY = 'heona_cms_current_user';
 
-// Danh sách Email Quản trị viên được phép truy cập (Whitelist)
+// Danh sách 2 Email Quản trị viên duy nhất được phép truy cập
 export const DEFAULT_WHITELIST_EMAILS = [
   'thienph.idpkey@gmail.com',
-  'admin@heonamedia.com',
   'heonamedia@gmail.com'
 ];
 

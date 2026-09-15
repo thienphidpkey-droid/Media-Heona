@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AuthService, DEFAULT_WHITELIST_EMAILS } from '../services/auth';
 import { useToast } from './Toast';
-import { Role } from '../../types';
-import { Lock, Mail, X, ShieldAlert, ArrowRight, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Lock, Mail, X, ShieldAlert, ArrowRight } from 'lucide-react';
 
 export const HiddenAdminModal: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -83,13 +82,6 @@ export const HiddenAdminModal: React.FC = () => {
     }
   };
 
-  const handleQuickDemo = (role: Role) => {
-    const user = AuthService.loginWithDemo(role);
-    showToast(`Đăng nhập vai trò ${role.toUpperCase()}`, 'success');
-    setIsOpen(false);
-    navigate('/admin');
-  };
-
   if (!isOpen) return null;
 
   return (
@@ -153,10 +145,6 @@ export const HiddenAdminModal: React.FC = () => {
             </svg>
             <span>{isGoogleLoading ? 'Đang kết nối Google...' : 'Đăng nhập bảo mật với Google'}</span>
           </button>
-          <div className="flex items-center gap-1.5 mt-2 justify-center text-[11px] text-emerald-400 font-medium">
-            <CheckCircle2 size={12} />
-            <span>Chỉ chấp nhận các email Google trong danh sách cấp quyền</span>
-          </div>
         </div>
 
         <div className="relative flex py-2 items-center mb-4">
@@ -212,39 +200,7 @@ export const HiddenAdminModal: React.FC = () => {
           </button>
         </form>
 
-        {/* Quick Demo Access (for dev) */}
-        <div className="mt-5 pt-4 border-t border-white/10">
-          <div className="flex items-center justify-between mb-2.5">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
-              <Sparkles size={12} className="text-primary" /> Môi trường thử nghiệm cục bộ
-            </span>
-          </div>
-          <div className="grid grid-cols-3 gap-2">
-            <button
-              type="button"
-              onClick={() => handleQuickDemo('admin')}
-              className="px-2.5 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-primary/50 rounded-xl text-[10px] font-semibold text-white transition-all text-center"
-            >
-              👑 Admin
-            </button>
-            <button
-              type="button"
-              onClick={() => handleQuickDemo('editor')}
-              className="px-2.5 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-primary/50 rounded-xl text-[10px] font-semibold text-white transition-all text-center"
-            >
-              ✍️ Editor
-            </button>
-            <button
-              type="button"
-              onClick={() => handleQuickDemo('contributor')}
-              className="px-2.5 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-primary/50 rounded-xl text-[10px] font-semibold text-white transition-all text-center"
-            >
-              📝 Contrib
-            </button>
-          </div>
-        </div>
-
-        <div className="mt-3.5 text-center">
+        <div className="mt-5 pt-4 border-t border-white/10 text-center">
           <span className="text-[10px] text-gray-500">
             Bấm <kbd className="px-1.5 py-0.5 rounded bg-white/10 font-mono text-[9px]">Esc</kbd> hoặc click ngoài để đóng
           </span>

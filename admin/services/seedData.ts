@@ -3,8 +3,8 @@ import { Article, CMSUser, Client, MediaItem, Project, Service, Lead, ActivityLo
 export const SEED_USERS: CMSUser[] = [
   {
     id: 'u-admin-1',
-    name: 'Nguyễn Heona (Founder)',
-    email: 'admin@heonamedia.com',
+    name: 'Thiên Phú (Super Admin)',
+    email: 'thienph.idpkey@gmail.com',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
     role: 'admin',
     status: 'active',
@@ -12,24 +12,14 @@ export const SEED_USERS: CMSUser[] = [
     createdAt: '2025-01-01'
   },
   {
-    id: 'u-editor-1',
-    name: 'Trần Minh (Content Lead)',
-    email: 'editor@heonamedia.com',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-    role: 'editor',
+    id: 'u-admin-2',
+    name: 'Heona Media Admin',
+    email: 'heonamedia@gmail.com',
+    avatar: '/images/logo.webp',
+    role: 'admin',
     status: 'active',
-    lastLogin: '2026-09-14 17:30',
-    createdAt: '2025-02-15'
-  },
-  {
-    id: 'u-contrib-1',
-    name: 'Lê Thảo (Content Creator)',
-    email: 'contributor@heonamedia.com',
-    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
-    role: 'contributor',
-    status: 'active',
-    lastLogin: '2026-09-15 09:10',
-    createdAt: '2025-03-01'
+    lastLogin: '2026-09-15 09:00',
+    createdAt: '2025-01-01'
   }
 ];
 
