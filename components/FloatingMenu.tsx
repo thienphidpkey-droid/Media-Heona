@@ -31,7 +31,7 @@ export const FloatingMenu: React.FC = () => {
             <span className="hidden md:inline-block text-xs font-semibold ml-1.5 whitespace-nowrap">{item.label}</span>
             
             {/* Tooltip (Hiển thị trên mobile khi hover/touch) */}
-            <div className="md:hidden absolute -top-12 left-1/2 -translate-x-1/2 px-3 py-1.5 bg-[#111115]/90 backdrop-blur-md border border-white/10 rounded-lg text-[11px] font-mono text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap shadow-xl">
+            <div className="md:hidden absolute -top-12 left-1/2 -translate-x-1/2 px-3 py-1.5 bg-[#111115]/90 backdrop-blur-md border border-white/10 rounded-lg text-[11px] font-medium text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap shadow-xl">
               {item.label}
               {/* Tooltip Arrow */}
               <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-[#111115]/90 border-r border-b border-white/10 transform rotate-45"></div>

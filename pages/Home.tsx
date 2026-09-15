@@ -20,8 +20,11 @@ const HERO_ALTS = [
 ];
 
 export const Home: React.FC = () => {
-  const { projects, contactInfo, testimonials } = useContent();
+  const { projects, services, contactInfo, testimonials } = useContent();
   const [currentSlide, setCurrentSlide] = useState(0);
+
+  const highlightServices = services.filter((s) => s.highlight !== false).slice(0, 3);
+  const displayServices = highlightServices.length > 0 ? highlightServices : services.slice(0, 3);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -54,7 +57,7 @@ export const Home: React.FC = () => {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-secondary"></span>
                 </span>
-                <div className="text-xs uppercase tracking-[0.2em] text-secondary font-mono font-bold">
+                <div className="text-xs uppercase tracking-wider text-secondary font-semibold">
                   Tổ chức sự kiện • Sản xuất media
                 </div>
               </div>
@@ -100,7 +103,7 @@ export const Home: React.FC = () => {
                 </Link>
               </div>
 
-              <div className="flex flex-wrap gap-6 text-xs text-textMuted font-mono tracking-tight pt-6 border-t border-white/5">
+              <div className="flex flex-wrap gap-6 text-xs text-textMuted font-medium pt-6 border-t border-white/5">
                 <span className="flex items-center gap-2"><Radio size={16} className="text-primary" /> Livestream – Media</span>
                 <span className="flex items-center gap-2"><Hexagon size={16} className="text-primary" /> Chi phí minh bạch</span>
               </div>
@@ -148,103 +151,68 @@ export const Home: React.FC = () => {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
 
         <div className="text-center mb-8 md:mb-12">
-          <div className="text-[10px] md:text-xs font-mono text-primary uppercase tracking-widest mb-1 md:mb-2">[ SERVICES ]</div>
+          <div className="text-xs md:text-sm font-bold text-primary uppercase tracking-wider mb-1 md:mb-2">Dịch Vụ Trọng Tâm</div>
           <h2 className="font-heading font-extrabold text-2xl md:text-4xl px-4">Dịch vụ trọng tâm</h2>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-8">
-          <Link to="/pricing" className="group relative bg-[#111115] border border-white/10 rounded-xl overflow-hidden hover:border-primary/50 transition-all duration-500 flex flex-col" aria-label="Chi tiết dịch vụ Tổ chức sự kiện">
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div className="p-4 md:p-8 relative z-10 flex flex-col flex-grow">
-              <div className="flex justify-between items-start mb-3 md:mb-5">
-                <h3 className="font-heading font-bold text-[13px] md:text-2xl group-hover:text-primary transition-colors leading-tight">Tổ chức sự kiện</h3>
-                <ArrowRight className="text-white/20 group-hover:text-primary transition-all w-4 h-4 md:w-6 md:h-6 hidden md:block" />
-              </div>
-              <p className="text-textMuted text-[10px] md:text-sm mb-3 md:mb-6 leading-relaxed line-clamp-2 md:line-clamp-none">
-                Lên ý tưởng – kịch bản – thi công – vận hành trọn gói theo mục tiêu doanh nghiệp.
-              </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-8">
+          {displayServices.map((service, index) => {
+            const isSecondary = index % 2 === 1;
+            const isThirdOnMobile = index === 2 && displayServices.length === 3;
+            const accentHoverBorder = isSecondary ? 'hover:border-secondary/50' : 'hover:border-primary/50';
+            const accentTextHover = isSecondary ? 'group-hover:text-secondary' : 'group-hover:text-primary';
+            const accentGradient = isSecondary ? 'from-secondary/10' : 'from-primary/10';
+            const dotColor = isSecondary ? 'bg-secondary' : index === 2 ? 'bg-[#cfc0ff]' : 'bg-primary';
 
-              <ul className="space-y-1.5 md:space-y-3 mb-4 md:mb-8 flex-grow">
-                {[
-                  'Lễ khai trương – khánh thành', 
-                  'Hội nghị – hội thảo – họp báo', 
-                  'Tiệc tất niên – Year End Party',
-                  'Team Building', 
-                  'Tour Retreat/Trekking', 
-                  'Activation – Roadshow', 
-                  'Ra mắt sản phẩm'
-                ].map((item, i) => (
-                  <li key={i} className="flex items-start gap-2 md:gap-3 text-[10px] md:text-sm text-textMuted group-hover:text-white transition-colors">
-                    <div className="mt-1 md:mt-1.5 w-1 h-1 md:w-1.5 md:h-1.5 rounded-full bg-primary shrink-0"></div>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </Link>
+            return (
+              <Link
+                key={service.id}
+                to="/pricing"
+                className={`group relative bg-[#111115] border border-white/10 rounded-xl overflow-hidden ${accentHoverBorder} transition-all duration-500 flex flex-col ${
+                  isThirdOnMobile ? 'col-span-2 lg:col-span-1' : ''
+                }`}
+                aria-label={`Chi tiết dịch vụ ${service.title}`}
+              >
+                <div
+                  className={`absolute inset-0 bg-gradient-to-r ${accentGradient} to-transparent opacity-0 group-hover:opacity-100 transition-opacity`}
+                ></div>
+                <div className="p-4 md:p-8 relative z-10 flex flex-col flex-grow">
+                  <div className="flex justify-between items-start mb-3 md:mb-5">
+                    <h3
+                      className={`font-heading font-bold text-[13px] md:text-2xl ${accentTextHover} transition-colors leading-tight`}
+                    >
+                      {service.title}
+                    </h3>
+                    <ArrowRight
+                      className={`text-white/20 ${accentTextHover} transition-all w-4 h-4 md:w-6 md:h-6 hidden md:block`}
+                    />
+                  </div>
+                  <p className="text-textMuted text-[10px] md:text-sm mb-3 md:mb-6 leading-relaxed line-clamp-2 md:line-clamp-none">
+                    {service.subTitle || service.shortDescription}
+                  </p>
 
-          <Link to="/pricing" className="group relative bg-[#111115] border border-white/10 rounded-xl overflow-hidden hover:border-secondary/50 transition-all duration-500 flex flex-col" aria-label="Chi tiết dịch vụ Xây dựng thương hiệu">
-            <div className="absolute inset-0 bg-gradient-to-l from-secondary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div className="p-4 md:p-8 relative z-10 flex flex-col flex-grow">
-              <div className="flex justify-between items-start mb-3 md:mb-5">
-                <h3 className="font-heading font-bold text-[13px] md:text-2xl group-hover:text-secondary transition-colors leading-tight">Xây dựng nhân hiệu</h3>
-                <ArrowRight className="text-white/20 group-hover:text-secondary transition-all w-4 h-4 md:w-6 md:h-6 hidden md:block" />
-              </div>
-              <p className="text-textMuted text-[10px] md:text-sm mb-3 md:mb-6 leading-relaxed line-clamp-2 md:line-clamp-none">
-                Chiến lược – nội dung – hình ảnh. Đồng hành trọn gói.
-              </p>
-
-              <ul className="space-y-1.5 md:space-y-3 mb-4 md:mb-8 flex-grow">
-                {[
-                  'Tư vấn & Định hình thông điệp & phong cách cá nhân',
-                  'Sản xuất nội dung chuyên sâu (bài viết – video – podcast)',
-                  'Xây kênh social (Facebook – TikTok – Group cộng đồng)',
-                  'Coaching 1:1: xuất hiện tự tin – thuyết phục – tạo ảnh hưởng',
-                  'Chụp ảnh – quay video nhân hiệu (profile, series nội dung)'
-                ].map((item, i) => (
-                  <li key={i} className="flex items-start gap-2 md:gap-3 text-[10px] md:text-sm text-textMuted group-hover:text-white transition-colors">
-                    <div className="mt-1 md:mt-1.5 w-1 h-1 md:w-1.5 md:h-1.5 rounded-full bg-secondary shrink-0"></div>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </Link>
-
-          <Link to="/pricing" className="col-span-2 lg:col-span-1 group relative bg-[#111115] border border-white/10 rounded-xl overflow-hidden hover:border-primary/50 transition-all duration-500 flex flex-col" aria-label="Chi tiết dịch vụ Chụp ảnh Profile">
-            <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div className="p-4 md:p-8 relative z-10 flex flex-col flex-grow">
-              <div className="flex justify-between items-start mb-3 md:mb-5">
-                <h3 className="font-heading font-bold text-[14px] md:text-2xl group-hover:text-primary transition-colors leading-tight">Chụp ảnh profile cá nhân</h3>
-                <ArrowRight className="text-white/20 group-hover:text-primary transition-all w-4 h-4 md:w-6 md:h-6 hidden md:block" />
-              </div>
-              <p className="text-textMuted text-[10px] md:text-sm mb-3 md:mb-6 leading-relaxed line-clamp-2 md:line-clamp-none">
-                Ghi lại thần thái chuyên nghiệp, khẳng định uy tín và sự đột phá trong sự nghiệp của bạn.
-              </p>
-              
-              <ul className="space-y-1.5 md:space-y-3 mb-4 md:mb-8 flex-grow">
-                {[
-                  'Chụp ảnh chân dung nghề nghiệp (Studio/Office)',
-                  'Concept: Chuyên gia, Doanh nhân, Nghệ sĩ',
-                  'Trang điểm & Làm tóc chuyên nghiệp',
-                  'Hỗ trợ tạo dáng & Biểu cảm chuyên nghiệp',
-                  'Hậu kỳ cao cấp, tối ưu đa nền tảng'
-                ].map((item, i) => (
-                  <li key={i} className="flex items-start gap-2 md:gap-3 text-[10px] md:text-sm text-textMuted group-hover:text-white transition-colors">
-                    <div className="mt-1 md:mt-1.5 w-1 h-1 md:w-1.5 md:h-1.5 rounded-full bg-[#cfc0ff] shrink-0"></div>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </Link>
+                  <ul className="space-y-1.5 md:space-y-3 mb-4 md:mb-8 flex-grow">
+                    {service.features.map((item, i) => (
+                      <li
+                        key={i}
+                        className="flex items-start gap-2 md:gap-3 text-[10px] md:text-sm text-textMuted group-hover:text-white transition-colors"
+                      >
+                        <div className={`mt-1 md:mt-1.5 w-1 h-1 md:w-1.5 md:h-1.5 rounded-full ${dotColor} shrink-0`}></div>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </Link>
+            );
+          })}
         </div>
       </Section>
 
       <Section narrow className="relative pb-12 md:pb-16 bg-gradient-to-b from-[#0b0b0d]/50 to-[#08080a]/50">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
         <div className="flex flex-col items-center mb-8 md:mb-10 text-center">
-          <div className="text-[10px] md:text-xs font-mono text-secondary uppercase tracking-widest mb-1 md:mb-2">[ PROJECTS ]</div>
+          <div className="text-xs md:text-sm font-bold text-secondary uppercase tracking-wider mb-1 md:mb-2">Dự Án Tiêu Biểu</div>
           <h2 className="font-heading font-extrabold text-2xl md:text-4xl">DỰ ÁN TIÊU BIỂU</h2>
         </div>
 
@@ -262,7 +230,7 @@ export const Home: React.FC = () => {
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-90"></div>
 
               <div className="absolute bottom-0 left-0 w-full p-3 md:p-6 translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-                <div className="text-[8px] md:text-xs font-mono text-primary mb-1 md:mb-1.5 px-1.5 md:px-2 py-0.5 md:py-1 bg-primary/20 w-fit rounded border border-primary/30 backdrop-blur-sm">
+                <div className="text-[10px] md:text-xs font-semibold text-primary mb-1 md:mb-1.5 px-2 py-0.5 bg-primary/20 w-fit rounded-md border border-primary/30 backdrop-blur-sm">
                   {item.category}
                 </div>
                 <h3 className="font-heading font-bold text-xs md:text-2xl text-white leading-tight mb-1 line-clamp-2">{item.title}</h3>
@@ -283,7 +251,7 @@ export const Home: React.FC = () => {
       <Section narrow className="relative py-12 md:py-16 bg-gradient-to-b from-[#0b0b0d]/50 to-[#08080a]/50">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
         <div className="text-center mb-8 md:mb-12">
-          <div className="text-[10px] md:text-xs font-mono text-primary uppercase tracking-widest mb-1 md:mb-2">[ TESTIMONIALS ]</div>
+          <div className="text-xs md:text-sm font-bold text-primary uppercase tracking-wider mb-1 md:mb-2">Đánh Giá Từ Khách Hàng</div>
           <h2 className="font-heading font-extrabold text-2xl md:text-4xl">KHÁCH HÀNG NÓI VỀ CHÚNG TÔI</h2>
         </div>
 

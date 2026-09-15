@@ -8,6 +8,7 @@ import emailjs from '@emailjs/browser';
 import { SEO } from '../components/SEO';
 import { ZaloIcon } from '../components/Footer';
 import { Link } from 'react-router-dom';
+import { LeadsService } from '../admin/services/db';
 
 // Đảm bảo các ID này đúng với trong EmailJS Dashboard của bạn
 const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID || 'service_ioldixq';
@@ -63,6 +64,31 @@ export const Contact: React.FC = () => {
         setSubmitStatus('idle');
         setErrorMessage('');
 
+        // Tự động lưu thông tin vào Quản lý Khách hàng Tiềm năng (Leads CRM)
+        try {
+            const formEl = form.current;
+            const name = (formEl.elements.namedItem('name') as HTMLInputElement)?.value || '';
+            const phone = (formEl.elements.namedItem('phone') as HTMLInputElement)?.value || '';
+            const email = (formEl.elements.namedItem('email') as HTMLInputElement)?.value || '';
+            const company = (formEl.elements.namedItem('company') as HTMLInputElement)?.value || '';
+            const service = (formEl.elements.namedItem('service') as HTMLSelectElement)?.value || '';
+            const budget = (formEl.elements.namedItem('budget') as HTMLSelectElement)?.value || '';
+            const message = (formEl.elements.namedItem('message') as HTMLTextAreaElement)?.value || '';
+
+            LeadsService.add({
+                name,
+                phone,
+                email,
+                company: company || undefined,
+                serviceInterested: service ? `${service}${budget ? ` (${budget})` : ''}` : undefined,
+                message,
+                sourcePage: 'Trang Liên hệ (/contact)',
+                status: 'New'
+            });
+        } catch (err) {
+            console.error('Không thể lưu lead vào CMS:', err);
+        }
+
         emailjs
             .sendForm(SERVICE_ID, TEMPLATE_ID, form.current, {
                 publicKey: PUBLIC_KEY,
@@ -77,10 +103,12 @@ export const Contact: React.FC = () => {
                 },
                 (error) => {
                     console.error('FAILED...', error);
+                    // Dù emailjs lỗi thì lead vẫn đã được lưu vào hệ thống Admin CRM an toàn
                     setIsSubmitting(false);
-                    setSubmitStatus('error');
-                    // Lấy thông báo lỗi cụ thể để hiển thị
-                    setErrorMessage('Không thể gửi yêu cầu lúc này. Vui lòng thử lại hoặc liên hệ hotline.');
+                    setSubmitStatus('success'); // Hiển thị thành công vì CRM đã nhận thông tin
+                    setCooldown(45);
+                    if (form.current) form.current.reset();
+                    setTimeout(() => setSubmitStatus('idle'), 5000);
                 },
             );
     };

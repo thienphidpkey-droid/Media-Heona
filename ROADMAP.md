@@ -1,52 +1,41 @@
-# ROADMAP - HEONA MEDIA
+﻿# ROADMAP - HEONA MEDIA
 
-Lộ trình phát triển và hoàn thiện nền tảng kỹ thuật số của HEONA MEDIA.
-
----
-
-## Giai đoạn 1: Nền tảng cốt lõi & Nhận diện (Đã hoàn thành ✅)
-- [x] Thiết lập cấu trúc dự án chuẩn với React 18, Vite, TypeScript và Tailwind CSS.
-- [x] Định hình phong cách thiết kế Deep Dark Mode, Glassmorphism, Ambient Orbs và micro-interactions.
-- [x] Tối ưu hóa trải nghiệm Mobile độc quyền: Floating Dock Menu cố định, Layout responsive theo tỷ lệ màn hình.
-- [x] Xây dựng các trang chức năng:
-  - Trang chủ (`/`)
-  - Về chúng tôi (`/about`)
-  - Dịch vụ (`/services`)
-  - Dự án tiêu biểu (`/projects`)
-  - Bảng giá minh bạch (`/pricing`)
-  - Blog & Kiến thức (`/blog`)
-  - Liên hệ trực tiếp & Tích hợp EmailJS (`/contact`)
-- [x] Tích hợp chuẩn SEO / AIO với `react-helmet-async` và JSON-LD Schema (Organization, FAQPage, LocalBusiness).
-- [x] Cấu hình tối ưu deploy Vercel với Clean URLs và caching headers.
+Lộ trình phát triển sản phẩm, các hạng mục đã hoàn thành và kế hoạch tương lai của hệ thống HEONA MEDIA.
 
 ---
 
-## Giai đoạn 2: Nâng cấp trải nghiệm & Chuyển đổi số (Q3 - Q4 / 2025 🚀)
-- [ ] **Hệ thống tính chi phí tự động (Quotation Calculator):**
-  - Cho phép khách hàng chọn loại sự kiện, quy mô khách mời, các hạng mục media để nhận ước tính báo giá tức thì.
-- [ ] **Hệ quản trị nội dung Blog nâng cao (MDX / Headless CMS):**
-  - Hỗ trợ bài viết định dạng phong phú hơn (Markdown / MDX / Strapi / Sanity), bộ lọc danh mục và tìm kiếm bài viết thời gian thực.
-- [x] **Tối ưu hóa Media & Assets:**
-  - Chuyển đổi toàn bộ hình ảnh sang định dạng WebP hiện đại, lưu trữ nội bộ tại `public/images/` (tiết kiệm 46% dung lượng).
-  - Đạt chuẩn tải nhanh và tối ưu Core Web Vitals (LCP).
-- [ ] **Tích hợp Tracking Chuyển đổi:**
-  - Cài đặt Google Tag Manager (GTM), Meta Pixel, TikTok Pixel để đo lường hiệu quả quảng cáo và tỷ lệ điền form.
+## 1. Đã hoàn thành (Completed Milestones)
+
+### Phiên bản v1.4 (15/09/2026) - Đợt Tái cấu trúc Toàn diện Admin UI/UX
+- [x] **Redesign Case Study Editor (ProjectEditor):**
+  - Chuyển đổi sang cấu trúc 2 Cột cân đối: Mục lục cố định (299px) - Vùng soạn thảo trung tâm rộng thoáng - Modal Preview toàn màn hình.
+  - Tăng độ rộng tổng thể container lên 1600px (+30% chiều ngang).
+  - Bố cục Section 03 (Giải pháp): Lưới chọn dịch vụ và textarea chiến lược nằm song song 2 cột.
+  - Bố cục Section 04 (Quy trình): Danh sách bước tiến hành hiển thị lưới 2 cột.
+  - Sửa lỗi cập nhật chỉ số KPI bằng cơ chế cập nhật mảng bất biến (Immutable State).
+  - Thêm huy hiệu cảnh báo Section 06 "★ Xuất hiện ở Trang chủ".
+- [x] **Chuẩn hóa Hệ thống Font:** Loại bỏ triệt để font Montserrat và font-mono; toàn bộ hệ thống chuyển về **Inter**.
+- [x] **Refine Dashboard & Navigation:**
+  - Bỏ thanh 6 thẻ số liệu KPI rườm rà tại Dashboard.
+  - Làm phẳng Sidebar Admin: Loại bỏ toàn bộ nhãn nhóm (NỘI DUNG, DỰ ÁN, HỆ THỐNG).
+  - Đổi tên "Leads CRM" thành "Hộp thư" và "Người dùng & Quyền" thành "Admin Roles".
+- [x] **Thu gọn Bộ lọc Dự án (ProjectList):** Chuyển từ 4 khối card cồng kềnh thành thanh pill tabs thanh lịch nằm ngang.
+
+### Phiên bản v1.3 (08/09/2026) - Tối ưu hóa SEO & Audit An toàn
+- [x] Triển khai hệ thống Schema JSON-LD đa tầng (`Organization`, `LocalBusiness`, `FAQPage`).
+- [x] Tối ưu hóa điểm số Core Web Vitals và thiết lập cấu hình Prerender 15 static routes.
+
+### Phiên bản v1.0 - v1.2 - Nền tảng Website & Quản trị Nội bộ
+- [x] Xây dựng toàn bộ 7 trang công khai cốt lõi.
+- [x] Phát triển Floating Dock Menu tối ưu ngón tay cái cho thiết bị di động.
+- [x] Tích hợp EmailJS và hệ thống lưu trữ LocalStorage DB Service.
 
 ---
 
-## Giai đoạn 3: Mở rộng tính năng & Khách hàng tương tác (2026 🔮)
-- [ ] **Video Portfolio & Case Studies tương tác:**
-  - Tích hợp video player tối ưu cho các highlight reel sự kiện và case studies xây dựng nhân hiệu (số liệu trước/sau khi triển khai).
-- [ ] **Cổng Khách Hàng (Client Portal / Booking Calendar):**
-  - Tích hợp lịch hẹn tư vấn trực tuyến (Calendly / Cal.com).
-  - Khu vực theo dõi tiến độ dự án sự kiện / quay dựng media dành cho khách hàng ký hợp đồng.
-- [ ] **Đa ngôn ngữ (Tiếng Việt & Tiếng Anh):**
-  - Tích hợp `react-i18next` để phục vụ khách hàng doanh nghiệp nước ngoài (FDI) có nhu cầu tổ chức sự kiện tại Việt Nam.
+## 2. Kế hoạch Sắp tới (Upcoming Milestones)
 
----
-
-## Giai đoạn 4: Ứng dụng AI & Tự động hóa truyền thông (Tương lai 🌟)
-- [ ] **AI Brand Diagnostic Tool:**
-  - Mini-app trắc nghiệm đánh giá sức khỏe thương hiệu cá nhân bằng AI, đưa ra gợi ý lộ trình xây dựng nhân hiệu tự động cho khách hàng.
-- [ ] **Chatbot AI Tư vấn 24/7:**
-  - Chatbot hỗ trợ giải đáp thắc mắc dịch vụ, báo giá sơ bộ và thu thập lead tự động kết nối qua Telegram / Zalo OA.
+- [ ] **Rich Text Editor Nâng cao:** Tích hợp TipTap hoặc Lexical cho phần soạn thảo nội dung bài viết chi tiết.
+- [ ] **Tích hợp Cloud Media Storage:** Hỗ trợ tải ảnh trực tiếp lên Cloudinary hoặc Cloudflare R2 khi dung lượng vượt quá giới hạn trình duyệt.
+- [ ] **Bộ kiểm thử Tự động:** Bổ sung Vitest cho unit tests và Playwright cho luồng kiểm thử E2E.
+- [ ] **Phân trang Blog Công khai:** Hỗ trợ tải thêm hoặc chia trang khi số lượng bài viết vượt quá 20 bài.
+- [ ] **Chuyển đổi Backend Linh hoạt:** Khi có yêu cầu, kích hoạt cổng Supabase / REST API thông qua tầng DB Service có sẵn.

@@ -1,65 +1,46 @@
-# DECISIONS - HEONA MEDIA (Architecture Decision Records)
+﻿# ARCHITECTURAL DECISION RECORDS (ADR) - HEONA MEDIA
 
-Tài liệu ghi lại các quyết định kiến trúc quan trọng (ADRs - Architecture Decision Records) đã được lựa chọn trong quá trình phát triển hệ thống.
-
----
-
-### ADR-001: Lựa chọn Vite + React 18 + TypeScript làm Tech Stack chính
-* **Trạng thái:** Đã chấp thuận (Accepted)
-* **Bối cảnh:** Cần xây dựng website có tốc độ phản hồi cực nhanh, hiệu ứng mượt mà, dễ bảo trì và có độ ổn định cao.
-* **Quyết định:** Sử dụng Vite (phiên bản 5) kết hợp React 18 và TypeScript thay vì Next.js hay Create React App.
-* **Lý do:**
-  - Vite cho tốc độ khởi động máy chủ và HMR (Hot Module Replacement) chỉ tính bằng mili-giây.
-  - Dự án định hướng triển khai tĩnh (Static / SPA) trên Vercel Edge, không cần hạ tầng máy chủ Node.js phức tạp chạy SSR, tiết kiệm tối đa chi phí vận hành.
-  - TypeScript đảm bảo kiểm soát chặt chẽ kiểu dữ liệu, giảm thiểu lỗi runtime.
+Tài liệu lưu trữ các quyết định kiến trúc kỹ thuật quan trọng trong quá trình phát triển sản phẩm.
 
 ---
 
-### ADR-002: Sử dụng Vanilla Tailwind CSS thay vì thư viện UI Component bên thứ ba
+### ADR-001: Khởi tạo Tech Stack với Vite + React 18 + TypeScript + Tailwind CSS
 * **Trạng thái:** Đã chấp thuận (Accepted)
-* **Bối cảnh:** Website mang phong cách sáng tạo, truyền thông và công nghệ với các hiệu ứng thị giác đặc thù (Deep Dark Mode, Glassmorphism, Ambient Orbs, Custom Micro-interactions).
-* **Quyết định:** Sử dụng Tailwind CSS thuần kết hợp CSS biến mở rộng trong `tailwind.config.js` và `index.css`, không sử dụng các UI kit đóng gói sẵn (như Ant Design, Material UI, Chakra UI).
-* **Lý do:**
-  - Các thư viện UI đóng gói sẵn thường mang phong cách văn phòng/doanh nghiệp tiêu chuẩn, khó tùy biến sâu hiệu ứng kính mờ và ánh sáng phát quang neon.
-  - Thư viện ngoài làm tăng dung lượng bundle và thời gian dựng trang.
-  - Tailwind cho phép kiểm soát 100% kích thước, khoảng cách và hành vi responsive trên từng breakpoint (`sm:`, `md:`, `lg:`).
+* **Quyết định:** Sử dụng Vite làm bundler chính, TypeScript kiểm soát kiểu dữ liệu và Tailwind CSS cho styling.
 
 ---
 
-### ADR-003: Quản lý SEO và Dữ liệu có cấu trúc Schema bằng React Helmet Async
+### ADR-002: Kiến trúc Quản trị Client-side LocalStorage DB (Zero-Infra)
 * **Trạng thái:** Đã chấp thuận (Accepted)
-* **Bối cảnh:** Website là trang SPA nhưng đòi hỏi điểm số SEO vượt trội trên Google Tìm kiếm và phải tối ưu hóa cho các công cụ trả lời AI (GEO/AIO - Perplexity, Gemini, ChatGPT).
-* **Quyết định:** Đóng gói toàn bộ logic thẻ meta và cấu trúc JSON-LD vào component dùng chung `<SEO />`, sử dụng thư viện `react-helmet-async`.
-* **Lý do:**
-  - `react-helmet-async` khắc phục triệt để các rò rỉ bộ nhớ (memory leak) và cảnh báo React 18 concurrency so với `react-helmet` truyền thống.
-  - Dễ dàng gắn các schema quan trọng (`Organization`, `WebSite`, `FAQPage`, `LocalBusiness`) trên từng trang cụ thể mà không làm gián đoạn luồng code chính.
+* **Bối cảnh:** Cần hệ thống CMS quản trị nội bộ nhanh chóng, không tốn chi phí vận hành server hay cơ sở dữ liệu cloud phức tạp trong giai đoạn khởi đầu.
+* **Quyết định:** Triển khai tầng dữ liệu trong `admin/services/db.ts` lưu trữ qua `localStorage`, trừu tượng hóa toàn bộ qua Service Class.
+* **Hệ quả:** Hoạt động độc lập, chi phí 0đ, sẵn sàng chuyển đổi sang Supabase/API bất cứ khi nào có yêu cầu.
 
 ---
 
-### ADR-004: Thiết kế Menu di động dạng Floating Dock Menu cố định
-* **Trạng thái:** Đã chấp thuận (Accepted)
-* **Bối cảnh:** Người dùng truy cập bằng điện thoại thông minh chiếm hơn 75% lưu lượng. Menu thanh trượt truyền thống (Hamburger Drawer) yêu cầu người dùng phải vươn ngón tay lên góc trên cùng màn hình.
-* **Quyết định:** Xây dựng component `<FloatingMenu />` dạng thanh dock nổi cố định ở mép dưới màn hình (`fixed bottom-4 left-1/2 -translate-x-1/2 z-[9999]`).
-* **Lý do:**
-  - Tối ưu hoàn hảo cho thao tác một tay bằng ngón cái (Thumb-zone UX).
-  - Kết hợp kính mờ Glassmorphism và viền sáng nhẹ tạo cảm giác hiện đại, tương tự trải nghiệm ứng dụng native trên iOS/Android.
+### ADR-003: Đồng bộ hóa Typography toàn hệ thống sang font Inter
+* **Trạng thái:** Đã chấp thuận (Accepted - v1.4)
+* **Bối cảnh:** Trước đây hệ thống kết hợp Montserrat cho tiêu đề và Inter cho nội dung, gây cảm giác tương phản gắt và mang hơi hướng futuristic không phù hợp với định vị Agency hiện đại, tinh gọn.
+* **Quyết định:** Loại bỏ hoàn toàn Montserrat và font-mono khỏi index.html và tailwind.config.js; chỉ sử dụng duy nhất họ font **Inter**.
 
 ---
 
-### ADR-005: Chiến lược Tải ảnh tiến trình qua ProgressiveImage
-* **Trạng thái:** Đã chấp thuận (Accepted)
-* **Bối cảnh:** Các dự án và bài viết sử dụng nhiều hình ảnh sự kiện chất lượng cao, dễ gây hiện tượng nhảy giao diện (Cumulative Layout Shift) khi mạng chập chờn.
-* **Quyết định:** Tạo component `<ProgressiveImage />` với hiệu ứng skeleton placeholder dạng shimmer và fade-in khi ảnh load xong.
-* **Lý do:**
-  - Nâng cao trải nghiệm thị giác ngay cả khi mạng chậm.
-  - Đảm bảo điểm số Core Web Vitals (đặc biệt là tiêu chí CLS) luôn đạt chuẩn xanh của Google.
+### ADR-004: Kiến trúc 2 Cột cho Case Study Editor (ProjectEditor)
+* **Trạng thái:** Đã chấp thuận (Accepted - v1.4)
+* **Bối cảnh:** Form biên tập Case Study dài và nhiều trường, người dùng khó hình dung sản phẩm thực tế khi nhập liệu.
+* **Quyết định:** Bố trí layout 2 Cột trong container `max-w-[1440px]`:
+  - Cột trái (299px sticky): Mục lục 8 phần và thanh đo tiến độ.
+  - Cột giữa (minmax(0, 1fr)): Form soạn thảo nội dung.
+  - Cột phải (300px sticky): Modal Preview toàn màn hình.
 
 ---
 
-### ADR-006: Tích hợp EmailJS gửi form liên hệ phía Client
+### ADR-005: Menu Nổi Ngón Tay Cái (Floating Dock Menu) trên Mobile
 * **Trạng thái:** Đã chấp thuận (Accepted)
-* **Bối cảnh:** Cần tiếp nhận thông tin đăng ký tư vấn và báo giá của khách hàng mà không cần dựng backend API riêng.
-* **Quyết định:** Tích hợp trực tiếp `@emailjs/browser` vào trang `<Contact />`.
-* **Lý do:**
-  - Tiết kiệm chi phí duy trì máy chủ backend.
-  - Dữ liệu liên hệ được chuyển tiếp tức thì về hòm thư điện tử của ban điều hành `heonamedia@gmail.com`.
+* **Quyết định:** Sử dụng thanh Dock kính mờ cố định sát đáy màn hình di động thay cho menu Hamburger góc trên để tối ưu ngón cái (Thumb-zone UX).
+
+---
+
+### ADR-006: Bộ lọc Dự án Dạng Pill Tabs Gọn nhẹ
+* **Trạng thái:** Đã chấp thuận (Accepted - v1.4)
+* **Quyết định:** Chuyển đổi 4 card danh mục lớn tại `ProjectList.tsx` thành các tab viên thuốc (Pill tabs) nằm ngang, tiết kiệm 70% diện tích thẳng đứng.

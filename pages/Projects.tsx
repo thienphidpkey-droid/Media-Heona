@@ -42,7 +42,7 @@ const ProjectItem: React.FC<ProjectItemProps> = ({ project, onSelect }) => {
           </h3>
         </div>
         <div>
-          <span className="text-[8px] md:text-[10px] font-mono text-secondary border border-white/10 bg-white/5 px-1.5 md:px-2.5 py-0.5 md:py-1 rounded uppercase tracking-wider whitespace-nowrap">
+          <span className="text-[9px] md:text-[11px] font-semibold text-secondary border border-white/10 bg-white/5 px-2 py-0.5 md:py-1 rounded uppercase tracking-wider whitespace-nowrap">
             {project.category}
           </span>
         </div>

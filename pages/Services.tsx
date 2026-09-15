@@ -23,7 +23,7 @@ export const Services: React.FC = () => {
       />
 
       <Section narrow>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           {services.map((service, index) => (
             <div key={service.id} className="animate-fade-in h-full flex" style={{ animationDelay: `${index * 100}ms` }}>
               <div className="w-full flex flex-col bg-[#111115]/60 backdrop-blur border border-white/5 rounded-xl overflow-hidden group hover:border-primary/50 hover:shadow-[0_0_20px_rgba(111,58,255,0.15)] transition-all duration-300 relative">
@@ -51,7 +51,7 @@ export const Services: React.FC = () => {
                   <div className="w-12 h-[1px] bg-white/10 mb-4" />
 
                   <ul className="space-y-2.5 mb-6 flex-grow">
-                    {service.features.map((feature, i) => (
+                    {(service.features || []).map((feature, i) => (
                       <li key={i} className="flex items-start gap-2.5 text-sm text-textMuted group-hover:text-textMain transition-colors">
                         <Zap size={12} className="mt-[4px] text-secondary shrink-0" />
                         <span className="leading-relaxed">{feature}</span>

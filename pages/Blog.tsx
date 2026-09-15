@@ -1,9 +1,8 @@
-
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { PageHero, Section } from '../components/Section';
 import { BlogPost } from '../types';
-import { Calendar, User, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Calendar, User, ArrowLeft, ArrowRight, Eye } from 'lucide-react';
 import { DOMAIN, SEO } from '../components/SEO';
 import { ProgressiveImage } from '../components/ProgressiveImage';
 
@@ -181,19 +180,69 @@ const formatDate = (date?: string) => {
   return new Intl.DateTimeFormat('vi-VN').format(new Date(`${date}T00:00:00+07:00`));
 };
 
+import { ArticlesService, subscribe } from '../admin/services/db';
+import { trackArticleView } from '../admin/services/viewTracker';
+
+const getCmsPosts = (): BlogPost[] => {
+  try {
+    const published = ArticlesService.getPublished();
+    if (published.length > 0) {
+      return published.map((a, idx) => ({
+        id: typeof a.id === 'number' ? a.id : idx + 100,
+        slug: a.slug,
+        tag: a.tags?.[0] || a.category,
+        title: a.title,
+        meta: a.shortDesc,
+        date: a.publishedAt || a.createdAt,
+        author: a.author,
+        image: a.thumbnail,
+        views: a.views || 0,
+        content:
+          a.content +
+          (a.ctaBlock?.enabled
+            ? `
+          <div class="mt-8 p-6 bg-gradient-to-r from-purple-900/40 to-black rounded-2xl border border-primary/30 text-white">
+            <h3 class="text-lg font-bold text-white mb-2">${a.ctaBlock.title}</h3>
+            <p class="text-sm text-textMuted mb-4">${a.ctaBlock.description}</p>
+            <a href="${a.ctaBlock.buttonUrl}" class="inline-block px-5 py-2.5 bg-primary text-black font-bold text-xs rounded-xl hover:bg-primary/90 transition-all">
+              ${a.ctaBlock.buttonText}
+            </a>
+          </div>
+        `
+            : '')
+      }));
+    }
+  } catch {}
+  return POSTS;
+};
+
 export const Blog: React.FC = () => {
   const { slug } = useParams<{ slug?: string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const [posts, setPosts] = useState<BlogPost[]>(() => getCmsPosts());
+
+  useEffect(() => {
+    const unsub = subscribe(() => {
+      setPosts(getCmsPosts());
+    });
+    return () => unsub();
+  }, []);
+
   const legacyPostId = searchParams.get('id');
-  const selectedPost = slug ? POSTS.find(post => post.slug === slug) : undefined;
-  const legacyPost = legacyPostId ? POSTS.find(post => post.id === Number(legacyPostId)) : undefined;
+  const selectedPost = slug ? posts.find((post: BlogPost) => post.slug === slug) : undefined;
+  const legacyPost = legacyPostId ? posts.find((post: BlogPost) => post.id === Number(legacyPostId)) : undefined;
 
   useEffect(() => {
     if (!slug && legacyPost) {
       navigate(`/blog/${legacyPost.slug}`, { replace: true });
     }
   }, [legacyPost, navigate, slug]);
+
+  useEffect(() => {
+    if (!selectedPost?.slug) return;
+    return trackArticleView(selectedPost.slug);
+  }, [selectedPost?.slug]);
 
   const canonicalPath = selectedPost ? `/blog/${selectedPost.slug}` : '/blog';
 
@@ -231,29 +280,12 @@ export const Blog: React.FC = () => {
       {!selectedPost && !slug ? (
         <Section narrow>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6">
-            {POSTS.map((post, index) => (
+            {posts.map((post, index) => (
             <Link
               key={post.id}
               to={`/blog/${post.slug}`}
               className="group bg-bgCard border border-borderSubtle rounded-xl overflow-hidden hover:border-primary hover:-translate-y-1 hover:shadow-[0_10px_30px_-10px_rgba(111,58,255,0.2)] transition-all duration-300 flex flex-col h-full relative"
             >
-              <div className="h-24 md:h-48 w-full overflow-hidden relative">
-                {post.image && (
-                  <ProgressiveImage
-                    src={post.image}
-                    alt={post.title}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    delay={index * 100}
-                  />
-                )}
-                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors"></div>
-                <div className="absolute top-2 md:top-3 left-2 md:left-3">
-                  <span className="text-[8px] md:text-[10px] font-bold uppercase tracking-widest text-secondary bg-black/80 border border-secondary/30 px-1.5 md:px-2 py-0.5 md:py-1 rounded backdrop-blur-md">
-                    {post.tag}
-                  </span>
-                </div>
-              </div>
-
               <div className="p-3 md:p-5 flex flex-col flex-grow relative z-10">
                 <h3 className="font-heading font-bold text-[11px] md:text-xl mb-1 md:mb-2 group-hover:text-primary transition-colors leading-snug min-h-[2.2rem] md:min-h-[3.5rem] line-clamp-2">
                   {post.title}
@@ -263,11 +295,19 @@ export const Blog: React.FC = () => {
                   {post.meta}
                 </p>
 
-                <div className="mt-auto pt-2 md:pt-3 border-t border-white/5 flex items-center justify-between text-[8px] md:text-[10px] text-textMuted/60 font-mono">
+                <div className="mt-auto pt-2 md:pt-3 border-t border-white/5 flex items-center justify-between text-[9px] md:text-[11px] text-textMuted/70 font-medium">
                   <time dateTime={post.date}>{formatDate(post.date)}</time>
-                  <span className="flex items-center gap-1 group-hover:text-primary transition-colors">
-                    Đọc thêm <ArrowRight size={10} className="md:w-3.5 md:h-3.5" />
-                  </span>
+                  <div className="flex items-center gap-2.5">
+                    {typeof post.views === 'number' && (
+                      <span className="flex items-center gap-1 text-textMuted/70" title="Lượt xem thực tế">
+                        <Eye size={11} className="md:w-3 md:h-3" />
+                        <span>{(post.views || 0).toLocaleString()}</span>
+                      </span>
+                    )}
+                    <span className="flex items-center gap-1 group-hover:text-primary transition-colors">
+                      Đọc thêm <ArrowRight size={10} className="md:w-3.5 md:h-3.5" />
+                    </span>
+                  </div>
                 </div>
               </div>
             </Link>
@@ -286,6 +326,9 @@ export const Blog: React.FC = () => {
               </span>
               <span className="flex items-center gap-1.5">
                 <User size={12} /> {selectedPost.author}
+              </span>
+              <span className="flex items-center gap-1.5 text-textMuted" title="Lượt xem thực tế">
+                <Eye size={12} className="text-primary/70" /> {(selectedPost.views || 0).toLocaleString()} lượt xem
               </span>
             </div>
               {selectedPost.image && (

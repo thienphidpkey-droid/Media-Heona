@@ -8,6 +8,7 @@ export default {
     "./components/**/*.{js,ts,jsx,tsx}",
     "./pages/**/*.{js,ts,jsx,tsx}",
     "./context/**/*.{js,ts,jsx,tsx}",
+    "./admin/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
@@ -22,9 +23,9 @@ export default {
         textMuted: '#a0a0b4',
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
-        heading: ['Montserrat', 'sans-serif'],
-        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
+        heading: ['Inter', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
+        mono: ['Inter', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
       },
       animation: {
         'fade-in': 'fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',

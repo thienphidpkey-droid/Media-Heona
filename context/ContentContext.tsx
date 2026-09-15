@@ -1,6 +1,7 @@
 
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { ContentState, Project, Service, ContactInfo, Testimonial } from '../types';
+import { ProjectsService, ServicesService, subscribe } from '../admin/services/db';
 
 const DEFAULT_PROJECTS: Project[] = [
   {
@@ -154,9 +155,41 @@ interface ContentContextType extends ContentState { }
 const ContentContext = createContext<ContentContextType | undefined>(undefined);
 
 export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [projects, setProjects] = useState<Project[]>(() => {
+    try {
+      const cmsProjects = ProjectsService.getPublished();
+      return cmsProjects.length > 0 ? cmsProjects : DEFAULT_PROJECTS;
+    } catch {
+      return DEFAULT_PROJECTS;
+    }
+  });
+
+  const [services, setServices] = useState<Service[]>(() => {
+    try {
+      const cmsServices = ServicesService.getPublished();
+      return cmsServices.length > 0 ? cmsServices : DEFAULT_SERVICES;
+    } catch {
+      return DEFAULT_SERVICES;
+    }
+  });
+
+  useEffect(() => {
+    const unsub = subscribe(() => {
+      const cmsProjects = ProjectsService.getPublished();
+      if (cmsProjects.length > 0) {
+        setProjects(cmsProjects);
+      }
+      const cmsServices = ServicesService.getPublished();
+      if (cmsServices.length > 0) {
+        setServices(cmsServices);
+      }
+    });
+    return () => unsub();
+  }, []);
+
   const value: ContentContextType = {
-    projects: DEFAULT_PROJECTS,
-    services: DEFAULT_SERVICES,
+    projects,
+    services,
     contactInfo: DEFAULT_CONTACT_INFO,
     testimonials: DEFAULT_TESTIMONIALS,
   };
